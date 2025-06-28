@@ -32,7 +32,7 @@ const RegistrationForm = () => {
     maritalStatus: "",
     empanelment: "",
     empanelmentText: "",
-    empanelType: "intimation",
+    empanelType: "",
     fatherOrHusband: "",
     doctorIncharge: "",
     refDoctor: "",
@@ -72,7 +72,7 @@ const RegistrationForm = () => {
 
   return (
     <div style={{ padding: "20px" }}>
-      <Typography variant="h4" gutterBottom>
+      <Typography variant="h4" gutterBottom align="center">
         Patient Registration Form
       </Typography>
 
@@ -331,12 +331,12 @@ const RegistrationForm = () => {
         <div className="h-0.5 bg-gray-600 mt-5"></div>
         
         {/* Address Sections */}
-        <Typography variant="h6" marginTop={2}>
+        <Typography variant="h6" marginTop={2} align="center">
           Address
         </Typography>
 
         {/* Local address */}
-        <Typography variant="subtitle1">Local Address</Typography>
+        <Typography variant="subtitle1" sx={{ textDecoration: 'underline', textUnderlineOffset: '2px' }}>Local Address</Typography>
         <Box display="grid" gridTemplateColumns="repeat(4, 1fr)" gap={2} mt={2}>
           {/* Address takes full width by spanning all 4 columns */}
           <TextField
@@ -372,7 +372,7 @@ const RegistrationForm = () => {
         </Box>
 
         {/* Permanent address */}
-        <Typography variant="subtitle1" marginTop={2}>
+        <Typography variant="subtitle1" marginTop={2} sx={{ textDecoration: 'underline', textUnderlineOffset: '2px' }}>
           Permanent Address
         </Typography>
         <FormControlLabel
