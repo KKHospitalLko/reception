@@ -1,7 +1,7 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Box } from "@mui/material";
+import.meta.env.VITE_BACKEND_URL
 import {
-  Grid,
   TextField,
   Select,
   MenuItem,
@@ -13,38 +13,64 @@ import {
   Checkbox,
   Button,
   Typography,
+  OutlinedInput,
+  Chip,
 } from "@mui/material";
+import axios from "axios";
 
 const RegistrationForm = () => {
+  const doctorOptions = [
+    "Dr. Dhirendra Pratap",
+    "Dr. Sunita Singh",
+    "Dr. Anita Singh",
+    "Dr. Sameer Beg",
+    "Dr. Rajiv Rastogi",
+    "Dr. S.N.S. Yadav",
+    "Dr. P.K. Mishra",
+    "Dr. Shilpi Sahai",
+    "Dr. Manish Tandon",
+    "Dr. Govind Pratap Singh",
+    "Dr. A.K. Srivastava",
+    "Dr. Apoorva Kumar",
+    "Dr. Lokesh Kumar",
+    "Dr. Mohammad Suhel",
+    "Dr. Vinay Kumar Gupta",
+    "Dr. B.N. Singh",
+    "Dr. Ruby Singh",
+    "Dr. Ahmad Ayaz",
+  ];
+
   // example generated fields
   const [formData, setFormData] = useState({
-    uhid: "UHID12345",
-    regNo: "REG2025001",
-    date: new Date().toLocaleDateString(),
-    time: new Date().toLocaleTimeString(),
     title: "",
     name: "",
-    age: "",
     gender: "",
     phone: "",
+    // date: new Date().toLocaleDateString(),
+    // time: new Date().toLocaleTimeString(),
+    age: "",
+    empanelment: "other",
+    empanelmentText: "",
     bloodGroup: "",
     religion: "",
-    maritalStatus: "",
-    empanelment: "",
-    empanelmentText: "",
     empanelType: "",
+    maritalStatus: "",
     fatherOrHusband: "",
-    doctorIncharge: "",
-    refDoctor: "",
-    telephone: "",
+    doctorIncharge: [],
     regAmount: "",
-    purpose: "",
-    notes: "",
+    // refDoctor: "",
+    // telephone: "",
+    // purpose: "",
+    // notes: "",
     localAddress: "",
     localCity: "",
+    localState: "",
+    localCountry: "",
     localZip: "",
     permanentAddress: "",
     permanentCity: "",
+    permanentState: "",
+    permanentCountry: "",
     permanentZip: "",
     sameAsLocal: false,
   });
@@ -57,6 +83,8 @@ const RegistrationForm = () => {
       sameAsLocal: checked,
       permanentAddress: checked ? prev.localAddress : "",
       permanentCity: checked ? prev.localCity : "",
+      permanentState: checked ? prev.localState : "",
+      permanentCountry: checked ? prev.localCountry : "",
       permanentZip: checked ? prev.localZip : "",
     }));
   };
@@ -66,19 +94,68 @@ const RegistrationForm = () => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = () => {
-    console.log("Submitted Data:", formData);
-  };
+  const handleSubmit = async () => {
+  try {
+    const payload = {
+      title: formData.title,
+      fullname: formData.name,
+      sex: formData.gender,
+      mobile: formData.phone || 0,
+      dateofreg: "",
+      time: "",
+      age: formData.age || 0,
+      empanelment: formData.empanelment,
+      bloodGroup: formData.bloodGroup,
+      religion: formData.religion,
+      intimationOrExtension: formData.empanelType,
+      maritalStatus: formData.maritalStatus,
+      fatherHusband: formData.fatherOrHusband,
+      doctorIncharge: formData.doctorIncharge,
+      regAmount: formData.regAmount || 0,
+      localAddress: {
+        address: formData.localAddress,
+        city: formData.localCity,
+        state: formData.localState,
+        country: formData.localCountry,
+        zip: formData.localZip || 0
+      },
+      permanentAddress: {
+        address: formData.permanentAddress,
+        city: formData.permanentCity,
+        state: formData.permanentState,
+        country: formData.permanentCountry,
+        zip: formData.permanentZip || 0
+      }
+    };
+
+    const backendUrl = import.meta.env.VITE_BACKEND_URL;
+    const response = await axios.post(backendUrl+"/patient", payload);
+
+    alert("Form submitted successfully!");
+    console.log("Response from server:", response.data);
+
+  } catch (error) {
+    console.error("Error submitting form:", error);
+    alert("Something went wrong!");
+  }
+};
+
+
 
   return (
     <div style={{ padding: "20px" }}>
-      <Typography variant="h4" gutterBottom align="center">
+      <Typography
+        variant="h4"
+        gutterBottom
+        align="center"
+        className="bg-[#5fc1b2] text-white p-3 rounded-lg shadow-md"
+      >
         Patient Registration Form
       </Typography>
 
       <div className="w-full mx-auto bg-white p-6 rounded-lg shadow-md">
         {/* Row 1 */}
-        <Box display="grid" gridTemplateColumns="repeat(4, 1fr)" gap={2}>
+        {/* <Box display="grid" gridTemplateColumns="repeat(4, 1fr)" gap={2}>
           <TextField label="UHID" value={formData.uhid} disabled fullWidth />
           <TextField
             label="Reg No."
@@ -88,7 +165,7 @@ const RegistrationForm = () => {
           />
           <TextField label="Date" value={formData.date} disabled fullWidth />
           <TextField label="Time" value={formData.time} disabled fullWidth />
-        </Box>
+        </Box> */}
 
         {/* Row 2 */}
         <Box
@@ -106,9 +183,9 @@ const RegistrationForm = () => {
               onChange={handleChange}
             >
               <MenuItem value="Mr.">Mr.</MenuItem>
-              <MenuItem value="Miss">Ms.</MenuItem>
+              <MenuItem value="Ms.">Ms.</MenuItem>
               <MenuItem value="Mrs.">Mrs.</MenuItem>
-              <MenuItem value="Mrs.">Baby</MenuItem>
+              <MenuItem value="Baby">Baby</MenuItem>
             </Select>
           </FormControl>
 
@@ -161,9 +238,13 @@ const RegistrationForm = () => {
               onChange={handleChange}
             >
               <MenuItem value="A+">A+</MenuItem>
+              <MenuItem value="A+">A-</MenuItem>
               <MenuItem value="B+">B+</MenuItem>
+              <MenuItem value="B+">B-</MenuItem>
               <MenuItem value="O+">O+</MenuItem>
+              <MenuItem value="O+">O-</MenuItem>
               <MenuItem value="AB+">AB+</MenuItem>
+              <MenuItem value="AB+">AB-</MenuItem>
             </Select>
           </FormControl>
           <FormControl fullWidth>
@@ -197,7 +278,7 @@ const RegistrationForm = () => {
         {/* Row 4 */}
         <Box
           display="grid"
-          gridTemplateColumns="0.3fr 0.3fr 0.3fr"
+          gridTemplateColumns="1fr 1fr 1fr 1fr"
           gap={2}
           mt={2}
         >
@@ -215,9 +296,19 @@ const RegistrationForm = () => {
                 }));
               }}
             >
-              <MenuItem value="Govt">Govt</MenuItem>
+              <MenuItem value="ECHS">ECHS</MenuItem>
+              <MenuItem value="ESIC">ESIC</MenuItem>
+              <MenuItem value="CGHS">CGHS</MenuItem>
+              <MenuItem value="NR">NR</MenuItem>
+              <MenuItem value="NER">NER</MenuItem>
+              <MenuItem value="RDSO">RDSO</MenuItem>
+              <MenuItem value="Rail Coach">Rail Coach</MenuItem>
+              <MenuItem value="Insurance">Insurance</MenuItem>
+              <MenuItem value="UP Police">UP Police</MenuItem>
+              <MenuItem value="Ayushman Bharat">Ayushman Bharat</MenuItem>
+              <MenuItem value="DDU">DDU</MenuItem>
+              <MenuItem value="CMRF">CMRF</MenuItem>
               <MenuItem value="Private">Private</MenuItem>
-              <MenuItem value="Other">Other</MenuItem>
             </Select>
           </FormControl>
 
@@ -249,14 +340,20 @@ const RegistrationForm = () => {
             </RadioGroup>
           </FormControl>
 
-          {/* empty slot to fill the fourth column */}
+          <TextField
+            label="Registration Amount"
+            name="regAmount"
+            value={formData.regAmount}
+            onChange={handleChange}
+            fullWidth
+          />
           <div />
         </Box>
 
         {/* Row 5 */}
         <Box display="grid" gridTemplateColumns="repeat(2, 1fr)" gap={2}>
           <TextField
-            label="Father / Husband Name"
+            label="Father's / Husband's Name"
             name="fatherOrHusband"
             value={formData.fatherOrHusband}
             onChange={handleChange}
@@ -264,23 +361,32 @@ const RegistrationForm = () => {
           />
 
           <FormControl fullWidth>
-            <InputLabel>Doctor Incharge</InputLabel>
+            <InputLabel>Consulting Doctor(s) Incharge</InputLabel>
             <Select
+              multiple
               name="doctorIncharge"
               value={formData.doctorIncharge}
-              label="Doctor Incharge"
               onChange={handleChange}
+              input={<OutlinedInput label="Consulting Doctor(s) Incharge" />}
+              renderValue={(selected) => (
+                <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
+                  {selected.map((value) => (
+                    <Chip key={value} label={value} />
+                  ))}
+                </Box>
+              )}
             >
-              <MenuItem value="Dr. A">Dr. A</MenuItem>
-              <MenuItem value="Dr. B">Dr. B</MenuItem>
-              <MenuItem value="Dr. C">Dr. C</MenuItem>
+              {doctorOptions.map((doc) => (
+                <MenuItem key={doc} value={doc}>
+                  {doc}
+                </MenuItem>
+              ))}
             </Select>
           </FormControl>
         </Box>
 
         {/* Row 6 */}
-        <Box display="grid" gridTemplateColumns="repeat(4, 1fr)" gap={2} mt={2}>
-          {/* Reference Doctor Name takes 2 columns */}
+        {/* <Box display="grid" gridTemplateColumns="repeat(4, 1fr)" gap={2} mt={2}>
           <TextField
             label="Reference Doctor Name"
             name="refDoctor"
@@ -290,7 +396,6 @@ const RegistrationForm = () => {
             sx={{ gridColumn: "span 2" }}
           />
 
-          {/* Telephone takes 1 column */}
           <TextField
             label="Telephone"
             name="telephone"
@@ -299,18 +404,17 @@ const RegistrationForm = () => {
             fullWidth
           />
 
-          {/* Reg Amount takes 1 column */}
           <TextField
-            label="Reg Amount"
+            label="Registration Amount"
             name="regAmount"
             value={formData.regAmount}
             onChange={handleChange}
             fullWidth
           />
-        </Box>
+        </Box> */}
 
         {/* Row 7 */}
-        <Box display="grid" gridTemplateColumns="repeat(2, 1fr)" gap={2} mt={2}>
+        {/* <Box display="grid" gridTemplateColumns="repeat(2, 1fr)" gap={2} mt={2}>
           <TextField
             label="Purpose of Visit"
             name="purpose"
@@ -326,17 +430,29 @@ const RegistrationForm = () => {
             onChange={handleChange}
             fullWidth
           />
-        </Box>
+        </Box> */}
 
-        <div className="h-0.5 bg-gray-600 mt-5"></div>
-        
+        {/* <div className="h-0.5 bg-[#5fc1b2] mt-5"></div> */}
+
         {/* Address Sections */}
-        <Typography variant="h6" marginTop={2} align="center">
-          Address
-        </Typography>
+        <div className="flex justify-center w-full">
+          <Typography
+            variant="h6"
+            marginTop={8}
+            marginBottom={1}
+            className="bg-[#5fc1b2] text-white p-1 rounded-lg shadow-md mt-2 text-center w-[20%]"
+          >
+            Address
+          </Typography>
+        </div>
 
         {/* Local address */}
-        <Typography variant="subtitle1" sx={{ textDecoration: 'underline', textUnderlineOffset: '2px' }}>Local Address</Typography>
+        <Typography
+          variant="subtitle1"
+          sx={{ textDecoration: "underline", textUnderlineOffset: "2px" }}
+        >
+          Local Address
+        </Typography>
         <Box display="grid" gridTemplateColumns="repeat(4, 1fr)" gap={2} mt={2}>
           {/* Address takes full width by spanning all 4 columns */}
           <TextField
@@ -357,7 +473,22 @@ const RegistrationForm = () => {
             fullWidth
           />
 
-          {/* ZIP 1/4 */}
+          <TextField
+            label="State"
+            name="localState"
+            value={formData.localState}
+            onChange={handleChange}
+            fullWidth
+          />
+
+          <TextField
+            label="Country"
+            name="localCountry"
+            value={formData.localCountry}
+            onChange={handleChange}
+            fullWidth
+          />
+
           <TextField
             label="ZIP"
             name="localZip"
@@ -365,14 +496,16 @@ const RegistrationForm = () => {
             onChange={handleChange}
             fullWidth
           />
-
-          {/* 2 empty slots to balance the second row */}
           <div />
           <div />
         </Box>
 
         {/* Permanent address */}
-        <Typography variant="subtitle1" marginTop={2} sx={{ textDecoration: 'underline', textUnderlineOffset: '2px' }}>
+        <Typography
+          variant="subtitle1"
+          marginTop={2}
+          sx={{ textDecoration: "underline", textUnderlineOffset: "2px" }}
+        >
           Permanent Address
         </Typography>
         <FormControlLabel
@@ -406,6 +539,23 @@ const RegistrationForm = () => {
           />
 
           {/* ZIP 1/4 */}
+
+          <TextField
+            label="State"
+            name="permanentState"
+            value={formData.permanentState}
+            onChange={handleChange}
+            fullWidth
+          />
+
+          <TextField
+            label="Country"
+            name="permanentCountry"
+            value={formData.permanentCountry}
+            onChange={handleChange}
+            fullWidth
+          />
+
           <TextField
             label="ZIP"
             name="permanentZip"
@@ -414,7 +564,6 @@ const RegistrationForm = () => {
             fullWidth
           />
 
-          {/* 2 empty columns to fill row */}
           <div />
           <div />
         </Box>
@@ -422,9 +571,14 @@ const RegistrationForm = () => {
         {/* Submit */}
         <Button
           variant="contained"
-          color="primary"
-          sx={{ mt: 3 }}
           onClick={handleSubmit}
+          sx={{
+            mt: 3,
+            backgroundColor: "#5fc1b2",
+            "&:hover": {
+              backgroundColor: "#4da99f",
+            },
+          }}
         >
           Submit
         </Button>
