@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import.meta.env.VITE_BACKEND_URL;
+import InputAdornment from "@mui/material/InputAdornment";
 import {
   TextField,
   Select,
@@ -394,6 +395,11 @@ const RegistrationForm = () => {
             value={formData.regAmount}
             onChange={handleChange}
             fullWidth
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">₹</InputAdornment>
+              ),
+            }}
           />
           <div />
         </Box>
