@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { Box } from "@mui/material";
-import.meta.env.VITE_BACKEND_URL
+import { useNavigate } from "react-router-dom";
+import.meta.env.VITE_BACKEND_URL;
 import {
   TextField,
   Select,
@@ -15,10 +15,28 @@ import {
   Typography,
   OutlinedInput,
   Chip,
+  Box,
 } from "@mui/material";
 import axios from "axios";
 
 const RegistrationForm = () => {
+  const backendUrl = import.meta.env.VITE_BACKEND_URL;
+
+  const [searchId, setSearchId] = useState("");
+
+  const navigate = useNavigate();
+
+  const handleUHIDSearch = () => {
+    if (!searchId) {
+      alert("Enter patient ID or number");
+      return;
+    }
+    // navigate to patient details page
+    navigate(`/patient/${searchId}`);
+  };
+
+  // const [patientData, setPatientData] = useState(null);
+
   const doctorOptions = [
     "Dr. Dhirendra Pratap",
     "Dr. Sunita Singh",
@@ -95,52 +113,60 @@ const RegistrationForm = () => {
   };
 
   const handleSubmit = async () => {
-  try {
-    const payload = {
-      title: formData.title,
-      fullname: formData.name,
-      sex: formData.gender,
-      mobile: formData.phone || 0,
-      dateofreg: "",
-      time: "",
-      age: formData.age || 0,
-      empanelment: formData.empanelment,
-      bloodGroup: formData.bloodGroup,
-      religion: formData.religion,
-      intimationOrExtension: formData.empanelType,
-      maritalStatus: formData.maritalStatus,
-      fatherHusband: formData.fatherOrHusband,
-      doctorIncharge: formData.doctorIncharge,
-      regAmount: formData.regAmount || 0,
-      localAddress: {
-        address: formData.localAddress,
-        city: formData.localCity,
-        state: formData.localState,
-        country: formData.localCountry,
-        zip: formData.localZip || 0
-      },
-      permanentAddress: {
-        address: formData.permanentAddress,
-        city: formData.permanentCity,
-        state: formData.permanentState,
-        country: formData.permanentCountry,
-        zip: formData.permanentZip || 0
+    try {
+      const payload = {
+        title: formData.title,
+        fullname: formData.name,
+        sex: formData.gender,
+        mobile: formData.phone || 0,
+        dateofreg: "",
+        time: "",
+        age: formData.age || 0,
+        empanelment: formData.empanelment,
+        bloodGroup: formData.bloodGroup,
+        religion: formData.religion,
+        intimationOrExtension: formData.empanelType,
+        maritalStatus: formData.maritalStatus,
+        fatherHusband: formData.fatherOrHusband,
+        doctorIncharge: formData.doctorIncharge,
+        regAmount: formData.regAmount || 0,
+        localAddress: {
+          address: formData.localAddress,
+          city: formData.localCity,
+          state: formData.localState,
+          country: formData.localCountry,
+          zip: formData.localZip || 0,
+        },
+        permanentAddress: {
+          address: formData.permanentAddress,
+          city: formData.permanentCity,
+          state: formData.permanentState,
+          country: formData.permanentCountry,
+          zip: formData.permanentZip || 0,
+        },
+      };
+
+      const response = await axios.post(backendUrl + "/patient", payload);
+      const savedPatient = response.data;
+
+      alert(
+        `Patient saved successfully!\n\n` +
+          `UHID: ${savedPatient.uhid}\n` +
+          `Name: ${savedPatient.fullname}\n` +
+          `Reg No: ${savedPatient.regno}\n` +
+          `Mobile: ${savedPatient.mobile}`
+      );
+
+      console.log("Response from server:", response.data);
+    } catch (error) {
+      if (error.response.status === 400) {
+        alert(error.response.data.detail || "Failed to save patient data");
+      } else {
+        console.error("Error submitting form:", error);
+        alert("Something went wrong!");
       }
-    };
-
-    const backendUrl = import.meta.env.VITE_BACKEND_URL;
-    const response = await axios.post(backendUrl+"/patient", payload);
-
-    alert("Form submitted successfully!");
-    console.log("Response from server:", response.data);
-
-  } catch (error) {
-    console.error("Error submitting form:", error);
-    alert("Something went wrong!");
-  }
-};
-
-
+    }
+  };
 
   return (
     <div style={{ padding: "20px" }}>
@@ -152,6 +178,28 @@ const RegistrationForm = () => {
       >
         Patient Registration Form
       </Typography>
+
+      <Box display="flex" justifyContent="end" mt={2} mr={2}>
+        <Box display="flex" gap={2} mt={2}>
+          <TextField
+            label="Patient ID or Number"
+            value={searchId}
+            onChange={(e) => setSearchId(e.target.value)}
+          />
+          <Button
+            variant="contained"
+            onClick={handleUHIDSearch}
+            sx={{
+              backgroundColor: "#5fc1b2",
+              "&:hover": {
+                backgroundColor: "#4da99f",
+              },
+            }}
+          >
+            Search
+          </Button>
+        </Box>
+      </Box>
 
       <div className="w-full mx-auto bg-white p-6 rounded-lg shadow-md">
         {/* Row 1 */}
