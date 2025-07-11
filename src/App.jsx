@@ -9,6 +9,7 @@ export default function App() {
       <Button variant="outlined" component={Link} to="/bill">Bill</Button>
       <Button variant="outlined" component={Link} to="/receipt">Receipt</Button>
       <Button variant="outlined" component={Link} to="/registration">Registration</Button>
+      <Button variant="outlined" component={Link} to="/bedManagement">Bed Allotment</Button>
     </div>
   </div>
   );

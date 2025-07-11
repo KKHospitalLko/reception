@@ -22,7 +22,7 @@ const PatientPage = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await axios.get(`${backendUrl}/patient/${id}`);
+        const res = await axios.get(`${backendUrl}/patient/${id}`); 
         setData(res.data); // you said it's an array of forms
         setLoading(false);
       } catch (err) {
