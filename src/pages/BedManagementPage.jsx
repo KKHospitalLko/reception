@@ -1,4 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
 import {
   Box,
   Button,
@@ -12,92 +14,241 @@ import {
   TableHead,
   TableRow,
   Paper,
+  Backdrop,
+  CircularProgress,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Snackbar,
+  Alert,
 } from "@mui/material";
-
-const departments = [
-  "Emergency",
-  "ICU",
-  "NICU",
-  "HDU",
-  "Dialysis",
-  "Male Ward",
-  "Female Ward",
-  "General Ward",
-  "General Ward (AC)",
-  "Post-Op",
-  "1st Floor Private",
-  "1st Floor Semi Private",
-  "2nd Floor Semi Private",
-  "2nd Floor Private",
-];
-
-const bedNumbers = {
-  "Emergency": ["E-1", "E-2", "E-3", "E-4", "E-5", "E-6", "E-7", "E-8", "E-9"],
-  "Dialysis": ["D-1", "D-2", "D-3", "D-4", "D-5"],
-  "1st Floor Private": ["P1-102", "P1-103", "P1-104", "P1-105", "P1-106 (Reserved)", "P1-107", "P1-108", "P1-109", "P1-110"],
-  "1st Floor Semi Private": ["SP1-111 A", "SP1-111 B", "SP1-112 A", "SP1-112 B", "SP1-113 A", "SP1-113 B"],
-  "NICU": ["NICU-1", "NICU-2", "NICU-3", "NICU-4", "NICU-5", "NICU-6", "NICU-7", "NICU-8"],
-  "2nd Floor Semi Private": ["SP2-201 A", "SP2-201 B", "SP2-202 A", "SP2-202 B", "SP2-203", "SP2-204", "SP2-205 A", "SP2-205 B", "SP2-211 A", "SP2-211 B", "SP2-212 A", "SP2-212 B", "SP2-213 A", "SP2-213 B", "SP2-214 A", "SP2-214 B", "SP2-215 A", "SP2-215 B", "SP2-216 A", "SP2-216 B"],
-  "General Ward": ["GW-206", "GW-207", "GW-208", "GW-209", "GW-210"],
-  "General Ward (AC)": ["GWA-220", "GWA-221", "GWA-222", "GWA-223"],
-  "2nd Floor Private": ["P2-217", "P2-218", "P2-219"],
-  "ICU": ["ICU-1", "ICU-2", "ICU-3", "ICU-4", "ICU-5", "ICU-6", "ICU-7", "ICU-8", "ICU-9"],
-  "Post-Op": ["PO-1", "PO-2", "PO-3", "PO-4", "PO-5", "PO-6", "PO-7", "PO-8"],
-  "HDU": ["HDU-301", "HDU-302", "HDU-303", "HDU-304", "HDU-305", "HDU-306", "HDU-307", "HDU-308"],
-  "Female Ward": ["FW-1", "FW-2", "FW-3", "FW-4", "FW-5", "FW-6", "FW-7", "FW-8"],
-  "Male Ward": ["MW-10", "MW-11", "MW-12", "MW-13", "MW-14", "MW-15", "MW-16", "MW-17"],
-};
-
-
+import HomeIcon from "@mui/icons-material/Home";
 
 export default function BedAllocationPage() {
   const [uhid, setUhid] = useState("");
   const [name, setName] = useState("");
   const [department, setDepartment] = useState("");
   const [bed, setBed] = useState("");
-  const [allotments, setAllotments] = useState([]);
+  const [bedData, setBedData] = useState({}); // { department: [beds] }
+  const [allottedBeds, setAllottedBeds] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [filterDepartment, setFilterDepartment] = useState("");
+  const [shiftModalOpen, setShiftModalOpen] = useState(false);
+  const [shiftForm, setShiftForm] = useState({
+    uhid: "",
+    patient_name: "",
+    department: "",
+    bed_number: "",
+  });
+
+  const navigate = useNavigate();
+
+  // Toast state
+  const [toast, setToast] = useState({
+    open: false,
+    message: "",
+    severity: "success", // 'success' | 'error' | 'warning' | 'info'
+  });
+
+  const showToast = (message, severity = "success") => {
+    setToast({ open: true, message, severity });
+  };
+
+  const handleToastClose = (_, reason) => {
+    if (reason === "clickaway") return;
+    setToast((prev) => ({ ...prev, open: false }));
+  };
+
+  const backendUrl = import.meta.env.VITE_BACKEND_URL;
+
+  const fetchAvailableBeds = () => {
+    axios
+      .get(`${backendUrl}/beds/available`)
+      .then((res) => {
+        setBedData(res.data.available_beds);
+      })
+      .catch((err) => {
+        console.error("Error fetching bed data:", err);
+      });
+  };
+
+  // Fetch departments and beds
+  useEffect(() => {
+    axios
+      .get(`${backendUrl}/beds/available`)
+      .then((res) => {
+        setBedData(res.data.available_beds);
+        // console.log("Available beds data:", res.data.available_beds);
+      })
+      .catch((err) => {
+        console.error("Error fetching bed data:", err);
+      });
+
+    fetchAvailableBeds();
+    loadAllottedBeds();
+  }, []);
+
+  const loadAllottedBeds = () => {
+    axios
+      .get(`${backendUrl}/beds`)
+      .then((res) => {
+        setAllottedBeds(res.data);
+      })
+      .catch((err) => {
+        console.error("Error fetching allotted beds:", err);
+      });
+  };
 
   const handleAdd = () => {
     if (!uhid || !name || !department || !bed) {
-      alert("Please fill all fields");
+      showToast("Please fill all fields", "warning");
       return;
     }
-    setAllotments((prev) => [
-      ...prev,
-      { uhid, name, department, bed }
-    ]);
-    // clear fields
-    setUhid("");
-    setName("");
-    setDepartment("");
-    setBed("");
+
+    const payload = {
+      uhid,
+      patient_name: name,
+      department,
+      bed_number: bed,
+    };
+
+    setLoading(true);
+
+    axios
+      .post(`${backendUrl}/bed_allotment`, payload)
+      .then(() => {
+        loadAllottedBeds();
+        fetchAvailableBeds();
+        setUhid("");
+        setName("");
+        setDepartment("");
+        setBed("");
+        showToast("Bed successfully allotted", "success");
+      })
+      .catch((err) => {
+        console.error("Error allotting bed:", err);
+        if (err.response && err.response.status === 403) {
+          showToast(err.response.data?.detail || "Permission denied.", "error");
+        } else {
+          showToast("Failed to allot bed. Please try again.", "error");
+        }
+      })
+      .finally(() => {
+        setLoading(false);
+      });
   };
 
-  const handleClear = (index) => {
-    const updated = [...allotments];
-    updated.splice(index, 1);
-    setAllotments(updated);
+  const handleRemoveBed = (bedNumber) => {
+    const confirm = window.confirm(
+      `Are you sure you want to remove patient from bed ${bedNumber}?`
+    );
+    if (!confirm) return;
+
+    setLoading(true);
+    axios
+      .delete(`${backendUrl}/bed/${bedNumber}`)
+      .then(() => {
+        loadAllottedBeds(); // refresh table
+        fetchAvailableBeds();
+        showToast(`Patient removed from bed ${bedNumber}`, "success");
+      })
+      .catch((err) => {
+        console.error("Error removing patient:", err);
+        showToast("Failed to remove patient.", "error");
+      })
+      .finally(() => {
+        setLoading(false);
+      });
   };
 
-  const handleChangeBed = (index) => {
-    const newBed = prompt("Enter new bed number:");
-    if (newBed) {
-      setAllotments((prev) =>
-        prev.map((a, i) =>
-          i === index ? { ...a, bed: newBed } : a
-        )
-      );
+  const handleChangeBed = (patient) => {
+    setShiftForm({
+      uhid: patient.uhid,
+      patient_name: patient.patient_name,
+      department: "",
+      bed_number: "",
+    });
+    setShiftModalOpen(true);
+  };
+
+  const handleShiftSubmit = () => {
+    const { uhid, patient_name, department, bed_number } = shiftForm;
+
+    if (!department || !bed_number) {
+      showToast("Please select department and bed number", "warning");
+      return;
     }
+
+    setLoading(true);
+
+    axios
+      .put(`${backendUrl}/bed/shift`, {
+        uhid,
+        patient_name,
+        department,
+        bed_number,
+      })
+      .then(() => {
+        setShiftModalOpen(false);
+        setShiftForm({
+          uhid: "",
+          patient_name: "",
+          department: "",
+          bed_number: "",
+        });
+        loadAllottedBeds();
+        fetchAvailableBeds();
+        showToast("Patient successfully shifted", "success");
+      })
+      .catch((err) => {
+        console.error("Error shifting patient:", err);
+        showToast("Failed to shift patient.", "error");
+      })
+      .finally(() => {
+        setLoading(false);
+      });
   };
+
+  const handleGoHome = () => {
+    navigate("/");
+  };
+
+  const departments = Object.keys(bedData);
+  const availableBeds = bedData[department] || [];
+
+  // Filter only occupied beds
+  const occupiedBeds = allottedBeds.filter((b) => b.status === "occupied");
+
+  // Then filter by selected department
+  const filteredBeds = filterDepartment
+    ? occupiedBeds.filter((b) => b.department === filterDepartment)
+    : occupiedBeds;
 
   return (
     <Box p={4}>
+      {/* Loading spinner */}
+      <Backdrop open={loading} sx={{ color: "#fff", zIndex: 9999 }}>
+        <CircularProgress color="inherit" />
+      </Backdrop>
+
       <Typography variant="h4" mb={2}>
         Bed Allocation
       </Typography>
+      <Button
+        variant="contained"
+        color="primary"
+        onClick={handleGoHome}
+        startIcon={<HomeIcon />}
+        sx={{ mb: 2, backgroundColor: "#5fc1b2", "&:hover": { backgroundColor: "#4da99f" } }}
+      >
+        Home
+      </Button>
+
+      {/* Form */}
       <Paper sx={{ p: 2, mb: 3 }}>
         <Grid container spacing={2}>
-          <Grid item xs={12} md={3}>
+          <Grid item width={"28%"}>
             <TextField
               label="UHID"
               value={uhid}
@@ -105,7 +256,7 @@ export default function BedAllocationPage() {
               fullWidth
             />
           </Grid>
-          <Grid item xs={12} md={3}>
+          <Grid item width={"70%"}>
             <TextField
               label="Patient Name"
               value={name}
@@ -113,14 +264,23 @@ export default function BedAllocationPage() {
               fullWidth
             />
           </Grid>
-          <Grid item xs={12} md={3}>
+          <Grid item width={"25%"}>
             <TextField
               select
               label="Department"
               value={department}
               onChange={(e) => {
-                setDepartment(e.target.value);
+                const selectedDept = e.target.value;
+                setDepartment(selectedDept);
                 setBed(""); // reset bed on dept change
+
+                // Alert if no beds in this department
+                if (
+                  bedData[selectedDept] &&
+                  bedData[selectedDept].length === 0
+                ) {
+                  alert(`${selectedDept} has no beds available.`);
+                }
               }}
               fullWidth
             >
@@ -131,7 +291,7 @@ export default function BedAllocationPage() {
               ))}
             </TextField>
           </Grid>
-          <Grid item xs={12} md={3}>
+          <Grid item width={"25%"}>
             <TextField
               select
               label="Bed Number"
@@ -140,60 +300,112 @@ export default function BedAllocationPage() {
               fullWidth
               disabled={!department}
             >
-              {(bedNumbers[department] || []).map((b) => (
+              {availableBeds.map((b) => (
                 <MenuItem key={b} value={b}>
                   {b}
                 </MenuItem>
               ))}
             </TextField>
           </Grid>
+          <Grid item width={"20%"} display="flex" alignItems="end">
+            <Button
+              variant="contained"
+              onClick={handleAdd}
+              disabled={loading}
+              sx={{
+                backgroundColor: "#5fc1b2",
+                "&:hover": { backgroundColor: "#4da99f" },
+              }}
+            >
+              {loading ? "Allotting..." : "Allot Bed"}
+            </Button>
+          </Grid>
         </Grid>
-        <Box mt={2}>
-          <Button variant="contained" onClick={handleAdd}>
-            Allot Bed
-          </Button>
-        </Box>
       </Paper>
 
-      <Typography variant="h5" mb={1}>
-        Allotted Beds
-      </Typography>
-      {allotments.length === 0 ? (
-        <Typography>No beds allotted yet.</Typography>
+      {/* Table Filter */}
+      <Grid container spacing={2} alignItems="center" mb={1}>
+        <Grid item width={"30%"} mb={3}>
+          <TextField
+            select
+            label="Filter by Department"
+            value={filterDepartment}
+            onChange={(e) => setFilterDepartment(e.target.value)}
+            fullWidth
+          >
+            <MenuItem value="">All Departments</MenuItem>
+            {departments.map((dep) => (
+              <MenuItem key={dep} value={dep}>
+                {dep}
+              </MenuItem>
+            ))}
+          </TextField>
+        </Grid>
+      </Grid>
+
+      {/* Table */}
+      {filteredBeds.length === 0 ? (
+        <Typography>No occupied beds yet.</Typography>
       ) : (
         <Table>
           <TableHead>
-            <TableRow>
-              <TableCell>UHID</TableCell>
-              <TableCell>Patient Name</TableCell>
-              <TableCell>Department</TableCell>
-              <TableCell>Bed Number</TableCell>
-              <TableCell>Actions</TableCell>
+            <TableRow sx={{ backgroundColor: "#5fc1b2" }}>
+              <TableCell
+                sx={{ fontWeight: "bold", fontSize: "1rem", color: "#fff" }}
+              >
+                UHID
+              </TableCell>
+              <TableCell
+                sx={{ fontWeight: "bold", fontSize: "1rem", color: "#fff" }}
+              >
+                Patient Name
+              </TableCell>
+              <TableCell
+                sx={{ fontWeight: "bold", fontSize: "1rem", color: "#fff" }}
+              >
+                Department
+              </TableCell>
+              <TableCell
+                sx={{ fontWeight: "bold", fontSize: "1rem", color: "#fff" }}
+              >
+                Bed Number
+              </TableCell>
+              <TableCell
+                sx={{ fontWeight: "bold", fontSize: "1rem", color: "#fff" }}
+              >
+                Actions
+              </TableCell>
             </TableRow>
           </TableHead>
+
           <TableBody>
-            {allotments.map((a, index) => (
-              <TableRow key={index}>
+            {filteredBeds.map((a, index) => (
+              <TableRow
+                key={a.bed_id}
+                sx={{
+                  backgroundColor: index % 2 === 0 ? "#ffffff" : "#dcf3ec",
+                }}
+              >
                 <TableCell>{a.uhid}</TableCell>
-                <TableCell>{a.name}</TableCell>
+                <TableCell>{a.patient_name}</TableCell>
                 <TableCell>{a.department}</TableCell>
-                <TableCell>{a.bed}</TableCell>
+                <TableCell>{a.bed_number}</TableCell>
                 <TableCell>
                   <Button
-                    variant="outlined"
+                    variant="contained"
                     size="small"
                     color="error"
-                    onClick={() => handleClear(index)}
+                    onClick={() => handleRemoveBed(a.bed_number)}
                   >
-                    Clear
+                    Remove
                   </Button>
                   <Button
-                    variant="outlined"
+                    variant="contained"
                     size="small"
-                    onClick={() => handleChangeBed(index)}
                     sx={{ ml: 1 }}
+                    onClick={() => handleChangeBed(a)}
                   >
-                    Change Bed
+                    Shift Patient
                   </Button>
                 </TableCell>
               </TableRow>
@@ -201,6 +413,104 @@ export default function BedAllocationPage() {
           </TableBody>
         </Table>
       )}
+      <Dialog
+        open={shiftModalOpen}
+        onClose={() => setShiftModalOpen(false)}
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle>Shift Patient</DialogTitle>
+        <DialogContent>
+          <Grid container spacing={2} mt={1}>
+            <Grid item xs={12} md={6}>
+              <TextField
+                label="UHID"
+                value={shiftForm.uhid}
+                fullWidth
+                disabled
+              />
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <TextField
+                label="Patient Name"
+                value={shiftForm.patient_name}
+                fullWidth
+                disabled
+              />
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <TextField
+                select
+                label="New Department"
+                value={shiftForm.department}
+                onChange={(e) =>
+                  setShiftForm((prev) => ({
+                    ...prev,
+                    department: e.target.value,
+                    bed_number: "",
+                  }))
+                }
+                fullWidth
+              >
+                {departments.map((dep) => (
+                  <MenuItem key={dep} value={dep}>
+                    {dep}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <TextField
+                select
+                label="New Bed"
+                value={shiftForm.bed_number}
+                onChange={(e) =>
+                  setShiftForm((prev) => ({
+                    ...prev,
+                    bed_number: e.target.value,
+                  }))
+                }
+                fullWidth
+                disabled={!shiftForm.department}
+              >
+                {(bedData[shiftForm.department] || []).map((b) => (
+                  <MenuItem key={b} value={b}>
+                    {b}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </Grid>
+          </Grid>
+        </DialogContent>
+        <DialogActions sx={{ pr: 3, pb: 2 }}>
+          <Button onClick={() => setShiftModalOpen(false)}>Cancel</Button>
+          <Button
+            onClick={handleShiftSubmit}
+            variant="contained"
+            sx={{
+              backgroundColor: "#5fc1b2",
+              "&:hover": { backgroundColor: "#4da99f" },
+            }}
+          >
+            Shift
+          </Button>
+        </DialogActions>
+      </Dialog>
+      <Snackbar
+        open={toast.open}
+        autoHideDuration={4000}
+        onClose={handleToastClose}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+      >
+        <Alert
+          onClose={handleToastClose}
+          severity={toast.severity}
+          variant="filled"
+          sx={{ width: "100%" }}
+        >
+          {toast.message}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 }

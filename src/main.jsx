@@ -1,27 +1,79 @@
-import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
-import './index.css'
-import App from './App.jsx'
-import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
+import { StrictMode } from 'react';
+import { createRoot } from 'react-dom/client';
+import './index.css';
+import App from './App.jsx';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import BillPage from './pages/bill.jsx';
 import ReceiptPage from './pages/receipt.jsx';
 import RegistrationPage from './pages/registration.jsx';
 import PatientPage from './pages/patientPage.jsx';
 import NewReportPage from './pages/newReportPage.jsx';
 import BedManagementPage from './pages/BedManagementPage.jsx';
+import LoginPage from './pages/LoginPage.jsx';
+import ProtectedRoute from './pages/ProtectedRoute.jsx'; // create this
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <Router>
       <Routes>
-        <Route path="/" element={<App />} />
-        <Route path="/bill" element={<BillPage />} />
-        <Route path="/receipt" element={<ReceiptPage />} />
-        <Route path="/bedManagement" element={<BedManagementPage />} />
-        <Route path="/registration" element={<RegistrationPage />} />
-        <Route path="/patient/:id" element={<PatientPage />} />
-        <Route path="/patient/:id/new" element={<NewReportPage />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route
+          path="/"
+          element={
+            <ProtectedRoute>
+              <App />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/bill"
+          element={
+            <ProtectedRoute>
+              <BillPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/receipt"
+          element={
+            <ProtectedRoute>
+              <ReceiptPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/bedManagement"
+          element={
+            <ProtectedRoute>
+              <BedManagementPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/registration"
+          element={
+            <ProtectedRoute>
+              <RegistrationPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/patient/:id"
+          element={
+            <ProtectedRoute>
+              <PatientPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/patient/:id/new"
+          element={
+            <ProtectedRoute>
+              <NewReportPage />
+            </ProtectedRoute>
+          }
+        />
       </Routes>
     </Router>
-  </StrictMode>,
-)
+  </StrictMode>
+);

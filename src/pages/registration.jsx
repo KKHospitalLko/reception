@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import.meta.env.VITE_BACKEND_URL;
 import InputAdornment from "@mui/material/InputAdornment";
 import {
@@ -18,12 +18,16 @@ import {
   Chip,
   Box,
 } from "@mui/material";
+import HomeIcon from "@mui/icons-material/Home";
 import axios from "axios";
 
 const RegistrationForm = () => {
   const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
   const [searchId, setSearchId] = useState("");
+  const location = useLocation();
+
+  const username = localStorage.getItem("username");
 
   const navigate = useNavigate();
 
@@ -145,8 +149,10 @@ const RegistrationForm = () => {
           country: formData.permanentCountry,
           zip: formData.permanentZip || 0,
         },
+        registered_by: username,
       };
 
+      console.log("Payload to be sent:", payload);
       const response = await axios.post(backendUrl + "/patient", payload);
       const savedPatient = response.data;
 
@@ -169,6 +175,10 @@ const RegistrationForm = () => {
     }
   };
 
+  const handleGoHome = () => {
+    navigate("/");
+  };
+
   return (
     <div style={{ padding: "20px" }}>
       <Typography
@@ -180,7 +190,18 @@ const RegistrationForm = () => {
         Patient Registration Form
       </Typography>
 
-      <Box display="flex" justifyContent="end" mt={2} mr={2}>
+      <Box display="flex" justifyContent="space-between"  gap={20} mt={2} p={1}>
+      <Button
+        variant="contained"
+        color="primary"
+        onClick={handleGoHome}
+        startIcon={<HomeIcon />}
+      >
+        Home
+      </Button>
+      <h2>Welcome, <strong>{username}</strong></h2>
+      </Box>
+      <Box display="flex" justifyContent="end" mr={2}>
         <Box display="flex" gap={2} mt={2}>
           <TextField
             label="Patient ID or Number"
@@ -191,11 +212,11 @@ const RegistrationForm = () => {
             variant="contained"
             onClick={handleUHIDSearch}
             sx={{
-              backgroundColor: "#5fc1b2",
-              "&:hover": {
-                backgroundColor: "#4da99f",
-              },
-            }}
+            backgroundColor: "#5fc1b2",
+            "&:hover": {
+              backgroundColor: "#4da99f",
+            },
+          }}
           >
             Search
           </Button>

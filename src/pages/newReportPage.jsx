@@ -14,7 +14,8 @@ const NewReportPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const backendUrl = import.meta.env.VITE_BACKEND_URL;
-
+  const username = localStorage.getItem("username");
+console.log("Username:", username);
   const [loading, setLoading] = useState(true);
   const [patient, setPatient] = useState(null);
 
@@ -48,9 +49,9 @@ const NewReportPage = () => {
     const fetchPatient = async () => {
       try {
         const res = await axios.get(`${backendUrl}/patient/${id}`);
+        console.log("Fetched patient data:", res);
         const p = res.data[0]; // taking first record
         setPatient(p);
-        console.log("Fetched patient data:", p);
         setFormData({
           ...formData,
           uhid: p.uhid,
@@ -128,6 +129,7 @@ const NewReportPage = () => {
           country: formData.permanentCountry,
           zip: formData.permanentZip || 0,
         },
+        registered_by: username,
       };
 
       await axios.put(`${backendUrl}/patient/${formData.uhid}`, payload);
