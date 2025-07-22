@@ -24,7 +24,12 @@ const PatientPage = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await axios.get(`${backendUrl}/patient/${id}`); 
+        const res = await axios.get(`${backendUrl}/patient/${id}`, {
+      headers: {
+        "x-api-key": import.meta.env.VITE_API_KEY,
+        
+      },
+    }); 
         console.log("Fetched patient data:", res);
         setData(res.data); // you said it's an array of forms
         setLoading(false);
@@ -107,7 +112,7 @@ const PatientPage = () => {
                   <Typography><strong>Time:</strong> {item.time}</Typography>
                   <Typography><strong>Reg Amount:</strong> ₹{item.regAmount}</Typography>
                   <Typography><strong>Empanelment:</strong> {item.empanelment}</Typography>
-                  <Typography><strong>Intimation/Extension:</strong> {item.intimationOrExtension}</Typography>
+                  {/* <Typography><strong>Intimation/Extension:</strong> {item.intimationOrExtension}</Typography> */}
                   <Typography><strong>Doctor(s):</strong></Typography>
                   <Box mt={1}>
                     {(item.doctorIncharge || []).map((doc) => (

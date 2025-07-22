@@ -3,11 +3,12 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import {
   Box,
+  Grid,
   Button,
   TextField,
   Typography,
   CircularProgress,
-  MenuItem
+  MenuItem,
 } from "@mui/material";
 
 const NewReportPage = () => {
@@ -15,7 +16,7 @@ const NewReportPage = () => {
   const navigate = useNavigate();
   const backendUrl = import.meta.env.VITE_BACKEND_URL;
   const username = localStorage.getItem("username");
-console.log("Username:", username);
+  console.log("Username:", username);
   const [loading, setLoading] = useState(true);
   const [patient, setPatient] = useState(null);
 
@@ -45,10 +46,19 @@ console.log("Username:", username);
     permanentZip: "",
   });
 
+  const titles = ["Mr.", "Mrs.", "Miss", "Dr.", "Prof."];
+  const genders = ["Male", "Female", "Other"];
+  const religions = ["Hindu", "Muslim", "Christian", "Sikh", "Other"];
+  const maritalStatuses = ["Single", "Married", "Divorced", "Widowed"];
+
   useEffect(() => {
     const fetchPatient = async () => {
       try {
-        const res = await axios.get(`${backendUrl}/patient/${id}`);
+        const res = await axios.get(`${backendUrl}/patient/${id}`, {
+          headers: {
+            "x-api-key": import.meta.env.VITE_API_KEY,
+          },
+        });
         console.log("Fetched patient data:", res);
         const p = res.data[0]; // taking first record
         setPatient(p);
@@ -132,7 +142,11 @@ console.log("Username:", username);
         registered_by: username,
       };
 
-      await axios.put(`${backendUrl}/patient/${formData.uhid}`, payload);
+      await axios.put(`${backendUrl}/patient/${formData.uhid}`, payload, {
+        headers: {
+          "x-api-key": import.meta.env.VITE_API_KEY,
+        },
+      });
       alert("New report saved!");
       navigate(`/patient/${id}`);
     } catch (err) {
@@ -151,80 +165,137 @@ console.log("Username:", username);
 
   return (
     <Box p={4}>
-      <Button variant="outlined" onClick={() => navigate(-1)} sx={{ mb: 2 }}>
+      <Button variant="contained" onClick={() => navigate(-1)} sx={{ mb: 2 }}>
         ← Back
       </Button>
       <Typography variant="h5" mb={2}>
         Create New Report for {patient.fullname}
       </Typography>
 
-      <Box display="flex" flexDirection="column" gap={2}>
-        {/* All fields here */}
+      <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2, mb: 2 }}>
         <TextField
+          select
           label="Title"
           name="title"
           value={formData.title}
           onChange={handleChange}
-        />
+          sx={{ flex: "1 1 20%" }}
+        >
+          {titles.map((t) => (
+            <MenuItem key={t} value={t}>
+              {t}
+            </MenuItem>
+          ))}
+        </TextField>
         <TextField
           label="Full Name"
           name="name"
           value={formData.name}
           onChange={handleChange}
-        />
-        <TextField
-          label="Gender"
-          name="gender"
-          value={formData.gender}
-          onChange={handleChange}
-        />
-        <TextField
-          label="Phone"
-          name="phone"
-          value={formData.phone}
-          onChange={handleChange}
+          sx={{ flex: "1 1 20%" }}
         />
         <TextField
           label="Age"
           name="age"
           value={formData.age}
           onChange={handleChange}
+          sx={{ flex: "1 1 20%" }}
         />
         <TextField
-          label="Empanelment"
-          name="empanelment"
-          value={formData.empanelment}
+          select
+          label="Gender"
+          name="gender"
+          value={formData.gender}
           onChange={handleChange}
+          sx={{ flex: "1 1 20%" }}
+        >
+          {genders.map((g) => (
+            <MenuItem key={g} value={g}>
+              {g}
+            </MenuItem>
+          ))}
+        </TextField>
+      </Box>
+
+      {/* Row 2: Phone, Blood Group, Religion, Marital Status */}
+      <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2, mb: 2 }}>
+        <TextField
+          label="Phone"
+          name="phone"
+          value={formData.phone}
+          onChange={handleChange}
+          sx={{ flex: "1 1 20%" }}
+          fullWidth
         />
         <TextField
           label="Blood Group"
           name="bloodGroup"
           value={formData.bloodGroup}
           onChange={handleChange}
+          sx={{ flex: "1 1 20%" }}
+          fullWidth
         />
         <TextField
+          select
           label="Religion"
           name="religion"
           value={formData.religion}
           onChange={handleChange}
-        />
+          sx={{ flex: "1 1 20%" }}
+          fullWidth
+        >
+          {religions.map((r) => (
+            <MenuItem key={r} value={r}>
+              {r}
+            </MenuItem>
+          ))}
+        </TextField>
         <TextField
-          label="Intimation / Extension"
-          name="empanelType"
-          value={formData.empanelType}
-          onChange={handleChange}
-        />
-        <TextField
+          select
           label="Marital Status"
           name="maritalStatus"
           value={formData.maritalStatus}
           onChange={handleChange}
+          sx={{ flex: "1 1 20%" }}
+          fullWidth
+        >
+          {maritalStatuses.map((m) => (
+            <MenuItem key={m} value={m}>
+              {m}
+            </MenuItem>
+          ))}
+        </TextField>
+      </Box>
+
+      {/* Row 3: Empanelment, Amount */}
+      <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap", mb: 2 }}>
+        <TextField
+          label="Empanelment"
+          name="empanelment"
+          value={formData.empanelment}
+          onChange={handleChange}
+          sx={{ flex: "1 1 45%" }}
+          fullWidth
         />
+        <TextField
+          label="Registration Amount"
+          name="regAmount"
+          value={formData.regAmount}
+          onChange={handleChange}
+          sx={{ flex: "1 1 45%" }}
+          fullWidth
+        />
+      </Box>
+
+      {/* Row 4: Father/Husband, Doctor */}
+      <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap", mb: 2 }}>
         <TextField
           label="Father / Husband"
           name="fatherOrHusband"
           value={formData.fatherOrHusband}
           onChange={handleChange}
+          sx={{ flex: "1 1 45%" }}
+          fullWidth
         />
         <TextField
           label="Doctor Incharge (comma separated)"
@@ -236,78 +307,102 @@ console.log("Username:", username);
               doctorIncharge: e.target.value.split(",").map((s) => s.trim()),
             }))
           }
+          sx={{ flex: "1 1 45%" }}
+          fullWidth
         />
-        <TextField
-          label="Registration Amount"
-          name="regAmount"
-          value={formData.regAmount}
-          onChange={handleChange}
-        />
+      </Box>
 
-        {/* Local address */}
-        <Typography variant="h6" mt={2}>Local Address</Typography>
+      {/* Local Address Section */}
+      <Typography variant="h6" sx={{ mt: 3, mb: 1 }}>
+        Local Address
+      </Typography>
+      <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2, mb: 2 }}>
         <TextField
           label="Address"
           name="localAddress"
           value={formData.localAddress}
           onChange={handleChange}
+          sx={{ flex: "1 1 100%" }}
+          fullWidth
         />
         <TextField
           label="City"
           name="localCity"
           value={formData.localCity}
           onChange={handleChange}
+          sx={{ flex: "1 1 20%" }}
+          fullWidth
         />
         <TextField
           label="State"
           name="localState"
           value={formData.localState}
           onChange={handleChange}
+          sx={{ flex: "1 1 20%" }}
+          fullWidth
         />
         <TextField
           label="Country"
           name="localCountry"
           value={formData.localCountry}
           onChange={handleChange}
+          sx={{ flex: "1 1 20%" }}
+          fullWidth
         />
         <TextField
           label="ZIP"
           name="localZip"
           value={formData.localZip}
           onChange={handleChange}
+          sx={{ flex: "1 1 20%" }}
+          fullWidth
         />
+      </Box>
 
-        {/* Permanent address */}
-        <Typography variant="h6" mt={2}>Permanent Address</Typography>
+      {/* Permanent Address Section */}
+      <Typography variant="h6" sx={{ mt: 3, mb: 1 }}>
+        Permanent Address
+      </Typography>
+      <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2, mb: 2 }}>
         <TextField
           label="Address"
           name="permanentAddress"
           value={formData.permanentAddress}
           onChange={handleChange}
+          sx={{ flex: "1 1 100%" }}
+          fullWidth
         />
         <TextField
           label="City"
           name="permanentCity"
           value={formData.permanentCity}
           onChange={handleChange}
+          sx={{ flex: "1 1 20%" }}
+          fullWidth
         />
         <TextField
           label="State"
           name="permanentState"
           value={formData.permanentState}
           onChange={handleChange}
+          sx={{ flex: "1 1 20%" }}
+          fullWidth
         />
         <TextField
           label="Country"
           name="permanentCountry"
           value={formData.permanentCountry}
           onChange={handleChange}
+          sx={{ flex: "1 1 20%" }}
+          fullWidth
         />
         <TextField
           label="ZIP"
           name="permanentZip"
           value={formData.permanentZip}
           onChange={handleChange}
+          sx={{ flex: "1 1 20%" }}
+          fullWidth
         />
 
         <Button variant="contained" onClick={handleSubmit}>

@@ -76,7 +76,7 @@ const RegistrationForm = () => {
     empanelmentText: "",
     bloodGroup: "",
     religion: "",
-    empanelType: "",
+    // empanelType: "",
     maritalStatus: "",
     fatherOrHusband: "",
     doctorIncharge: [],
@@ -130,7 +130,7 @@ const RegistrationForm = () => {
         empanelment: formData.empanelment,
         bloodGroup: formData.bloodGroup,
         religion: formData.religion,
-        intimationOrExtension: formData.empanelType,
+        // intimationOrExtension: formData.empanelType,
         maritalStatus: formData.maritalStatus,
         fatherHusband: formData.fatherOrHusband,
         doctorIncharge: formData.doctorIncharge,
@@ -153,7 +153,12 @@ const RegistrationForm = () => {
       };
 
       console.log("Payload to be sent:", payload);
-      const response = await axios.post(backendUrl + "/patient", payload);
+      const response = await axios.post(backendUrl + "/patient", payload, {
+      headers: {
+        "x-api-key": import.meta.env.VITE_API_KEY,
+        
+      },
+    });
       const savedPatient = response.data;
 
       alert(
@@ -390,7 +395,7 @@ const RegistrationForm = () => {
             fullWidth
           />
 
-          <FormControl component="fieldset">
+          {/* <FormControl component="fieldset">
             <RadioGroup
               row
               name="empanelType"
@@ -408,7 +413,7 @@ const RegistrationForm = () => {
                 label="Extention"
               />
             </RadioGroup>
-          </FormControl>
+          </FormControl> */}
 
           <TextField
             label="Registration Amount"
@@ -426,7 +431,7 @@ const RegistrationForm = () => {
         </Box>
 
         {/* Row 5 */}
-        <Box display="grid" gridTemplateColumns="repeat(2, 1fr)" gap={2}>
+        <Box display="grid" gridTemplateColumns="repeat(2, 1fr)" gap={2} mt={2}>
           <TextField
             label="Father's / Husband's Name"
             name="fatherOrHusband"

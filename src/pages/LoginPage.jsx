@@ -17,11 +17,31 @@ import { useNavigate } from "react-router-dom";
 
 // Updated users with usernames and simple passwords
 const USERS = [
-  { name: "Jyoti Makhija", username: "jyoti", password: "jyoti123" },
-  { name: "Ritesh Sharma", username: "ritesh", password: "ritesh123" },
-  { name: "Shalini Dubey", username: "shalini", password: "shalini123" },
-  { name: "Rinku Singh", username: "rinku", password: "rinku123" },
-  { name: "Babloo Singh", username: "babloo", password: "babloo123" },
+  {
+    name: "Jyoti Makhija",
+    username: "jyoti7009",
+    password: import.meta.env.VITE_JYOTI_PASSWORD,
+  },
+  {
+    name: "Ritesh Sharma",
+    username: "ritesh7672",
+    password: import.meta.env.VITE_RITESH_PASSWORD,
+  },
+  {
+    name: "Shalini Dubey",
+    username: "shalini6978",
+    password: import.meta.env.VITE_SHALINI_PASSWORD,
+  },
+  {
+    name: "Rinku Singh",
+    username: "rinku2158",
+    password: import.meta.env.VITE_RINKU_PASSWORD,
+  },
+  {
+    name: "Babloo Singh",
+    username: "babloo8272",
+    password: import.meta.env.VITE_BABLOO_PASSWORD,
+  },
 ];
 
 const LoginPage = () => {

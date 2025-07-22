@@ -23,16 +23,16 @@ export default function App() {
   };
 
   const sections = [
-    {
-      label: "Bill",
-      to: "/bill",
-      icon: <ReceiptIcon fontSize="large" color="primary" />,
-    },
-    {
-      label: "Receipt",
-      to: "/receipt",
-      icon: <AssignmentIcon fontSize="large" color="success" />,
-    },
+    // {
+    //   label: "Bill",
+    //   to: "/bill",
+    //   icon: <ReceiptIcon fontSize="large" color="primary" />,
+    // },
+    // {
+    //   label: "Receipt",
+    //   to: "/receipt",
+    //   icon: <AssignmentIcon fontSize="large" color="success" />,
+    // },
     {
       label: "Registration",
       to: "/registration",
@@ -77,7 +77,7 @@ export default function App() {
 
       <Box mt={4}>
         <Button
-          variant="outlined"
+          variant="contained"
           color="error"
           startIcon={<LogoutIcon />}
           onClick={handleLogout}

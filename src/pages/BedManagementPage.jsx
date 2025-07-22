@@ -48,7 +48,7 @@ export default function BedAllocationPage() {
   const [toast, setToast] = useState({
     open: false,
     message: "",
-    severity: "success", // 'success' | 'error' | 'warning' | 'info'
+    severity: "success",
   });
 
   const showToast = (message, severity = "success") => {
@@ -64,7 +64,11 @@ export default function BedAllocationPage() {
 
   const fetchAvailableBeds = () => {
     axios
-      .get(`${backendUrl}/beds/available`)
+      .get(`${backendUrl}/beds/available`, {
+        headers: {
+          "x-api-key": import.meta.env.VITE_API_KEY,
+        },
+      })
       .then((res) => {
         setBedData(res.data.available_beds);
       })
@@ -76,7 +80,11 @@ export default function BedAllocationPage() {
   // Fetch departments and beds
   useEffect(() => {
     axios
-      .get(`${backendUrl}/beds/available`)
+      .get(`${backendUrl}/beds/available`, {
+        headers: {
+          "x-api-key": import.meta.env.VITE_API_KEY,
+        },
+      })
       .then((res) => {
         setBedData(res.data.available_beds);
         // console.log("Available beds data:", res.data.available_beds);
@@ -91,7 +99,11 @@ export default function BedAllocationPage() {
 
   const loadAllottedBeds = () => {
     axios
-      .get(`${backendUrl}/beds`)
+      .get(`${backendUrl}/beds`, {
+        headers: {
+          "x-api-key": import.meta.env.VITE_API_KEY,
+        },
+      })
       .then((res) => {
         setAllottedBeds(res.data);
       })
@@ -116,7 +128,11 @@ export default function BedAllocationPage() {
     setLoading(true);
 
     axios
-      .post(`${backendUrl}/bed_allotment`, payload)
+      .post(`${backendUrl}/bed_allotment`, payload, {
+        headers: {
+          "x-api-key": import.meta.env.VITE_API_KEY,
+        },
+      })
       .then(() => {
         loadAllottedBeds();
         fetchAvailableBeds();
@@ -147,9 +163,13 @@ export default function BedAllocationPage() {
 
     setLoading(true);
     axios
-      .delete(`${backendUrl}/bed/${bedNumber}`)
+      .delete(`${backendUrl}/bed/${bedNumber}`, {
+        headers: {
+          "x-api-key": import.meta.env.VITE_API_KEY,
+        },
+      })
       .then(() => {
-        loadAllottedBeds(); // refresh table
+        loadAllottedBeds();
         fetchAvailableBeds();
         showToast(`Patient removed from bed ${bedNumber}`, "success");
       })
@@ -183,12 +203,20 @@ export default function BedAllocationPage() {
     setLoading(true);
 
     axios
-      .put(`${backendUrl}/bed/shift`, {
-        uhid,
-        patient_name,
-        department,
-        bed_number,
-      })
+      .put(
+        `${backendUrl}/bed/shift`,
+        {
+          uhid,
+          patient_name,
+          department,
+          bed_number,
+        },
+        {
+          headers: {
+            "x-api-key": import.meta.env.VITE_API_KEY,
+          },
+        }
+      )
       .then(() => {
         setShiftModalOpen(false);
         setShiftForm({
@@ -240,7 +268,11 @@ export default function BedAllocationPage() {
         color="primary"
         onClick={handleGoHome}
         startIcon={<HomeIcon />}
-        sx={{ mb: 2, backgroundColor: "#5fc1b2", "&:hover": { backgroundColor: "#4da99f" } }}
+        sx={{
+          mb: 2,
+          backgroundColor: "#5fc1b2",
+          "&:hover": { backgroundColor: "#4da99f" },
+        }}
       >
         Home
       </Button>
@@ -413,76 +445,86 @@ export default function BedAllocationPage() {
           </TableBody>
         </Table>
       )}
+
       <Dialog
         open={shiftModalOpen}
         onClose={() => setShiftModalOpen(false)}
-        maxWidth="sm"
         fullWidth
+        maxWidth="sm"
       >
-        <DialogTitle>Shift Patient</DialogTitle>
-        <DialogContent>
-          <Grid container spacing={2} mt={1}>
-            <Grid item xs={12} md={6}>
-              <TextField
-                label="UHID"
-                value={shiftForm.uhid}
-                fullWidth
-                disabled
-              />
+        <DialogContent dividers sx={{ px: 4, pt: 3, pb: 2 }}>
+          <Box component="form" noValidate>
+            <Grid container spacing={2}>
+              {/* Row 1: UHID & Patient Name */}
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  label="UHID"
+                  value={shiftForm.uhid}
+                  fullWidth
+                  disabled
+                  variant="outlined"
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  label="Patient Name"
+                  value={shiftForm.patient_name}
+                  fullWidth
+                  disabled
+                  variant="outlined"
+                />
+              </Grid>
+
+              {/* Row 2: Department & Bed */}
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  select
+                  label="New Department"
+                  value={shiftForm.department}
+                  onChange={(e) =>
+                    setShiftForm((prev) => ({
+                      ...prev,
+                      department: e.target.value,
+                      bed_number: "", // Reset bed when dept changes
+                    }))
+                  }
+                  fullWidth
+                  variant="outlined"
+                >
+                  {departments.map((dep) => (
+                    <MenuItem key={dep} value={dep}>
+                      {dep}
+                    </MenuItem>
+                  ))}
+                </TextField>
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  select
+                  label="New Bed"
+                  value={shiftForm.bed_number}
+                  onChange={(e) =>
+                    setShiftForm((prev) => ({
+                      ...prev,
+                      bed_number: e.target.value,
+                    }))
+                  }
+                  fullWidth
+                  disabled={!shiftForm.department}
+                  variant="outlined"
+                >
+                  {(bedData[shiftForm.department] || []).map((b) => (
+                    <MenuItem key={b} value={b}>
+                      {b}
+                    </MenuItem>
+                  ))}
+                </TextField>
+              </Grid>
             </Grid>
-            <Grid item xs={12} md={6}>
-              <TextField
-                label="Patient Name"
-                value={shiftForm.patient_name}
-                fullWidth
-                disabled
-              />
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <TextField
-                select
-                label="New Department"
-                value={shiftForm.department}
-                onChange={(e) =>
-                  setShiftForm((prev) => ({
-                    ...prev,
-                    department: e.target.value,
-                    bed_number: "",
-                  }))
-                }
-                fullWidth
-              >
-                {departments.map((dep) => (
-                  <MenuItem key={dep} value={dep}>
-                    {dep}
-                  </MenuItem>
-                ))}
-              </TextField>
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <TextField
-                select
-                label="New Bed"
-                value={shiftForm.bed_number}
-                onChange={(e) =>
-                  setShiftForm((prev) => ({
-                    ...prev,
-                    bed_number: e.target.value,
-                  }))
-                }
-                fullWidth
-                disabled={!shiftForm.department}
-              >
-                {(bedData[shiftForm.department] || []).map((b) => (
-                  <MenuItem key={b} value={b}>
-                    {b}
-                  </MenuItem>
-                ))}
-              </TextField>
-            </Grid>
-          </Grid>
+          </Box>
         </DialogContent>
-        <DialogActions sx={{ pr: 3, pb: 2 }}>
+
+        <DialogActions sx={{ px: 4, pb: 2 }}>
           <Button onClick={() => setShiftModalOpen(false)}>Cancel</Button>
           <Button
             onClick={handleShiftSubmit}
@@ -496,6 +538,7 @@ export default function BedAllocationPage() {
           </Button>
         </DialogActions>
       </Dialog>
+
       <Snackbar
         open={toast.open}
         autoHideDuration={4000}
