@@ -21,26 +21,31 @@ const PatientPage = () => {
   const [loading, setLoading] = useState(true);
   const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const res = await axios.get(`${backendUrl}/patient/${id}`, {
-      headers: {
-        "x-api-key": import.meta.env.VITE_API_KEY,
-        
-      },
-    }); 
-        console.log("Fetched patient data:", res);
-        setData(res.data); // you said it's an array of forms
-        setLoading(false);
-      } catch (err) {
-        console.error("Error fetching patient data", err);
-        setLoading(false);
-      }
-    };
+ useEffect(() => {
+  const fetchData = async () => {
+    try {
+      const res = await axios.get(`${backendUrl}/patient/${id}`, {
+        headers: {
+          "x-api-key": import.meta.env.VITE_API_KEY,
+        },
+      });
+      console.log("Fetched patient data:", res);
+      setData(res.data);
+      setLoading(false);
+    } catch (err) {
+      console.error("Error fetching patient data", err);
+      setLoading(false);
 
-    fetchData();
-  }, [id]);
+      // If 404, show alert and go back
+      if (err.response && err.response.status === 404) {
+        alert("Patient not found. Redirecting to registration.");
+        navigate("/registration");
+      }
+    }
+  };
+
+  fetchData();
+}, [id, navigate]);
 
   if (loading) {
     return (

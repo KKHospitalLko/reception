@@ -8,8 +8,6 @@ import {
   MenuItem,
   InputLabel,
   FormControl,
-  Radio,
-  RadioGroup,
   FormControlLabel,
   Checkbox,
   Button,
@@ -17,6 +15,8 @@ import {
   OutlinedInput,
   Chip,
   Box,
+  Backdrop,
+  CircularProgress,
 } from "@mui/material";
 import HomeIcon from "@mui/icons-material/Home";
 import axios from "axios";
@@ -25,7 +25,9 @@ const RegistrationForm = () => {
   const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
   const [searchId, setSearchId] = useState("");
-  const location = useLocation();
+  const [loading, setLoading] = useState(false);
+
+  // const location = useLocation();
 
   const username = localStorage.getItem("username");
 
@@ -118,6 +120,7 @@ const RegistrationForm = () => {
   };
 
   const handleSubmit = async () => {
+    setLoading(true);
     try {
       const payload = {
         title: formData.title,
@@ -160,7 +163,7 @@ const RegistrationForm = () => {
       },
     });
       const savedPatient = response.data;
-
+      setLoading(false);
       alert(
         `Patient saved successfully!\n\n` +
           `UHID: ${savedPatient.uhid}\n` +
@@ -183,6 +186,14 @@ const RegistrationForm = () => {
   const handleGoHome = () => {
     navigate("/");
   };
+
+    if (loading) {
+      return (
+        <Backdrop open={loading} sx={{ color: "#fff", zIndex: 9999 }}>
+        <CircularProgress color="inherit" />
+      </Backdrop>
+      );
+    }
 
   return (
     <div style={{ padding: "20px" }}>

@@ -107,6 +107,7 @@ const NewReportPage = () => {
   };
 
   const handleSubmit = async () => {
+    setLoading(true);
     try {
       const payload = {
         uhid: formData.uhid,
@@ -147,10 +148,12 @@ const NewReportPage = () => {
           "x-api-key": import.meta.env.VITE_API_KEY,
         },
       });
-      alert("New report saved!");
+      // alert("New report saved!");
+      setLoading(false);
       navigate(`/patient/${id}`);
     } catch (err) {
       console.error(err);
+      setLoading(false);
       alert("Failed to save new report");
     }
   };
