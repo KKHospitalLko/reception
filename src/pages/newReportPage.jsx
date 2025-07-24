@@ -3,7 +3,6 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import {
   Box,
-  Grid,
   Button,
   TextField,
   Typography,
@@ -148,7 +147,6 @@ const NewReportPage = () => {
           "x-api-key": import.meta.env.VITE_API_KEY,
         },
       });
-      // alert("New report saved!");
       setLoading(false);
       navigate(`/patient/${id}`);
     } catch (err) {

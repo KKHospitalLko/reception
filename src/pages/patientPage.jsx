@@ -4,8 +4,6 @@ import axios from "axios";
 import {
   CircularProgress,
   Box,
-  Card,
-  CardContent,
   Typography,
   Grid,
   Chip,

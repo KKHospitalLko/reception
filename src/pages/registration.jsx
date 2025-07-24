@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate} from "react-router-dom";
 import.meta.env.VITE_BACKEND_URL;
 import InputAdornment from "@mui/material/InputAdornment";
 import {
@@ -27,8 +27,6 @@ const RegistrationForm = () => {
   const [searchId, setSearchId] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // const location = useLocation();
-
   const username = localStorage.getItem("username");
 
   const navigate = useNavigate();
@@ -38,11 +36,9 @@ const RegistrationForm = () => {
       alert("Enter patient ID or number");
       return;
     }
-    // navigate to patient details page
     navigate(`/patient/${searchId}`);
   };
 
-  // const [patientData, setPatientData] = useState(null);
 
   const doctorOptions = [
     "Dr. Dhirendra Pratap",
@@ -65,14 +61,11 @@ const RegistrationForm = () => {
     "Dr. Ahmad Ayaz",
   ];
 
-  // example generated fields
   const [formData, setFormData] = useState({
     title: "",
     name: "",
     gender: "",
     phone: "",
-    // date: new Date().toLocaleDateString(),
-    // time: new Date().toLocaleTimeString(),
     age: "",
     empanelment: "other",
     empanelmentText: "",
@@ -83,10 +76,6 @@ const RegistrationForm = () => {
     fatherOrHusband: "",
     doctorIncharge: [],
     regAmount: "",
-    // refDoctor: "",
-    // telephone: "",
-    // purpose: "",
-    // notes: "",
     localAddress: "",
     localCity: "",
     localState: "",
@@ -241,19 +230,6 @@ const RegistrationForm = () => {
 
       <div className="w-full mx-auto bg-white p-6 rounded-lg shadow-md">
         {/* Row 1 */}
-        {/* <Box display="grid" gridTemplateColumns="repeat(4, 1fr)" gap={2}>
-          <TextField label="UHID" value={formData.uhid} disabled fullWidth />
-          <TextField
-            label="Reg No."
-            value={formData.regNo}
-            disabled
-            fullWidth
-          />
-          <TextField label="Date" value={formData.date} disabled fullWidth />
-          <TextField label="Time" value={formData.time} disabled fullWidth />
-        </Box> */}
-
-        {/* Row 2 */}
         <Box
           display="grid"
           gridTemplateColumns="0.4fr 1.6fr 1fr 1fr"
@@ -306,7 +282,7 @@ const RegistrationForm = () => {
           </FormControl>
         </Box>
 
-        {/* Row 3 */}
+        {/* Row 2 */}
         <Box display="grid" gridTemplateColumns="repeat(4, 1fr)" gap={2} mt={2}>
           <TextField
             label="Phone Number"
@@ -361,7 +337,7 @@ const RegistrationForm = () => {
           </FormControl>
         </Box>
 
-        {/* Row 4 */}
+        {/* Row 3 */}
         <Box
           display="grid"
           gridTemplateColumns="1fr 1fr 1fr 1fr"
@@ -441,7 +417,7 @@ const RegistrationForm = () => {
           <div />
         </Box>
 
-        {/* Row 5 */}
+        {/* Row 4 */}
         <Box display="grid" gridTemplateColumns="repeat(2, 1fr)" gap={2} mt={2}>
           <TextField
             label="Father's / Husband's Name"
@@ -476,55 +452,6 @@ const RegistrationForm = () => {
           </FormControl>
         </Box>
 
-        {/* Row 6 */}
-        {/* <Box display="grid" gridTemplateColumns="repeat(4, 1fr)" gap={2} mt={2}>
-          <TextField
-            label="Reference Doctor Name"
-            name="refDoctor"
-            value={formData.refDoctor}
-            onChange={handleChange}
-            fullWidth
-            sx={{ gridColumn: "span 2" }}
-          />
-
-          <TextField
-            label="Telephone"
-            name="telephone"
-            value={formData.telephone}
-            onChange={handleChange}
-            fullWidth
-          />
-
-          <TextField
-            label="Registration Amount"
-            name="regAmount"
-            value={formData.regAmount}
-            onChange={handleChange}
-            fullWidth
-          />
-        </Box> */}
-
-        {/* Row 7 */}
-        {/* <Box display="grid" gridTemplateColumns="repeat(2, 1fr)" gap={2} mt={2}>
-          <TextField
-            label="Purpose of Visit"
-            name="purpose"
-            value={formData.purpose}
-            onChange={handleChange}
-            fullWidth
-          />
-
-          <TextField
-            label="Notes"
-            name="notes"
-            value={formData.notes}
-            onChange={handleChange}
-            fullWidth
-          />
-        </Box> */}
-
-        {/* <div className="h-0.5 bg-[#5fc1b2] mt-5"></div> */}
-
         {/* Address Sections */}
         <div className="flex justify-center w-full">
           <Typography
@@ -555,7 +482,6 @@ const RegistrationForm = () => {
             sx={{ gridColumn: "span 4" }}
           />
 
-          {/* City 1/4 */}
           <TextField
             label="City"
             name="localCity"
@@ -610,7 +536,6 @@ const RegistrationForm = () => {
         />
 
         <Box display="grid" gridTemplateColumns="repeat(4, 1fr)" gap={2} mt={2}>
-          {/* Address takes full width */}
           <TextField
             label="Address"
             name="permanentAddress"
@@ -620,7 +545,6 @@ const RegistrationForm = () => {
             sx={{ gridColumn: "span 4" }}
           />
 
-          {/* City 1/4 */}
           <TextField
             label="City"
             name="permanentCity"
@@ -628,8 +552,6 @@ const RegistrationForm = () => {
             onChange={handleChange}
             fullWidth
           />
-
-          {/* ZIP 1/4 */}
 
           <TextField
             label="State"

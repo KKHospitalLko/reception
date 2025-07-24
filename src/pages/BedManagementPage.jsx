@@ -17,7 +17,6 @@ import {
   Backdrop,
   CircularProgress,
   Dialog,
-  DialogTitle,
   DialogContent,
   DialogActions,
   Snackbar,
@@ -30,7 +29,7 @@ export default function BedAllocationPage() {
   const [name, setName] = useState("");
   const [department, setDepartment] = useState("");
   const [bed, setBed] = useState("");
-  const [bedData, setBedData] = useState({}); // { department: [beds] }
+  const [bedData, setBedData] = useState({});
   const [allottedBeds, setAllottedBeds] = useState([]);
   const [loading, setLoading] = useState(false);
   const [filterDepartment, setFilterDepartment] = useState("");
@@ -453,74 +452,93 @@ export default function BedAllocationPage() {
         maxWidth="sm"
       >
         <DialogContent dividers sx={{ px: 4, pt: 3, pb: 2 }}>
-          <Box component="form" noValidate>
-            <Grid container spacing={2}>
-              {/* Row 1: UHID & Patient Name */}
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  label="UHID"
-                  value={shiftForm.uhid}
-                  fullWidth
-                  disabled
-                  variant="outlined"
-                />
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  label="Patient Name"
-                  value={shiftForm.patient_name}
-                  fullWidth
-                  disabled
-                  variant="outlined"
-                />
-              </Grid>
+          <Box
+            component="form"
+            noValidate
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              gap: 2,
+            }}
+          >
+            {/* Row 1: UHID & Patient Name */}
+            <Box
+              sx={{
+                display: "flex",
+                flexWrap: "wrap",
+                gap: 2,
+              }}
+            >
+              <TextField
+                label="UHID"
+                value={shiftForm.uhid}
+                fullWidth
+                disabled
+                variant="outlined"
+                sx={{ flex: { xs: "1 1 100%", sm: "1 1 48%" } }}
+              />
+              <TextField
+                label="Patient Name"
+                value={shiftForm.patient_name}
+                fullWidth
+                disabled
+                variant="outlined"
+                sx={{ flex: { xs: "1 1 100%", sm: "1 1 48%" } }}
+              />
+            </Box>
 
-              {/* Row 2: Department & Bed */}
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  select
-                  label="New Department"
-                  value={shiftForm.department}
-                  onChange={(e) =>
-                    setShiftForm((prev) => ({
-                      ...prev,
-                      department: e.target.value,
-                      bed_number: "", // Reset bed when dept changes
-                    }))
-                  }
-                  fullWidth
-                  variant="outlined"
-                >
-                  {departments.map((dep) => (
-                    <MenuItem key={dep} value={dep}>
-                      {dep}
-                    </MenuItem>
-                  ))}
-                </TextField>
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  select
-                  label="New Bed"
-                  value={shiftForm.bed_number}
-                  onChange={(e) =>
-                    setShiftForm((prev) => ({
-                      ...prev,
-                      bed_number: e.target.value,
-                    }))
-                  }
-                  fullWidth
-                  disabled={!shiftForm.department}
-                  variant="outlined"
-                >
-                  {(bedData[shiftForm.department] || []).map((b) => (
-                    <MenuItem key={b} value={b}>
-                      {b}
-                    </MenuItem>
-                  ))}
-                </TextField>
-              </Grid>
-            </Grid>
+            {/* Row 2: Department & Bed */}
+            <Box
+              sx={{
+                display: "flex",
+                flexWrap: "wrap",
+                gap: 2,
+              }}
+            >
+              <TextField
+                select
+                label="New Department"
+                value={shiftForm.department}
+                onChange={(e) =>
+                  setShiftForm((prev) => ({
+                    ...prev,
+                    department: e.target.value,
+                    bed_number: "",
+                  }))
+                }
+                fullWidth
+                variant="outlined"
+                sx={{ flex: { xs: "1 1 100%", sm: "1 1 48%" } }}
+              >
+                {departments.map((dep) => (
+                  <MenuItem key={dep} value={dep}>
+                    {dep}
+                  </MenuItem>
+                ))}
+              </TextField>
+
+              <TextField
+                select
+                label="New Bed"
+                value={shiftForm.bed_number}
+                onChange={(e) =>
+                  setShiftForm((prev) => ({
+                    ...prev,
+                    bed_number: e.target.value,
+                  }))
+                }
+                fullWidth
+                disabled={!shiftForm.department}
+                variant="outlined"
+                sx={{ flex: { xs: "1 1 100%", sm: "1 1 48%" } }}
+              >
+                {(bedData[shiftForm.department] || []).map((b) => (
+                  <MenuItem key={b} value={b}>
+                    {b}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </Box>
           </Box>
         </DialogContent>
 

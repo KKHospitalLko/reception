@@ -1,4 +1,3 @@
-import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import './index.css';
 import App from './App.jsx';
@@ -10,10 +9,9 @@ import PatientPage from './pages/patientPage.jsx';
 import NewReportPage from './pages/newReportPage.jsx';
 import BedManagementPage from './pages/BedManagementPage.jsx';
 import LoginPage from './pages/LoginPage.jsx';
-import ProtectedRoute from './pages/ProtectedRoute.jsx'; // create this
+import ProtectedRoute from './pages/ProtectedRoute.jsx';
 
 createRoot(document.getElementById('root')).render(
-  <StrictMode>
     <Router>
       <Routes>
         <Route path="/login" element={<LoginPage />} />
@@ -75,5 +73,4 @@ createRoot(document.getElementById('root')).render(
         />
       </Routes>
     </Router>
-  </StrictMode>
 );
