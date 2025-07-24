@@ -153,6 +153,7 @@ const RegistrationForm = () => {
     });
       const savedPatient = response.data;
       setLoading(false);
+      navigate(`/patient/${savedPatient.uhid}`);
       alert(
         `Patient saved successfully!\n\n` +
           `UHID: ${savedPatient.uhid}\n` +
@@ -160,7 +161,6 @@ const RegistrationForm = () => {
           `Reg No: ${savedPatient.regno}\n` +
           `Mobile: ${savedPatient.mobile}`
       );
-      navigate(`/patient/${id}`);
 
       // console.log("Response from server:", response.data);
     } catch (error) {
