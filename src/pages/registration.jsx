@@ -153,15 +153,16 @@ const RegistrationForm = () => {
     });
       const savedPatient = response.data;
       setLoading(false);
-      navigate(`/patient/${savedPatient.uhid}`);
+      console.log("Response from server:", savedPatient.uhid);
       alert(
         `Patient saved successfully!\n\n` +
-          `UHID: ${savedPatient.uhid}\n` +
-          `Name: ${savedPatient.fullname}\n` +
-          `Reg No: ${savedPatient.regno}\n` +
-          `Mobile: ${savedPatient.mobile}`
+        `UHID: ${savedPatient.uhid}\n` +
+        `Name: ${savedPatient.fullname}\n` +
+        `Reg No: ${savedPatient.regno}\n` +
+        `Mobile: ${savedPatient.mobile}`
       );
-
+      navigate(`/patient/${savedPatient.uhid}`);
+      
       // console.log("Response from server:", response.data);
     } catch (error) {
       if (error.response.status === 400) {
