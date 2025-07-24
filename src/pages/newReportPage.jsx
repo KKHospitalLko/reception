@@ -9,6 +9,7 @@ import {
   CircularProgress,
   MenuItem,
 } from "@mui/material";
+import InputAdornment from "@mui/material/InputAdornment";
 
 const NewReportPage = () => {
   const { id } = useParams();
