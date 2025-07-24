@@ -144,7 +144,7 @@ const RegistrationForm = () => {
         registered_by: username,
       };
 
-      console.log("Payload to be sent:", payload);
+      // console.log("Payload to be sent:", payload);
       const response = await axios.post(backendUrl + "/patient", payload, {
       headers: {
         "x-api-key": import.meta.env.VITE_API_KEY,
@@ -161,7 +161,7 @@ const RegistrationForm = () => {
           `Mobile: ${savedPatient.mobile}`
       );
 
-      console.log("Response from server:", response.data);
+      // console.log("Response from server:", response.data);
     } catch (error) {
       if (error.response.status === 400) {
         setLoading(false);

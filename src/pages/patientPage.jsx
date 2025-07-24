@@ -27,7 +27,7 @@ const PatientPage = () => {
           "x-api-key": import.meta.env.VITE_API_KEY,
         },
       });
-      console.log("Fetched patient data:", res);
+      // console.log("Fetched patient data:", res);
       setData(res.data);
       setLoading(false);
     } catch (err) {

@@ -21,7 +21,7 @@ const NewReportPage = () => {
   const navigate = useNavigate();
   const backendUrl = import.meta.env.VITE_BACKEND_URL;
   const username = localStorage.getItem("username");
-  console.log("Username:", username);
+  // console.log("Username:", username);
   const [loading, setLoading] = useState(true);
   const [patient, setPatient] = useState(null);
 
@@ -85,7 +85,7 @@ const NewReportPage = () => {
             "x-api-key": import.meta.env.VITE_API_KEY,
           },
         });
-        console.log("Fetched patient data:", res);
+        // console.log("Fetched patient data:", res);
         const p = res.data[0]; // taking first record
         setPatient(p);
         setFormData({
