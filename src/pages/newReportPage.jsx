@@ -45,10 +45,31 @@ const NewReportPage = () => {
     permanentZip: "",
   });
 
-  const titles = ["Mr.", "Mrs.", "Miss", "Dr.", "Prof."];
+  const doctorOptions = [
+    "Dr. Dhirendra Pratap",
+    "Dr. Sunita Singh",
+    "Dr. Anita Singh",
+    "Dr. Sameer Beg",
+    "Dr. Rajiv Rastogi",
+    "Dr. S.N.S. Yadav",
+    "Dr. P.K. Mishra",
+    "Dr. Shilpi Sahai",
+    "Dr. Manish Tandon",
+    "Dr. Govind Pratap Singh",
+    "Dr. A.K. Srivastava",
+    "Dr. Apoorva Kumar",
+    "Dr. Lokesh Kumar",
+    "Dr. Mohammad Suhel",
+    "Dr. Vinay Kumar Gupta",
+    "Dr. B.N. Singh",
+    "Dr. Ruby Singh",
+    "Dr. Ahmad Ayaz",
+  ];
+
+  const titles = ["Mr.", "Mrs.", "Miss"];
   const genders = ["Male", "Female", "Other"];
-  const religions = ["Hindu", "Muslim", "Christian", "Sikh", "Other"];
-  const maritalStatuses = ["Single", "Married", "Divorced", "Widowed"];
+  const religions = ["Hindu", "Muslim", "Christian", "Other"];
+  const maritalStatuses = ["Single", "Married"];
 
   useEffect(() => {
     const fetchPatient = async () => {
@@ -98,12 +119,21 @@ const NewReportPage = () => {
     fetchPatient();
   }, [id]);
 
-  const handleChange = (e) => {
-    setFormData((prev) => ({
-      ...prev,
-      [e.target.name]: e.target.value,
-    }));
-  };
+  // const handleChange = (e) => {
+  //   setFormData((prev) => ({
+  //     ...prev,
+  //     [e.target.name]: e.target.value,
+  //   }));
+  // };
+
+  const handleChange = (event) => {
+  const { name, value } = event.target;
+  setFormData((prev) => ({
+    ...prev,
+    [name]: typeof value === "string" ? value.split(",") : value,
+  }));
+};
+
 
   const handleSubmit = async () => {
     setLoading(true);
@@ -166,7 +196,15 @@ const NewReportPage = () => {
 
   return (
     <Box p={4}>
-      <Button variant="contained" onClick={() => navigate(-1)} sx={{ mb: 2 }}>
+      <Button
+        variant="contained"
+        onClick={() => navigate(-1)}
+        sx={{
+          mb: 2,
+          backgroundColor: "#5fc1b2",
+          "&:hover": { backgroundColor: "#4da99f" },
+        }}
+      >
         ← Back
       </Button>
       <Typography variant="h5" mb={2}>
@@ -271,21 +309,50 @@ const NewReportPage = () => {
       {/* Row 3: Empanelment, Amount */}
       <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap", mb: 2 }}>
         <TextField
+          select
           label="Empanelment"
           name="empanelment"
           value={formData.empanelment}
           onChange={handleChange}
           sx={{ flex: "1 1 45%" }}
           fullWidth
-        />
+        >
+          {[
+            "ECHS",
+            "ESIC",
+            "CGHS",
+            "NR",
+            "NER",
+            "RDSO",
+            "Rail Coach",
+            "Insurance",
+            "UP Police",
+            "Ayushman Bharat",
+            "DDU",
+            "CMRF",
+            "Private",
+          ].map((option) => (
+            <MenuItem key={option} value={option}>
+              {option}
+            </MenuItem>
+          ))}
+        </TextField>
+
         <TextField
-          label="Registration Amount"
-          name="regAmount"
-          value={formData.regAmount}
-          onChange={handleChange}
-          sx={{ flex: "1 1 45%" }}
-          fullWidth
-        />
+            label="Registration Amount"
+            name="regAmount"
+            value={formData.regAmount}
+            onChange={handleChange}
+            fullWidth
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">₹</InputAdornment>
+              ),
+            }}
+          />
+          <div />
+
+
       </Box>
 
       {/* Row 4: Father/Husband, Doctor */}
@@ -298,19 +365,30 @@ const NewReportPage = () => {
           sx={{ flex: "1 1 45%" }}
           fullWidth
         />
-        <TextField
-          label="Doctor Incharge (comma separated)"
-          name="doctorIncharge"
-          value={formData.doctorIncharge.join(", ")}
-          onChange={(e) =>
-            setFormData((prev) => ({
-              ...prev,
-              doctorIncharge: e.target.value.split(",").map((s) => s.trim()),
-            }))
-          }
-          sx={{ flex: "1 1 45%" }}
-          fullWidth
-        />
+        <FormControl fullWidth>
+  <InputLabel>Consulting Doctor(s) Incharge</InputLabel>
+  <Select
+    multiple
+    name="doctorIncharge"
+    value={formData.doctorIncharge}
+    onChange={handleChange}
+    input={<OutlinedInput label="Consulting Doctor(s) Incharge" />}
+    renderValue={(selected) => (
+      <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
+        {selected.map((value) => (
+          <Chip key={value} label={value} />
+        ))}
+      </Box>
+    )}
+  >
+    {doctorOptions.map((doc) => (
+      <MenuItem key={doc} value={doc}>
+        {doc}
+      </MenuItem>
+    ))}
+  </Select>
+</FormControl>
+
       </Box>
 
       {/* Local Address Section */}
@@ -406,7 +484,15 @@ const NewReportPage = () => {
           fullWidth
         />
 
-        <Button variant="contained" onClick={handleSubmit}>
+        <Button
+          variant="contained"
+          onClick={handleSubmit}
+          sx={{
+            mb: 2,
+            backgroundColor: "#5fc1b2",
+            "&:hover": { backgroundColor: "#4da99f" },
+          }}
+        >
           Save New Report
         </Button>
       </Box>

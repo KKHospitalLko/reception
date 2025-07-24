@@ -164,10 +164,14 @@ const RegistrationForm = () => {
       console.log("Response from server:", response.data);
     } catch (error) {
       if (error.response.status === 400) {
+        setLoading(false);
         alert(error.response.data.detail || "Failed to save patient data");
+
       } else {
         console.error("Error submitting form:", error);
+        setLoading(false);
         alert("Something went wrong!");
+
       }
     }
   };
@@ -201,6 +205,11 @@ const RegistrationForm = () => {
         color="primary"
         onClick={handleGoHome}
         startIcon={<HomeIcon />}
+        sx={{
+          mb: 2,
+          backgroundColor: "#5fc1b2",
+          "&:hover": { backgroundColor: "#4da99f" },
+        }}
       >
         Home
       </Button>

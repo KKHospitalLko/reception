@@ -60,7 +60,11 @@ const PatientPage = () => {
         <Button
           variant="contained"
           onClick={() => navigate(`/registration`)}
-          sx={{ backgroundColor: "#1976d2", "&:hover": { backgroundColor: "#115293" } }}
+          sx={{
+          mb: 2,
+          backgroundColor: "#5fc1b2",
+          "&:hover": { backgroundColor: "#4da99f" },
+        }}
         >
           ← Back
         </Button>
