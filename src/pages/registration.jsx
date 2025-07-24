@@ -160,6 +160,7 @@ const RegistrationForm = () => {
           `Reg No: ${savedPatient.regno}\n` +
           `Mobile: ${savedPatient.mobile}`
       );
+      navigate(`/patient/${id}`);
 
       // console.log("Response from server:", response.data);
     } catch (error) {

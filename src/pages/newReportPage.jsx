@@ -125,20 +125,20 @@ const NewReportPage = () => {
     fetchPatient();
   }, [id]);
 
-  // const handleChange = (e) => {
-  //   setFormData((prev) => ({
-  //     ...prev,
-  //     [e.target.name]: e.target.value,
-  //   }));
-  // };
+  const handleChange = (e) => {
+    setFormData((prev) => ({
+      ...prev,
+      [e.target.name]: e.target.value,
+    }));
+  };
 
-  const handleChange = (event) => {
-  const { name, value } = event.target;
-  setFormData((prev) => ({
-    ...prev,
-    [name]: typeof value === "string" ? value.split(",") : value,
-  }));
-};
+//   const handleChange = (event) => {
+//   const { name, value } = event.target;
+//   setFormData((prev) => ({
+//     ...prev,
+//     [name]: typeof value === "string" ? value.split(",") : value,
+//   }));
+// };
 
 
   const handleSubmit = async () => {
@@ -149,10 +149,10 @@ const NewReportPage = () => {
         title: formData.title,
         fullname: formData.name,
         sex: formData.gender,
-        mobile: formData.phone || 0,
+        mobile: Number(formData.phone) || 0,
         dateofreg: "",
         time: "",
-        age: formData.age || 0,
+        age: Number(formData.age) || 0,
         empanelment: formData.empanelment,
         bloodGroup: formData.bloodGroup,
         religion: formData.religion,
@@ -178,13 +178,14 @@ const NewReportPage = () => {
         registered_by: username,
       };
 
+      console.log("Payload to be sent:", payload);
       await axios.put(`${backendUrl}/patient/${formData.uhid}`, payload, {
         headers: {
           "x-api-key": import.meta.env.VITE_API_KEY,
         },
       });
       setLoading(false);
-      navigate(`/patient/${id}`);
+      navigate(`/patient/${formData.uhid}`);
     } catch (err) {
       console.error(err);
       setLoading(false);
@@ -242,6 +243,7 @@ const NewReportPage = () => {
         <TextField
           label="Age"
           name="age"
+          type="number"
           value={formData.age}
           onChange={handleChange}
           sx={{ flex: "1 1 20%" }}
