@@ -72,7 +72,7 @@ const NewReportPage = () => {
     "Dr. Ahmad Ayaz",
   ];
 
-  const titles = ["Mr.", "Mrs.", "Miss"];
+  const titles = ["Mr.", "Ms.", "Mrs.", "Baby"];
   const genders = ["Male", "Female", "Other"];
   const religions = ["Hindu", "Muslim", "Christian", "Other"];
   const maritalStatuses = ["Single", "Married"];
