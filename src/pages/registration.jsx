@@ -27,7 +27,7 @@ const RegistrationForm = () => {
   const [searchId, setSearchId] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const username = localStorage.getItem("username");
+  const username = sessionStorage.getItem("username");
 
   const navigate = useNavigate();
 

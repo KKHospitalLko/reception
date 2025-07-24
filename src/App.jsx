@@ -16,11 +16,13 @@ import HotelIcon from "@mui/icons-material/Hotel";
 import LogoutIcon from "@mui/icons-material/Logout";
 
 export default function App() {
-  const username = localStorage.getItem("username");
-  const handleLogout = () => {
-    localStorage.removeItem("username");
-    window.location.href = "/login";
-  };
+ const username = sessionStorage.getItem("username");
+
+const handleLogout = () => {
+  sessionStorage.removeItem("username");
+  window.location.href = "/login";
+};
+
 
   const sections = [
     // {

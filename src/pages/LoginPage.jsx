@@ -55,24 +55,25 @@ const LoginPage = () => {
   const navigate = useNavigate();
 
   const handleLogin = () => {
-    const user = USERS.find(
-      (u) => u.username === username.trim() && u.password === password.trim()
-    );
+  const user = USERS.find(
+    (u) => u.username === username.trim() && u.password === password.trim()
+  );
 
-    if (user) {
-      localStorage.setItem("username", user.name);
-      setToastMsg("Login successful!");
-      setToastSeverity("success");
-      setToastOpen(true);
-      setTimeout(() => {
-        navigate("/", { state: { username: user.name } });
-      }, 1000);
-    } else {
-      setToastMsg("Invalid username or password.");
-      setToastSeverity("error");
-      setToastOpen(true);
-    }
-  };
+  if (user) {
+    sessionStorage.setItem("username", user.name);
+    setToastMsg("Login successful!");
+    setToastSeverity("success");
+    setToastOpen(true);
+    setTimeout(() => {
+      navigate("/", { state: { username: user.name } });
+    }, 1000);
+  } else {
+    setToastMsg("Invalid username or password.");
+    setToastSeverity("error");
+    setToastOpen(true);
+  }
+};
+
 
   return (
     <Box

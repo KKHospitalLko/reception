@@ -20,7 +20,7 @@ const NewReportPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const backendUrl = import.meta.env.VITE_BACKEND_URL;
-  const username = localStorage.getItem("username");
+  const username = sessionStorage.getItem("username");
   // console.log("Username:", username);
   const [loading, setLoading] = useState(true);
   const [patient, setPatient] = useState(null);
