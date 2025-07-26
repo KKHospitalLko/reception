@@ -54,26 +54,47 @@ const LoginPage = () => {
 
   const navigate = useNavigate();
 
-  const handleLogin = () => {
-  const user = USERS.find(
-    (u) => u.username === username.trim() && u.password === password.trim()
-  );
+  // const handleLogin = () => {
+  //   const user = USERS.find(
+  //     (u) => u.username === username.trim() && u.password === password.trim()
+  //   );
 
-  if (user) {
-    sessionStorage.setItem("username", user.name);
-    setToastMsg("Login successful!");
-    setToastSeverity("success");
-    setToastOpen(true);
-    setTimeout(() => {
-      navigate("/", { state: { username: user.name } });
-    }, 1000);
-  } else {
-    setToastMsg("Invalid username or password.");
-    setToastSeverity("error");
-    setToastOpen(true);
-  }
-};
+  //   if (user) {
+  //     sessionStorage.setItem("username", user.name);
+  //     setToastMsg("Login successful!");
+  //     setToastSeverity("success");
+  //     setToastOpen(true);
+  //     setTimeout(() => {
+  //       navigate("/", { state: { username: user.name } });
+  //     }, 1000);
+  //   } else {
+  //     setToastMsg("Invalid username or password.");
+  //     setToastSeverity("error");
+  //     setToastOpen(true);
+  //   }
+  // };
 
+  const handleLogin = (e) => {
+    e.preventDefault(); // ✅ prevent page reload
+
+    const user = USERS.find(
+      (u) => u.username === username.trim() && u.password === password.trim()
+    );
+
+    if (user) {
+      sessionStorage.setItem("username", user.name);
+      setToastMsg("Login successful!");
+      setToastSeverity("success");
+      setToastOpen(true);
+      setTimeout(() => {
+        navigate("/", { state: { username: user.name } });
+      }, 1000);
+    } else {
+      setToastMsg("Invalid username or password.");
+      setToastSeverity("error");
+      setToastOpen(true);
+    }
+  };
 
   return (
     <Box
@@ -87,47 +108,48 @@ const LoginPage = () => {
         <Typography variant="h5" mb={2}>
           Login
         </Typography>
-        <TextField
-          label="Username"
-          fullWidth
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-          margin="normal"
-        />
-        <TextField
-          label="Password"
-          fullWidth
-          type={showPassword ? "text" : "password"}
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          margin="normal"
-          InputProps={{
-            endAdornment: (
-              <InputAdornment position="end">
-                <IconButton
-                  onClick={() => setShowPassword((prev) => !prev)}
-                  edge="end"
-                >
-                  {showPassword ? <VisibilityOff /> : <Visibility />}
-                </IconButton>
-              </InputAdornment>
-            ),
-          }}
-        />
-
-        <Button
-          variant="contained"
-          onClick={handleLogin}
-          sx={{
-            backgroundColor: "#5fc1b2",
-            "&:hover": {
-              backgroundColor: "#4da99f",
-            },
-          }}
-          fullWidth
-        >
-          Login
-        </Button>
+        <form onSubmit={handleLogin}>
+          <TextField
+            label="Username"
+            fullWidth
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            margin="normal"
+          />
+          <TextField
+            label="Password"
+            fullWidth
+            type={showPassword ? "text" : "password"}
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            margin="normal"
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton
+                    onClick={() => setShowPassword((prev) => !prev)}
+                    edge="end"
+                  >
+                    {showPassword ? <VisibilityOff /> : <Visibility />}
+                  </IconButton>
+                </InputAdornment>
+              ),
+            }}
+          />
+          <Button
+            type="submit" // ✅ Submit on Enter
+            variant="contained"
+            sx={{
+              backgroundColor: "#5fc1b2",
+              "&:hover": {
+                backgroundColor: "#4da99f",
+              },
+            }}
+            fullWidth
+          >
+            Login
+          </Button>
+        </form>
       </Paper>
 
       <Snackbar

@@ -24,6 +24,7 @@ const PatientPage = () => {
     try {
       const res = await axios.get(`${backendUrl}/patient/${id}`, {
         headers: {
+          "Content-Type": "application/json",
           "x-api-key": import.meta.env.VITE_API_KEY,
         },
       });

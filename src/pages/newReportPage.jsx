@@ -82,6 +82,7 @@ const NewReportPage = () => {
       try {
         const res = await axios.get(`${backendUrl}/patient/${id}`, {
           headers: {
+            "Content-Type": "application/json",
             "x-api-key": import.meta.env.VITE_API_KEY,
           },
         });
@@ -132,14 +133,13 @@ const NewReportPage = () => {
     }));
   };
 
-//   const handleChange = (event) => {
-//   const { name, value } = event.target;
-//   setFormData((prev) => ({
-//     ...prev,
-//     [name]: typeof value === "string" ? value.split(",") : value,
-//   }));
-// };
-
+  //   const handleChange = (event) => {
+  //   const { name, value } = event.target;
+  //   setFormData((prev) => ({
+  //     ...prev,
+  //     [name]: typeof value === "string" ? value.split(",") : value,
+  //   }));
+  // };
 
   const handleSubmit = async () => {
     setLoading(true);
@@ -181,6 +181,7 @@ const NewReportPage = () => {
       console.log("Payload to be sent:", payload);
       await axios.put(`${backendUrl}/patient/${formData.uhid}`, payload, {
         headers: {
+          "Content-Type": "application/json",
           "x-api-key": import.meta.env.VITE_API_KEY,
         },
       });
@@ -347,20 +348,16 @@ const NewReportPage = () => {
         </TextField>
 
         <TextField
-            label="Registration Amount"
-            name="regAmount"
-            value={formData.regAmount}
-            onChange={handleChange}
-            fullWidth
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">₹</InputAdornment>
-              ),
-            }}
-          />
-          <div />
-
-
+          label="Registration Amount"
+          name="regAmount"
+          value={formData.regAmount}
+          onChange={handleChange}
+          fullWidth
+          InputProps={{
+            startAdornment: <InputAdornment position="start">₹</InputAdornment>,
+          }}
+        />
+        <div />
       </Box>
 
       {/* Row 4: Father/Husband, Doctor */}
@@ -374,29 +371,28 @@ const NewReportPage = () => {
           fullWidth
         />
         <FormControl fullWidth>
-  <InputLabel>Consulting Doctor(s) Incharge</InputLabel>
-  <Select
-    multiple
-    name="doctorIncharge"
-    value={formData.doctorIncharge}
-    onChange={handleChange}
-    input={<OutlinedInput label="Consulting Doctor(s) Incharge" />}
-    renderValue={(selected) => (
-      <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
-        {selected.map((value) => (
-          <Chip key={value} label={value} />
-        ))}
-      </Box>
-    )}
-  >
-    {doctorOptions.map((doc) => (
-      <MenuItem key={doc} value={doc}>
-        {doc}
-      </MenuItem>
-    ))}
-  </Select>
-</FormControl>
-
+          <InputLabel>Consulting Doctor(s) Incharge</InputLabel>
+          <Select
+            multiple
+            name="doctorIncharge"
+            value={formData.doctorIncharge}
+            onChange={handleChange}
+            input={<OutlinedInput label="Consulting Doctor(s) Incharge" />}
+            renderValue={(selected) => (
+              <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
+                {selected.map((value) => (
+                  <Chip key={value} label={value} />
+                ))}
+              </Box>
+            )}
+          >
+            {doctorOptions.map((doc) => (
+              <MenuItem key={doc} value={doc}>
+                {doc}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
       </Box>
 
       {/* Local Address Section */}

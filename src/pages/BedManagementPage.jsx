@@ -65,6 +65,7 @@ export default function BedAllocationPage() {
     axios
       .get(`${backendUrl}/beds/available`, {
         headers: {
+          "Content-Type": "application/json",
           "x-api-key": import.meta.env.VITE_API_KEY,
         },
       })
@@ -81,6 +82,7 @@ export default function BedAllocationPage() {
     axios
       .get(`${backendUrl}/beds/available`, {
         headers: {
+          "Content-Type": "application/json",
           "x-api-key": import.meta.env.VITE_API_KEY,
         },
       })
@@ -100,6 +102,7 @@ export default function BedAllocationPage() {
     axios
       .get(`${backendUrl}/beds`, {
         headers: {
+          "Content-Type": "application/json",
           "x-api-key": import.meta.env.VITE_API_KEY,
         },
       })
@@ -129,6 +132,7 @@ export default function BedAllocationPage() {
     axios
       .post(`${backendUrl}/bed_allotment`, payload, {
         headers: {
+          "Content-Type": "application/json",
           "x-api-key": import.meta.env.VITE_API_KEY,
         },
       })
@@ -164,6 +168,7 @@ export default function BedAllocationPage() {
     axios
       .delete(`${backendUrl}/bed/${bedNumber}`, {
         headers: {
+          "Content-Type": "application/json",
           "x-api-key": import.meta.env.VITE_API_KEY,
         },
       })
@@ -212,6 +217,7 @@ export default function BedAllocationPage() {
         },
         {
           headers: {
+            "Content-Type": "application/json",
             "x-api-key": import.meta.env.VITE_API_KEY,
           },
         }
@@ -378,71 +384,101 @@ export default function BedAllocationPage() {
       {filteredBeds.length === 0 ? (
         <Typography>No occupied beds yet.</Typography>
       ) : (
-        <Table>
-          <TableHead>
-            <TableRow sx={{ backgroundColor: "#5fc1b2" }}>
-              <TableCell
-                sx={{ fontWeight: "bold", fontSize: "1rem", color: "#fff" }}
-              >
-                UHID
-              </TableCell>
-              <TableCell
-                sx={{ fontWeight: "bold", fontSize: "1rem", color: "#fff" }}
-              >
-                Patient Name
-              </TableCell>
-              <TableCell
-                sx={{ fontWeight: "bold", fontSize: "1rem", color: "#fff" }}
-              >
-                Department
-              </TableCell>
-              <TableCell
-                sx={{ fontWeight: "bold", fontSize: "1rem", color: "#fff" }}
-              >
-                Bed Number
-              </TableCell>
-              <TableCell
-                sx={{ fontWeight: "bold", fontSize: "1rem", color: "#fff" }}
-              >
-                Actions
-              </TableCell>
-            </TableRow>
-          </TableHead>
-
-          <TableBody>
-            {filteredBeds.map((a, index) => (
-              <TableRow
-                key={a.bed_id}
-                sx={{
-                  backgroundColor: index % 2 === 0 ? "#ffffff" : "#dcf3ec",
-                }}
-              >
-                <TableCell>{a.uhid}</TableCell>
-                <TableCell>{a.patient_name}</TableCell>
-                <TableCell>{a.department}</TableCell>
-                <TableCell>{a.bed_number}</TableCell>
-                <TableCell>
-                  <Button
-                    variant="contained"
-                    size="small"
-                    color="error"
-                    onClick={() => handleRemoveBed(a.bed_number)}
-                  >
-                    Remove
-                  </Button>
-                  <Button
-                    variant="contained"
-                    size="small"
-                    sx={{ ml: 1 }}
-                    onClick={() => handleChangeBed(a)}
-                  >
-                    Shift Patient
-                  </Button>
+        <TableContainer
+          component={Paper}
+          sx={{ overflowX: "auto", maxWidth: "100%" }}
+        >
+          <Table sx={{ minWidth: 650 }}>
+            <TableHead>
+              <TableRow sx={{ backgroundColor: "#5fc1b2" }}>
+                <TableCell
+                  sx={{
+                    fontWeight: "bold",
+                    fontSize: "1rem",
+                    color: "#fff",
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  UHID
+                </TableCell>
+                <TableCell
+                  sx={{
+                    fontWeight: "bold",
+                    fontSize: "1rem",
+                    color: "#fff",
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  Patient Name
+                </TableCell>
+                <TableCell
+                  sx={{
+                    fontWeight: "bold",
+                    fontSize: "1rem",
+                    color: "#fff",
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  Department
+                </TableCell>
+                <TableCell
+                  sx={{
+                    fontWeight: "bold",
+                    fontSize: "1rem",
+                    color: "#fff",
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  Bed Number
+                </TableCell>
+                <TableCell
+                  sx={{
+                    fontWeight: "bold",
+                    fontSize: "1rem",
+                    color: "#fff",
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  Actions
                 </TableCell>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+            </TableHead>
+
+            <TableBody>
+              {filteredBeds.map((a, index) => (
+                <TableRow
+                  key={a.bed_id}
+                  sx={{
+                    backgroundColor: index % 2 === 0 ? "#ffffff" : "#dcf3ec",
+                  }}
+                >
+                  <TableCell>{a.uhid}</TableCell>
+                  <TableCell>{a.patient_name}</TableCell>
+                  <TableCell>{a.department}</TableCell>
+                  <TableCell>{a.bed_number}</TableCell>
+                  <TableCell sx={{ whiteSpace: "nowrap" }}>
+                    <Button
+                      variant="contained"
+                      size="small"
+                      color="error"
+                      onClick={() => handleRemoveBed(a.bed_number)}
+                    >
+                      Remove
+                    </Button>
+                    <Button
+                      variant="contained"
+                      size="small"
+                      sx={{ ml: 1 }}
+                      onClick={() => handleChangeBed(a)}
+                    >
+                      Shift Patient
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
       )}
 
       <Dialog
