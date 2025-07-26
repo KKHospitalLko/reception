@@ -127,7 +127,7 @@ const RegistrationForm = () => {
         maritalStatus: formData.maritalStatus,
         fatherHusband: formData.fatherOrHusband,
         doctorIncharge: formData.doctorIncharge,
-        regAmount: formData.regAmount || 0,
+        regAmount: Number(formData.regAmount) || 0,
         localAddress: {
           address: formData.localAddress,
           city: formData.localCity,
