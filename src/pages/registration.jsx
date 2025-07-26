@@ -145,7 +145,7 @@ const RegistrationForm = () => {
         registered_by: username,
       };
 
-      // console.log("Payload to be sent:", payload);
+      console.log("Payload to be sent:", payload);
       const response = await axios.post(backendUrl + "/patient", payload, {
         headers: {
           "Content-Type": "application/json",
