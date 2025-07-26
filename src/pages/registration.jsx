@@ -277,6 +277,7 @@ const RegistrationForm = () => {
             <TextField
               label="Age"
               name="age"
+              type="number"
               value={formData.age}
               onChange={handleChange}
               fullWidth
@@ -308,6 +309,7 @@ const RegistrationForm = () => {
             <TextField
               label="Phone Number"
               name="phone"
+              type="number"
               value={formData.phone}
               onChange={handleChange}
               fullWidth
@@ -428,6 +430,7 @@ const RegistrationForm = () => {
             <TextField
               label="Registration Amount"
               name="regAmount"
+              type="number"
               value={formData.regAmount}
               onChange={handleChange}
               fullWidth
@@ -548,6 +551,7 @@ const RegistrationForm = () => {
             <TextField
               label="ZIP"
               name="localZip"
+              type="number"
               value={formData.localZip}
               onChange={handleChange}
               fullWidth
@@ -621,6 +625,7 @@ const RegistrationForm = () => {
             <TextField
               label="ZIP"
               name="permanentZip"
+              type="number"
               value={formData.permanentZip}
               onChange={handleChange}
               fullWidth
