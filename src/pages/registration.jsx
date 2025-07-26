@@ -116,7 +116,7 @@ const RegistrationForm = () => {
         title: formData.title,
         fullname: formData.name,
         sex: formData.gender,
-        mobile: Number(formData.phone) || 0,
+        mobile: formData.phone,
         dateofreg: "",
         time: "",
         age: Number(formData.age) || 0,
