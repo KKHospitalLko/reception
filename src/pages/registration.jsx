@@ -233,7 +233,7 @@ const RegistrationForm = () => {
           mt={2}
         >
           <TextField
-            label="Patient ID or Number"
+            label="Patient ID / Phone Number"
             value={searchId}
             onChange={(e) => setSearchId(e.target.value)}
           />

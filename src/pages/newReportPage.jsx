@@ -188,10 +188,21 @@ const NewReportPage = () => {
       });
       setLoading(false);
       navigate(`/patient/${formData.uhid}`);
-    } catch (err) {
-      console.error(err);
+    } catch (error) {
       setLoading(false);
-      alert("Failed to save new report");
+      if (error.response && Array.isArray(error.response.data?.detail)) {
+        // Show all validation messages if available
+        const messages = error.response.data.detail
+          .map((d) => d.msg)
+          .join("\n");
+        alert(messages);
+      } else if (error.response?.data?.detail) {
+        // Single validation message
+        alert(error.response.data.detail);
+      } else {
+        console.error("Error submitting form:", error);
+        alert("Something went wrong. Please try again.");
+      }
     }
   };
 
