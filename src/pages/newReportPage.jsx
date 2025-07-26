@@ -141,7 +141,8 @@ const NewReportPage = () => {
   //   }));
   // };
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (event) => {
+    event.preventDefault();
     setLoading(true);
     try {
       const payload = {
@@ -219,11 +220,14 @@ const NewReportPage = () => {
         Create New Report for {patient.fullname}
       </Typography>
 
+      <form onSubmit={handleSubmit}>
+
       <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2, mb: 2 }}>
         <TextField
           select
           label="Title"
           name="title"
+          required
           value={formData.title}
           onChange={handleChange}
           sx={{ flex: "1 1 20%" }}
@@ -237,6 +241,7 @@ const NewReportPage = () => {
         <TextField
           label="Full Name"
           name="name"
+          required
           value={formData.name}
           onChange={handleChange}
           sx={{ flex: "1 1 20%" }}
@@ -245,6 +250,7 @@ const NewReportPage = () => {
           label="Age"
           name="age"
           type="number"
+          required
           value={formData.age}
           onChange={handleChange}
           sx={{ flex: "1 1 20%" }}
@@ -253,6 +259,7 @@ const NewReportPage = () => {
           select
           label="Gender"
           name="gender"
+          required
           value={formData.gender}
           onChange={handleChange}
           sx={{ flex: "1 1 20%" }}
@@ -270,6 +277,7 @@ const NewReportPage = () => {
         <TextField
           label="Phone"
           name="phone"
+          required
           value={formData.phone}
           onChange={handleChange}
           sx={{ flex: "1 1 20%" }}
@@ -278,6 +286,7 @@ const NewReportPage = () => {
         <TextField
           label="Blood Group"
           name="bloodGroup"
+          required
           value={formData.bloodGroup}
           onChange={handleChange}
           sx={{ flex: "1 1 20%" }}
@@ -287,6 +296,7 @@ const NewReportPage = () => {
           select
           label="Religion"
           name="religion"
+          required
           value={formData.religion}
           onChange={handleChange}
           sx={{ flex: "1 1 20%" }}
@@ -302,6 +312,7 @@ const NewReportPage = () => {
           select
           label="Marital Status"
           name="maritalStatus"
+          required
           value={formData.maritalStatus}
           onChange={handleChange}
           sx={{ flex: "1 1 20%" }}
@@ -321,6 +332,7 @@ const NewReportPage = () => {
           select
           label="Empanelment"
           name="empanelment"
+          required
           value={formData.empanelment}
           onChange={handleChange}
           sx={{ flex: "1 1 45%" }}
@@ -350,6 +362,7 @@ const NewReportPage = () => {
         <TextField
           label="Registration Amount"
           name="regAmount"
+          required
           value={formData.regAmount}
           onChange={handleChange}
           fullWidth
@@ -365,12 +378,13 @@ const NewReportPage = () => {
         <TextField
           label="Father / Husband"
           name="fatherOrHusband"
+          required
           value={formData.fatherOrHusband}
           onChange={handleChange}
           sx={{ flex: "1 1 45%" }}
           fullWidth
         />
-        <FormControl fullWidth>
+        <FormControl fullWidth required>
           <InputLabel>Consulting Doctor(s) Incharge</InputLabel>
           <Select
             multiple
@@ -403,6 +417,7 @@ const NewReportPage = () => {
         <TextField
           label="Address"
           name="localAddress"
+          required
           value={formData.localAddress}
           onChange={handleChange}
           sx={{ flex: "1 1 100%" }}
@@ -411,6 +426,7 @@ const NewReportPage = () => {
         <TextField
           label="City"
           name="localCity"
+          required
           value={formData.localCity}
           onChange={handleChange}
           sx={{ flex: "1 1 20%" }}
@@ -419,6 +435,7 @@ const NewReportPage = () => {
         <TextField
           label="State"
           name="localState"
+          required
           value={formData.localState}
           onChange={handleChange}
           sx={{ flex: "1 1 20%" }}
@@ -427,6 +444,7 @@ const NewReportPage = () => {
         <TextField
           label="Country"
           name="localCountry"
+          required
           value={formData.localCountry}
           onChange={handleChange}
           sx={{ flex: "1 1 20%" }}
@@ -435,6 +453,7 @@ const NewReportPage = () => {
         <TextField
           label="ZIP"
           name="localZip"
+          required
           value={formData.localZip}
           onChange={handleChange}
           sx={{ flex: "1 1 20%" }}
@@ -450,6 +469,7 @@ const NewReportPage = () => {
         <TextField
           label="Address"
           name="permanentAddress"
+          required
           value={formData.permanentAddress}
           onChange={handleChange}
           sx={{ flex: "1 1 100%" }}
@@ -458,6 +478,7 @@ const NewReportPage = () => {
         <TextField
           label="City"
           name="permanentCity"
+          required
           value={formData.permanentCity}
           onChange={handleChange}
           sx={{ flex: "1 1 20%" }}
@@ -466,6 +487,7 @@ const NewReportPage = () => {
         <TextField
           label="State"
           name="permanentState"
+          required
           value={formData.permanentState}
           onChange={handleChange}
           sx={{ flex: "1 1 20%" }}
@@ -474,6 +496,7 @@ const NewReportPage = () => {
         <TextField
           label="Country"
           name="permanentCountry"
+          required
           value={formData.permanentCountry}
           onChange={handleChange}
           sx={{ flex: "1 1 20%" }}
@@ -482,6 +505,7 @@ const NewReportPage = () => {
         <TextField
           label="ZIP"
           name="permanentZip"
+          required
           value={formData.permanentZip}
           onChange={handleChange}
           sx={{ flex: "1 1 20%" }}
@@ -489,8 +513,9 @@ const NewReportPage = () => {
         />
 
         <Button
+        type="submit"
           variant="contained"
-          onClick={handleSubmit}
+          // onClick={handleSubmit}
           sx={{
             mb: 2,
             backgroundColor: "#5fc1b2",
@@ -500,6 +525,8 @@ const NewReportPage = () => {
           Save New Report
         </Button>
       </Box>
+      </form>
+
     </Box>
   );
 };

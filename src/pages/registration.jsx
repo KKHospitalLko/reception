@@ -166,13 +166,19 @@ const RegistrationForm = () => {
 
       // console.log("Response from server:", response.data);
     } catch (error) {
-      if (error.response.status === 400) {
-        setLoading(false);
-        alert(error.response.data.detail || "Failed to save patient data");
+      setLoading(false);
+      if (error.response && Array.isArray(error.response.data?.detail)) {
+        // Show all validation messages if available
+        const messages = error.response.data.detail
+          .map((d) => d.msg)
+          .join("\n");
+        alert(messages);
+      } else if (error.response?.data?.detail) {
+        // Single validation message
+        alert(error.response.data.detail);
       } else {
         console.error("Error submitting form:", error);
-        setLoading(false);
-        alert("Something went wrong!");
+        alert("Something went wrong. Please try again.");
       }
     }
   };
@@ -219,27 +225,32 @@ const RegistrationForm = () => {
         </h2>
       </Box>
       <Box display="flex" justifyContent="end" mr={2}>
-  <Box component="form" onSubmit={handleUHIDSearch} display="flex" gap={2} mt={2}>
-    <TextField
-      label="Patient ID or Number"
-      value={searchId}
-      onChange={(e) => setSearchId(e.target.value)}
-    />
-    <Button
-      type="submit" // ✅ Triggers on Enter key press
-      variant="contained"
-      sx={{
-        backgroundColor: "#5fc1b2",
-        "&:hover": {
-          backgroundColor: "#4da99f",
-        },
-      }}
-    >
-      Search
-    </Button>
-  </Box>
-</Box>
-
+        <Box
+          component="form"
+          onSubmit={handleUHIDSearch}
+          display="flex"
+          gap={2}
+          mt={2}
+        >
+          <TextField
+            label="Patient ID or Number"
+            value={searchId}
+            onChange={(e) => setSearchId(e.target.value)}
+          />
+          <Button
+            type="submit" // ✅ Triggers on Enter key press
+            variant="contained"
+            sx={{
+              backgroundColor: "#5fc1b2",
+              "&:hover": {
+                backgroundColor: "#4da99f",
+              },
+            }}
+          >
+            Search
+          </Button>
+        </Box>
+      </Box>
 
       <form onSubmit={handleSubmit}>
         <div className="w-full mx-auto bg-white p-6 rounded-lg shadow-md">
