@@ -167,14 +167,14 @@ const NewReportPage = () => {
           city: formData.localCity,
           state: formData.localState,
           country: formData.localCountry,
-          zip: Number(formData.localZip) || 0,
+          zip: formData.localZip,
         },
         permanentAddress: {
           address: formData.permanentAddress,
           city: formData.permanentCity,
           state: formData.permanentState,
           country: formData.permanentCountry,
-          zip: Number(formData.permanentZip) || 0,
+          zip: formData.permanentZip,
         },
         registered_by: username,
       };

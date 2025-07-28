@@ -154,22 +154,22 @@ export default function BedAllocationPage() {
       //     showToast("Failed to allot bed. Please try again.", "error");
       //   }
       // })
-      .catch ((error) => {
-      setLoading(false);
-      if (error.response && Array.isArray(error.response.data?.detail)) {
-        // Show all validation messages if available
-        const messages = error.response.data.detail
-          .map((d) => d.msg)
-          .join("\n");
-        alert(messages);
-      } else if (error.response?.data?.detail) {
-        // Single validation message
-        alert(error.response.data.detail);
-      } else {
-        console.error("Error submitting form:", error);
-        alert("Something went wrong. Please try again.");
-      }
-    })
+      .catch((error) => {
+        setLoading(false);
+        if (error.response && Array.isArray(error.response.data?.detail)) {
+          // Show all validation messages if available
+          const messages = error.response.data.detail
+            .map((d) => d.msg)
+            .join("\n");
+          alert(messages);
+        } else if (error.response?.data?.detail) {
+          // Single validation message
+          alert(error.response.data.detail);
+        } else {
+          console.error("Error submitting form:", error);
+          alert("Something went wrong. Please try again.");
+        }
+      })
       .finally(() => {
         setLoading(false);
       });
