@@ -115,6 +115,47 @@ export default function BedAllocationPage() {
       });
   };
 
+  useEffect(() => {
+  const fetchPatientName = async () => {
+    try {
+      setLoading(true);
+      // console.log("Fetching patient for UHID:", uhid);
+      const res = await axios.get(`${backendUrl}/beds/patient/${uhid}`, {
+        headers: {
+          "Content-Type": "application/json",
+          "x-api-key": import.meta.env.VITE_API_KEY,
+        },
+      });
+      // console.log("Patient API response:", res.data.fullname);
+      setName(res.data.fullname);
+      setLoading(false);
+    } catch (error) {
+      setLoading(false);
+      if (error.response && Array.isArray(error.response.data?.detail)) {
+        // Show all validation messages if available
+        const messages = error.response.data.detail
+          .map((d) => d.msg)
+          .join("\n");
+        alert(messages);
+      } else if (error.response?.data?.detail) {
+        // Single validation message
+        alert(error.response.data.detail);
+      } else {
+        console.error("Error submitting form:", error);
+        alert("Something went wrong. Please try again.");
+      }
+    }
+  };
+
+  if (uhid.trim().length === 8) {
+    fetchPatientName();
+  } else {
+    setName("");
+  }
+}, [uhid]);
+
+
+
   const handleAdd = () => {
     if (!uhid || !name || !department || !bed) {
       showToast("Please fill all fields", "warning");
@@ -303,22 +344,23 @@ export default function BedAllocationPage() {
       <Paper sx={{ p: 2, mb: 3 }}>
         <Grid container spacing={2}>
           <Grid item width={"28%"}>
-            <TextField
-              label="UHID"
-              type="number"
-              value={uhid}
-              onChange={(e) => setUhid(e.target.value)}
-              fullWidth
-            />
-          </Grid>
-          <Grid item width={"70%"}>
-            <TextField
-              label="Patient Name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              fullWidth
-            />
-          </Grid>
+  <TextField
+    label="UHID"
+    type="number"
+    value={uhid}
+    onChange={(e) => setUhid(e.target.value)}
+    fullWidth
+  />
+</Grid>
+<Grid item width={"70%"}>
+  <TextField
+    label="Patient Name"
+    value={name}
+    onChange={(e) => setName(e.target.value)}
+    fullWidth
+  />
+</Grid>
+
           <Grid item width={"25%"}>
             <TextField
               select
