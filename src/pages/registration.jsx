@@ -69,7 +69,7 @@ const RegistrationForm = () => {
     age: "",
     empanelment: "other",
     empanelmentText: "",
-    bloodGroup: "",
+    // bloodGroup: "",
     religion: "",
     // empanelType: "",
     maritalStatus: "",
@@ -121,7 +121,7 @@ const RegistrationForm = () => {
         time: "",
         age: Number(formData.age) || 0,
         empanelment: formData.empanelment,
-        bloodGroup: formData.bloodGroup,
+        // bloodGroup: formData.bloodGroup,
         religion: formData.religion,
         // intimationOrExtension: formData.empanelType,
         maritalStatus: formData.maritalStatus,
@@ -326,7 +326,8 @@ const RegistrationForm = () => {
               fullWidth
               required
             />
-            <FormControl fullWidth required>
+            
+            {/* <FormControl fullWidth required>
               <InputLabel>Blood Group</InputLabel>
               <Select
                 name="bloodGroup"
@@ -343,7 +344,8 @@ const RegistrationForm = () => {
                 <MenuItem value="AB+">AB+</MenuItem>
                 <MenuItem value="AB+">AB-</MenuItem>
               </Select>
-            </FormControl>
+            </FormControl> */}
+
             <FormControl fullWidth required>
               <InputLabel>Religion</InputLabel>
               <Select

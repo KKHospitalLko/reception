@@ -32,7 +32,7 @@ const NewReportPage = () => {
     phone: "",
     age: "",
     empanelment: "",
-    bloodGroup: "",
+    // bloodGroup: "",
     religion: "",
     empanelType: "",
     maritalStatus: "",
@@ -97,7 +97,7 @@ const NewReportPage = () => {
           gender: p.sex,
           phone: p.mobile,
           age: p.age,
-          bloodGroup: p.bloodGroup,
+          // bloodGroup: p.bloodGroup,
           empanelment: p.empanelment,
           empanelType: p.intimationOrExtension,
           regAmount: p.regAmount || "",
@@ -155,7 +155,7 @@ const NewReportPage = () => {
         time: "",
         age: Number(formData.age) || 0,
         empanelment: formData.empanelment,
-        bloodGroup: formData.bloodGroup,
+        // bloodGroup: formData.bloodGroup,
         religion: formData.religion,
         // intimationOrExtension: formData.empanelType,
         maritalStatus: formData.maritalStatus,
@@ -294,7 +294,7 @@ const NewReportPage = () => {
           sx={{ flex: "1 1 20%" }}
           fullWidth
         />
-        <TextField
+        {/* <TextField
           label="Blood Group"
           name="bloodGroup"
           required
@@ -302,7 +302,7 @@ const NewReportPage = () => {
           onChange={handleChange}
           sx={{ flex: "1 1 20%" }}
           fullWidth
-        />
+        /> */}
         <TextField
           select
           label="Religion"

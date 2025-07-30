@@ -106,7 +106,7 @@ const PatientPage = () => {
                   <Typography><strong>Age:</strong> {item.age}</Typography>
                   <Typography><strong>Sex:</strong> {item.sex}</Typography>
                   <Typography><strong>Mobile:</strong> {item.mobile}</Typography>
-                  <Typography><strong>Blood Group:</strong> {item.bloodGroup}</Typography>
+                  {/* <Typography><strong>Blood Group:</strong> {item.bloodGroup}</Typography> */}
                   <Typography><strong>Religion:</strong> {item.religion}</Typography>
                   <Typography><strong>Marital Status:</strong> {item.maritalStatus}</Typography>
                   <Typography><strong>Father/Husband:</strong> {item.fatherHusband}</Typography>
