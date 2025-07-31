@@ -326,7 +326,7 @@ const RegistrationForm = () => {
               fullWidth
               required
             />
-            
+
             {/* <FormControl fullWidth required>
               <InputLabel>Blood Group</InputLabel>
               <Select
@@ -372,12 +372,27 @@ const RegistrationForm = () => {
                 <MenuItem value="Married">Married</MenuItem>
               </Select>
             </FormControl>
+
+            <TextField
+              label="Registration Amount"
+              name="regAmount"
+              type="number"
+              value={formData.regAmount}
+              onChange={handleChange}
+              fullWidth
+              required
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">₹</InputAdornment>
+                ),
+              }}
+            />
           </Box>
 
           {/* Row 3 */}
           <Box
             display="grid"
-            gridTemplateColumns="1fr 1fr 1fr 1fr"
+            gridTemplateColumns="1fr 1fr 2fr"
             gap={2}
             mt={2}
           >
@@ -439,32 +454,7 @@ const RegistrationForm = () => {
               />
             </RadioGroup>
           </FormControl> */}
-
-            <TextField
-              label="Registration Amount"
-              name="regAmount"
-              type="number"
-              value={formData.regAmount}
-              onChange={handleChange}
-              fullWidth
-              required
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">₹</InputAdornment>
-                ),
-              }}
-            />
-            <div />
-          </Box>
-
-          {/* Row 4 */}
-          <Box
-            display="grid"
-            gridTemplateColumns="repeat(2, 1fr)"
-            gap={2}
-            mt={2}
-          >
-            <TextField
+          <TextField
               label="Father's / Husband's Name"
               name="fatherOrHusband"
               value={formData.fatherOrHusband}
@@ -472,7 +462,11 @@ const RegistrationForm = () => {
               fullWidth
               required
             />
+            <div />
+          </Box>
 
+          {/* Row 4 */}
+          <Box>
             <FormControl fullWidth required>
               <InputLabel>Consulting Doctor(s) Incharge</InputLabel>
               <Select
