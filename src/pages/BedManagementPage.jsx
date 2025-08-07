@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import Navbar from "../components/Navbar";
 import {
   Box,
   Button,
@@ -315,7 +316,9 @@ export default function BedAllocationPage() {
     : occupiedBeds;
 
   return (
-    <Box p={4}>
+    <>
+      <Navbar />
+      <Box p={4}>
       {/* Loading spinner */}
       <Backdrop open={loading} sx={{ color: "#fff", zIndex: 9999 }}>
         <CircularProgress color="inherit" />
@@ -667,5 +670,6 @@ export default function BedAllocationPage() {
         </Alert>
       </Snackbar>
     </Box>
+    </>
   );
 }

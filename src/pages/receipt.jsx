@@ -1,12 +1,12 @@
 // PaymentForm.js
-import React, { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
+import Navbar from "../components/Navbar";
 
 import axios from "axios";
 import {
   Box,
   Button,
-  Grid,
   MenuItem,
   TextField,
   Dialog,
@@ -15,6 +15,7 @@ import {
   Autocomplete,
   Backdrop,
   CircularProgress,
+  InputAdornment,
 } from "@mui/material";
 import { generateTransactionId } from "../utils/generateTransactionId";
 
@@ -24,6 +25,7 @@ const PaymentForm = () => {
   const [uhidSearch, setUhidSearch] = useState("");
   const [receipts, setReceipts] = useState([]);
   const [searchLoading, setSearchLoading] = useState(false);
+  const [errors, setErrors] = useState({});
   const username = sessionStorage.getItem("username");
   const navigate = useNavigate();
 
@@ -112,9 +114,48 @@ const PaymentForm = () => {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm({ ...form, [name]: value });
+    
+    // Clear error for this field when user makes a change
+    if (errors[name]) {
+      setErrors(prev => {
+        const newErrors = { ...prev };
+        delete newErrors[name];
+        return newErrors;
+      });
+    }
+  };
+
+  // Validate form fields
+  const validateForm = () => {
+    const newErrors = {};
+    
+    // Check required fields
+    if (!form.uhid) newErrors.uhid = "UHID is required";
+    if (!form.registrationNumber) newErrors.registrationNumber = "Registration Number is required";
+    if (!form.patientName) newErrors.patientName = "Patient Name is required";
+    if (!form.date) newErrors.date = "Date is required";
+    if (!form.amount) newErrors.amount = "Amount is required";
+    if (!form.purpose) newErrors.purpose = "Purpose is required";
+    if (!form.modeOfPayment) newErrors.modeOfPayment = "Mode of Payment is required";
+    
+    // Check cheque-specific fields if payment mode is CHEQUE
+    if (form.modeOfPayment === "CHEQUE") {
+      if (!form.bankName) newErrors.bankName = "Bank Name is required";
+      if (!form.chequeNumber) newErrors.chequeNumber = "Cheque Number is required";
+      if (!form.chequeDate) newErrors.chequeDate = "Cheque Date is required";
+    }
+    
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
   const handleSave = async () => {
+    // Validate form before proceeding
+    if (!validateForm()) {
+      alert("Please fill all required fields");
+      return;
+    }
+    
     setLoading(true);
 
     const payload = {
@@ -173,6 +214,7 @@ const PaymentForm = () => {
 
   const handleUhidSearch = async () => {
     if (!uhidSearch.trim()) return;
+    setLoading(true);
 
     try {
       setSearchLoading(true);
@@ -187,22 +229,35 @@ const PaymentForm = () => {
 
       );
       // console.log("Search results:", res.data);
-      if (res.data.length === 0) {
-        alert("No receipts found for this UHID.");
-        return;
-      }
+      // if (res.data.length === 0) {
+      //   alert("No receipts found for this UHID.");
+      //   return;
+      // }
       setReceipts(res.data); // adjust based on actual API shape
-      navigate("/receipts/list", { state: res.data });
-    } catch (err) {
-      console.error("Failed to fetch receipts:", err);
-      setReceipts([]);
-    } finally {
       setSearchLoading(false);
+      navigate("/receipts/list", { state: res.data });
+    } catch (error) {
+      setLoading(false);
+      if (error.response && Array.isArray(error.response.data?.detail)) {
+        // Show all validation messages if available
+        const messages = error.response.data.detail
+          .map((d) => d.msg)
+          .join("\n");
+        alert(messages);
+      } else if (error.response?.data?.detail) {
+        // Single validation message
+        alert(error.response.data.detail);
+      } else {
+        console.error("Error submitting form:", error);
+        alert("Something went wrong. Please try again.");
+      }
     }
   };
 
   return (
-    <Box p={4} bgcolor="#fff" minHeight="100vh">
+    <>
+      <Navbar />
+      <Box p={4} bgcolor="#fff" minHeight="100vh">
       <Backdrop open={loading} sx={{ color: "#fff", zIndex: 9999 }}>
         <CircularProgress color="inherit" />
       </Backdrop>
@@ -264,28 +319,45 @@ const PaymentForm = () => {
               disabled={field.disabled}
               type={field.type || "text"}
               InputLabelProps={field.type === "date" ? { shrink: true } : {}}
+              required={!field.disabled}
+              error={!!errors[field.name]}
+              helperText={errors[field.name]}
             />
           ))}
         </Box>
 
         {/* Row 2: Patient Name, Amount */}
         <Box display="flex" flexWrap="wrap" gap={2}>
-          {[
-            { label: "Patient Name", name: "patientName", disabled: true },
-            { label: "Amount", name: "amount", type: "number" },
-          ].map((field, i) => (
-            <TextField
-              key={i}
-              fullWidth
-              sx={{ flex: "1 1 45%" }}
-              label={field.label}
-              name={field.name}
-              value={form[field.name]}
-              disabled={field.disabled}
-              onChange={handleChange}
-              type={field.type || "text"}
-            />
-          ))}
+          <TextField
+            fullWidth
+            sx={{ flex: "1 1 45%" }}
+            label="Patient Name"
+            name="patientName"
+            value={form.patientName}
+            disabled={true}
+            onChange={handleChange}
+            type="text"
+            required
+            error={!!errors.patientName}
+            helperText={errors.patientName}
+          />
+          <TextField
+            fullWidth
+            sx={{ flex: "1 1 45%" }}
+            label="Amount"
+            name="amount"
+            value={form.amount}
+            onChange={handleChange}
+            type="number"
+            required
+            error={!!errors.amount}
+            helperText={errors.amount}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">₹</InputAdornment>
+              ),
+            }}
+          />
         </Box>
 
         {/* Row 3: Purpose of Transaction */}
@@ -296,6 +368,9 @@ const PaymentForm = () => {
             name="purpose"
             value={form.purpose || ""}
             onChange={handleChange}
+            required
+            error={!!errors.purpose}
+            helperText={errors.purpose}
           />
         </Box>
 
@@ -309,6 +384,9 @@ const PaymentForm = () => {
             name="modeOfPayment"
             value={form.modeOfPayment}
             onChange={handleChange}
+            required
+            error={!!errors.modeOfPayment}
+            helperText={errors.modeOfPayment}
           >
             <MenuItem value="">Select</MenuItem>
             <MenuItem value="CASH">Cash</MenuItem>
@@ -326,14 +404,37 @@ const PaymentForm = () => {
                 freeSolo
                 options={bankOptions}
                 value={form.bankName}
-                onChange={(e, value) =>
-                  setForm((prev) => ({ ...prev, bankName: value }))
-                }
-                onInputChange={(e, value) =>
-                  setForm((prev) => ({ ...prev, bankName: value }))
-                }
+                onChange={(e, value) => {
+                  setForm((prev) => ({ ...prev, bankName: value }));
+                  // Clear error for bank name when user makes a change
+                  if (errors.bankName) {
+                    setErrors(prev => {
+                      const newErrors = { ...prev };
+                      delete newErrors.bankName;
+                      return newErrors;
+                    });
+                  }
+                }}
+                onInputChange={(e, value) => {
+                  setForm((prev) => ({ ...prev, bankName: value }));
+                  // Clear error for bank name when user makes a change
+                  if (errors.bankName) {
+                    setErrors(prev => {
+                      const newErrors = { ...prev };
+                      delete newErrors.bankName;
+                      return newErrors;
+                    });
+                  }
+                }}
                 renderInput={(params) => (
-                  <TextField {...params} label="Bank Name" fullWidth />
+                  <TextField 
+                    {...params} 
+                    label="Bank Name" 
+                    fullWidth 
+                    required={form.modeOfPayment === "CHEQUE"}
+                    error={!!errors.bankName}
+                    helperText={errors.bankName}
+                  />
                 )}
               />
             </Box>
@@ -345,6 +446,9 @@ const PaymentForm = () => {
                 value={form.chequeNumber}
                 onChange={handleChange}
                 fullWidth
+                required={form.modeOfPayment === "CHEQUE"}
+                error={!!errors.chequeNumber}
+                helperText={errors.chequeNumber}
               />
             </Box>
 
@@ -356,13 +460,16 @@ const PaymentForm = () => {
                 value={form.chequeDate}
                 onChange={handleChange}
                 fullWidth
+                required={form.modeOfPayment === "CHEQUE"}
+                error={!!errors.chequeDate}
+                helperText={errors.chequeDate}
                 InputLabelProps={{ shrink: true }}
               />
             </Box>
           </Box>
         )}
 
-        <Box>
+        <Box mt={8}>
           <Box display="flex" gap={2} mb={2}>
             <TextField
               label="Search by UHID"
@@ -401,6 +508,7 @@ const PaymentForm = () => {
         </DialogContent>
       </Dialog>
     </Box>
+    </>
   );
 };
 

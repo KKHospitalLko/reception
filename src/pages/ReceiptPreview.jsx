@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import {
   Box,
   Typography,
@@ -14,6 +14,7 @@ import {
   Alert,
 } from "@mui/material";
 import { useLocation, useNavigate } from "react-router-dom";
+import Navbar from "../components/Navbar";
 import { generateReceiptPDF } from "../utils/generateReceiptPDF.js";
 import axios from "axios";
 
@@ -100,7 +101,9 @@ const ReceiptPreview = () => {
   const isCancelled = status === "CANCELLED";
 
   return (
-    <Box p={3} maxWidth="800px" mx="auto">
+    <>
+      <Navbar />
+      <Box p={3} maxWidth="800px" mx="auto">
       {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
       {success && <Alert severity="success" sx={{ mb: 2 }}>{success}</Alert>}
       
@@ -163,7 +166,10 @@ const ReceiptPreview = () => {
             <Box flex="1 1 30%">
               <Typography fontWeight="bold">Amount:</Typography>
               <Typography color="success.main" fontWeight="bold">
-                ₹{amount}
+                ₹{Number(amount).toLocaleString('en-IN', {
+                  maximumFractionDigits: 2,
+                  minimumFractionDigits: 2
+                })}
               </Typography>
             </Box>
 
@@ -234,7 +240,7 @@ const ReceiptPreview = () => {
             </Button>
 
             {!isCancelled && (
-              <Button variant="outlined" color="error" onClick={handleCancel}>
+              <Button variant="contained" color="error" onClick={handleCancel}>
                 Cancel Receipt
               </Button>
             )}
@@ -263,6 +269,7 @@ const ReceiptPreview = () => {
         </CardContent>
       </Card>
     </Box>
+    </>
   );
 };
 

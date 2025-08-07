@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import.meta.env.VITE_BACKEND_URL;
 import InputAdornment from "@mui/material/InputAdornment";
+import Navbar from "../components/Navbar";
 import {
   TextField,
   Select,
@@ -196,7 +197,9 @@ const RegistrationForm = () => {
   }
 
   return (
-    <div style={{ padding: "20px" }}>
+    <>
+      <Navbar />
+      <div style={{ padding: "20px" }}>
       <Typography
         variant="h4"
         gutterBottom
@@ -220,9 +223,9 @@ const RegistrationForm = () => {
         >
           Home
         </Button>
-        <h2>
+        {/* <h2>
           Welcome, <strong>{username}</strong>
-        </h2>
+        </h2> */}
       </Box>
       <Box display="flex" justifyContent="end" mr={2}>
         <Box
@@ -661,6 +664,7 @@ const RegistrationForm = () => {
         </div>
       </form>
     </div>
+    </>
   );
 };
 

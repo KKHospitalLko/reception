@@ -1,8 +1,12 @@
 import React from 'react'
+import Navbar from '../components/Navbar'
 
 const bill = () => {
   return (
-    <div>bill</div>
+    <>
+      <Navbar />
+      <div>bill</div>
+    </>
   )
 }
 
