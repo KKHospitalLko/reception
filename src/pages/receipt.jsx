@@ -76,7 +76,13 @@ const PaymentForm = () => {
       if (form.uhid.length === 8 && /^\d{8}$/.test(form.uhid)) {
         try {
           const response = await axios.get(
-            backendUrl + `/transactions/patient/${form.uhid}`
+            backendUrl + `/transactions/patient/${form.uhid}`,
+            {
+              headers: {
+                "Content-Type": "application/json",
+                "x-api-key": import.meta.env.VITE_API_KEY,
+              },
+            }
           );
           const data = response.data;
 
@@ -138,6 +144,7 @@ const PaymentForm = () => {
       const response = await axios.post(backendUrl + `/transactions`, payload, {
         headers: {
           "Content-Type": "application/json",
+          "x-api-key": import.meta.env.VITE_API_KEY,
         },
       });
 
@@ -170,7 +177,14 @@ const PaymentForm = () => {
     try {
       setSearchLoading(true);
       const res = await axios.get(
-        backendUrl + `/transactions/summary/${uhidSearch.trim()}`
+        backendUrl + `/transactions/summary/${uhidSearch.trim()}`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            "x-api-key": import.meta.env.VITE_API_KEY,
+          },
+        }
+
       );
       // console.log("Search results:", res.data);
       if (res.data.length === 0) {

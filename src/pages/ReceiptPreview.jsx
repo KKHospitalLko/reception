@@ -54,11 +54,12 @@ const ReceiptPreview = () => {
         {
           headers: {
             "Content-Type": "application/json",
+            "x-api-key": import.meta.env.VITE_API_KEY,
           },
         }
       );
       
-      console.log("Cancel response:", response.data);
+      // console.log("Cancel response:", response.data);
       setSuccess(`Receipt ${currentReceipt.transaction_no} has been cancelled successfully`);
       
       // Update the receipt status
