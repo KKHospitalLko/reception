@@ -25,16 +25,16 @@ const handleLogout = () => {
 
 
   const sections = [
-    // {
-    //   label: "Bill",
-    //   to: "/bill",
-    //   icon: <ReceiptIcon fontSize="large" color="primary" />,
-    // },
-    // {
-    //   label: "Receipt",
-    //   to: "/receipt",
-    //   icon: <AssignmentIcon fontSize="large" color="success" />,
-    // },
+    {
+      label: "Bill",
+      to: "/bill",
+      icon: <ReceiptIcon fontSize="large" color="primary" />,
+    },
+    {
+      label: "Receipt",
+      to: "/receipt",
+      icon: <AssignmentIcon fontSize="large" color="success" />,
+    },
     {
       label: "Registration",
       to: "/registration",

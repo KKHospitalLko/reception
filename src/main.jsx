@@ -10,6 +10,8 @@ import NewReportPage from './pages/newReportPage.jsx';
 import BedManagementPage from './pages/BedManagementPage.jsx';
 import LoginPage from './pages/LoginPage.jsx';
 import ProtectedRoute from './pages/ProtectedRoute.jsx';
+import ReceiptPreview from "./pages/ReceiptPreview.jsx";
+import ReceiptsList from "./pages/ReceiptsList.jsx";
 
 createRoot(document.getElementById('root')).render(
     <Router>
@@ -39,6 +41,22 @@ createRoot(document.getElementById('root')).render(
             </ProtectedRoute>
           }
         />
+        <Route
+          path="/receipt/preview"
+          element={
+            <ProtectedRoute>
+              <ReceiptPreview />
+            </ProtectedRoute>
+          } 
+        />
+        <Route
+          path="/receipts/list"
+          element={
+            <ProtectedRoute>
+              <ReceiptsList />
+            </ProtectedRoute>
+          } 
+        />       
         <Route
           path="/bedManagement"
           element={
