@@ -25,12 +25,15 @@ export const generateReceiptPDF = (form, preview = false) => {
   doc.setFontSize(10);
   doc.setTextColor(0);
   doc.text("Address: 87/88, Nabiullah Road, Opp. SSP Office, River Bank Colony, Lucknow", 20, 21);
-  doc.text("Phone: 0522-2619049/50 & 2231932, Email: kkhospitallko1991@gmail.com", 20, 26);
-  doc.text("GSTIN: 09AAATK4016C2ZZ, Reg. No.: 0915700003", 20, 31);
+  doc.text("Phone: 0522-2619049/50 & 2231932", 20, 26);
+  doc.text("Email: kkhospitallko1991@gmail.com, contact@kkhospitallucknow.com", 20, 31);
+  doc.text("GSTIN: 09AAATK4016C2ZZ, Registration Number: 0915700003", 20, 37);
+  doc.text("___________________________________________________________________________________", 20, 40 );
+
 
   doc.setFontSize(13);
   doc.setTextColor(33, 150, 243);
-  doc.text("TRANSACTION SUMMARY", 70, 40);
+  doc.text("TRANSACTION SUMMARY", 70, 55);
 
   // Main Table
   const rows = [
@@ -55,7 +58,7 @@ export const generateReceiptPDF = (form, preview = false) => {
   }
 
   autoTable(doc, {
-    startY: 45,
+    startY: 65,
     theme: "grid",
     head: [["Details", "Information"]],
     body: rows,
@@ -72,6 +75,10 @@ export const generateReceiptPDF = (form, preview = false) => {
     body: [[form.transaction_purpose || ""]],
     theme: "grid",
     styles: { fontSize: 10 },
+    columnStyles: {
+      0: { cellWidth: 171 },
+      // 1: { cellWidth: 110 },
+    },
   });
 
   // Footer Notes
