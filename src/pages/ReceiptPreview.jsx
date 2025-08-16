@@ -220,7 +220,7 @@ const ReceiptPreview = () => {
             <Box flex="1 1 30%">
               <Typography fontWeight="bold">Status:</Typography>
               <Typography color={isCancelled ? "error.main" : "success.main"}>
-                {isCancelled ? "Cancelled" : "Active"}
+                {isCancelled ? `Cancelled by ${receipt.cancelled_by}` : "Active"}
               </Typography>
             </Box>
           </Box>

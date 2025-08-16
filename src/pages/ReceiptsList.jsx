@@ -308,7 +308,7 @@ const ReceiptsList = () => {
                                     isCancelled ? "error.main" : "success.main"
                                   }
                                 >
-                                  {isCancelled ? "Cancelled" : "Active"}
+                                  {isCancelled ? `Cancelled by ${receipt.cancelled_by}` : "Active"}
                                 </Typography>
                               </Box>
                             </Box>

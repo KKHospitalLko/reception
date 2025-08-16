@@ -12,6 +12,7 @@ import LoginPage from './pages/LoginPage.jsx';
 import ProtectedRoute from './pages/ProtectedRoute.jsx';
 import ReceiptPreview from "./pages/ReceiptPreview.jsx";
 import ReceiptsList from "./pages/ReceiptsList.jsx";
+import BillList from './pages/BillList.jsx';
 
 createRoot(document.getElementById('root')).render(
     <Router>
@@ -30,6 +31,14 @@ createRoot(document.getElementById('root')).render(
           element={
             <ProtectedRoute>
               <BillPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/billList"
+          element={
+            <ProtectedRoute>
+              <BillList />
             </ProtectedRoute>
           }
         />
