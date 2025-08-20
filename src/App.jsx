@@ -26,16 +26,6 @@ const handleLogout = () => {
 
   const sections = [
     {
-      label: "Bill",
-      to: "/bill",
-      icon: <ReceiptIcon fontSize="large" color="primary" />,
-    },
-    {
-      label: "Receipt",
-      to: "/receipt",
-      icon: <AssignmentIcon fontSize="large" color="success" />,
-    },
-    {
       label: "Registration",
       to: "/registration",
       icon: <LocalHospitalIcon fontSize="large" color="error" />,
@@ -44,6 +34,16 @@ const handleLogout = () => {
       label: "Bed Allotment",
       to: "/bedManagement",
       icon: <HotelIcon fontSize="large" color="secondary" />,
+    },
+    {
+      label: "Receipt",
+      to: "/receipt",
+      icon: <AssignmentIcon fontSize="large" color="success" />,
+    },
+    {
+      label: "Bill",
+      to: "/bill",
+      icon: <ReceiptIcon fontSize="large" color="primary" />,
     },
   ];
 

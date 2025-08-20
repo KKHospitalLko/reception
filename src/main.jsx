@@ -10,7 +10,7 @@ import NewReportPage from './pages/newReportPage.jsx';
 import BedManagementPage from './pages/BedManagementPage.jsx';
 import LoginPage from './pages/LoginPage.jsx';
 import ProtectedRoute from './pages/ProtectedRoute.jsx';
-import ReceiptPreview from "./pages/ReceiptPreview.jsx";
+// import ReceiptPreview from "./pages/ReceiptPreview.jsx";
 import ReceiptsList from "./pages/ReceiptsList.jsx";
 import BillList from './pages/BillList.jsx';
 
@@ -50,14 +50,14 @@ createRoot(document.getElementById('root')).render(
             </ProtectedRoute>
           }
         />
-        <Route
+        {/* <Route
           path="/receipt/preview"
           element={
             <ProtectedRoute>
               <ReceiptPreview />
             </ProtectedRoute>
           } 
-        />
+        /> */}
         <Route
           path="/receipts/list"
           element={

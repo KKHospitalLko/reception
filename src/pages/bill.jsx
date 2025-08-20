@@ -496,21 +496,21 @@ export default function BillPage() {
             {/* Field Component */}
             {[
               {
-                label: "UHID / Registration No",
+                label: "UHID / Registration No:",
                 value: `${patient.uhid} / ${patient.regno}`,
               },
-              { label: "Patient Name", value: patient.fullname },
-              { label: "Age / Sex", value: `${patient.age} / ${patient.sex}` },
-              { label: "Bed No", value: beds.bed_number },
-              { label: "Date of Admission", value: patient.dateofreg },
-              { label: "Date", value: todayDate },
-              { label: "Father/Husband Name", value: patient.fatherHusband },
-              { label: "Department", value: beds.department },
+              { label: "Patient Name: ", value: patient.fullname },
+              { label: "Age / Sex: ", value: `${patient.age} / ${patient.sex}` },
+              { label: "Bed No: ", value: beds.bed_number },
+              { label: "Date of Admission: ", value: patient.dateofreg },
+              { label: "Date: ", value: todayDate },
+              { label: "Father / Husband Name: ", value: patient.fatherHusband },
+              { label: "Department: ", value: beds.department },
               {
-                label: "Doctor Incharge",
+                label: "Doctor Incharge: ",
                 value: patient.doctorIncharge?.join(", "),
               },
-              { label: "Time of Admission", value: patient.time },
+              { label: "Time of Admission: ", value: patient.time },
             ].map((field, index) => (
               <Box
                 key={index}
@@ -523,7 +523,7 @@ export default function BillPage() {
                   variant="subtitle2"
                   sx={{ fontWeight: "bold", minWidth: 150 }}
                 >
-                  {field.label}:
+                  {field.label} &nbsp;
                 </Typography>
                 <Typography variant="body2">{field.value}</Typography>
               </Box>
@@ -864,7 +864,7 @@ export default function BillPage() {
           >
             Generate Bill
           </Button>
-          <Button
+          {/* <Button
             variant="contained"
             size="large"
             sx={{
@@ -874,7 +874,7 @@ export default function BillPage() {
             }}
           >
             Clear
-          </Button>
+          </Button> */}
         </Box>
       </Paper>
     </>

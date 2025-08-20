@@ -117,10 +117,10 @@ const PaymentForm = () => {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm({ ...form, [name]: value });
-    
+
     // Clear error for this field when user makes a change
     if (errors[name]) {
-      setErrors(prev => {
+      setErrors((prev) => {
         const newErrors = { ...prev };
         delete newErrors[name];
         return newErrors;
@@ -131,23 +131,26 @@ const PaymentForm = () => {
   // Validate form fields
   const validateForm = () => {
     const newErrors = {};
-    
+
     // Check required fields
     if (!form.uhid) newErrors.uhid = "UHID is required";
-    if (!form.registrationNumber) newErrors.registrationNumber = "Registration Number is required";
+    if (!form.registrationNumber)
+      newErrors.registrationNumber = "Registration Number is required";
     if (!form.patientName) newErrors.patientName = "Patient Name is required";
     if (!form.date) newErrors.date = "Date is required";
     if (!form.amount) newErrors.amount = "Amount is required";
     if (!form.purpose) newErrors.purpose = "Purpose is required";
-    if (!form.modeOfPayment) newErrors.modeOfPayment = "Mode of Payment is required";
-    
+    if (!form.modeOfPayment)
+      newErrors.modeOfPayment = "Mode of Payment is required";
+
     // Check cheque-specific fields if payment mode is CHEQUE
     if (form.modeOfPayment === "CHEQUE") {
       if (!form.bankName) newErrors.bankName = "Bank Name is required";
-      if (!form.chequeNumber) newErrors.chequeNumber = "Cheque Number is required";
+      if (!form.chequeNumber)
+        newErrors.chequeNumber = "Cheque Number is required";
       if (!form.chequeDate) newErrors.chequeDate = "Cheque Date is required";
     }
-    
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -158,7 +161,7 @@ const PaymentForm = () => {
       alert("Please fill all required fields");
       return;
     }
-    
+
     setLoading(true);
 
     const payload = {
@@ -193,7 +196,7 @@ const PaymentForm = () => {
       });
 
       // console.log("Transaction saved:", response.data);
-      navigate("/receipt/preview", { state: response.data });
+      navigate("/receipts/list", { state: [response.data] });
       // Optional: reset form or show success message
     } catch (error) {
       setLoading(false);
@@ -229,7 +232,6 @@ const PaymentForm = () => {
             "x-api-key": import.meta.env.VITE_API_KEY,
           },
         }
-
       );
       // console.log("Search results:", res.data);
       // if (res.data.length === 0) {
@@ -261,256 +263,260 @@ const PaymentForm = () => {
     <>
       <Navbar />
       <Box p={4} bgcolor="#fff" minHeight="100vh">
-      <Backdrop open={loading} sx={{ color: "#fff", zIndex: 9999 }}>
-        <CircularProgress color="inherit" />
-      </Backdrop>
+        <Backdrop open={loading} sx={{ color: "#fff", zIndex: 9999 }}>
+          <CircularProgress color="inherit" />
+        </Backdrop>
 
-      <Box
-        display="flex"
-        justifyContent="space-between"
-        mb={3}
-        flexWrap="wrap"
-        gap={2}
-      >
-        <Button
-          variant="contained"
-          sx={{
-            mb: 2,
-            backgroundColor: "#5fc1b2",
-            "&:hover": { backgroundColor: "#4da99f" },
-          }}
-          onClick={() => window.history.back()}
+        <Box
+          display="flex"
+          justifyContent="space-between"
+          mb={3}
+          flexWrap="wrap"
+          gap={2}
         >
-          Back
-        </Button>
-        <Box display="flex" gap={2}>
           <Button
             variant="contained"
             sx={{
-              mb: 2,
+              mb: 4,
               backgroundColor: "#5fc1b2",
               "&:hover": { backgroundColor: "#4da99f" },
             }}
-            onClick={handleSave}
+            onClick={() => window.history.back()}
           >
-            Save
+            Back
           </Button>
-        </Box>
-      </Box>
-
-      <Box display="flex" flexDirection="column" gap={2}>
-        {/* Row 1: Transaction ID, UHID, Registration Number, Date */}
-        <Box display="flex" flexWrap="wrap" gap={2}>
-          {[
-            { label: "Transaction ID", name: "transactionId", disabled: true },
-            { label: "UHID", name: "uhid" },
-            {
-              label: "Registration Number",
-              name: "registrationNumber",
-              disabled: true,
-            },
-            { label: "Date", name: "date", type: "date", disabled: true },
-          ].map((field, i) => (
-            <TextField
-              key={i}
-              fullWidth
-              sx={{ flex: "1 1 23%" }}
-              label={field.label}
-              name={field.name}
-              value={form[field.name]}
-              onChange={handleChange}
-              disabled={field.disabled}
-              type={field.type || "text"}
-              InputLabelProps={field.type === "date" ? { shrink: true } : {}}
-              required={!field.disabled}
-              error={!!errors[field.name]}
-              helperText={errors[field.name]}
-            />
-          ))}
+            <Box display="flex" gap={2} mb={2}>
+              <TextField
+                label="Search by UHID"
+                value={uhidSearch}
+                onChange={(e) => setUhidSearch(e.target.value)}
+              />
+              <Button
+                variant="contained"
+                onClick={handleUhidSearch}
+                sx={{
+                  mb: 2,
+                  backgroundColor: "#5fc1b2",
+                  "&:hover": { backgroundColor: "#4da99f" },
+                }}
+              >
+                Search
+              </Button>
+            </Box>
         </Box>
 
-        {/* Row 2: Patient Name, Amount */}
-        <Box display="flex" flexWrap="wrap" gap={2}>
-          <TextField
-            fullWidth
-            sx={{ flex: "1 1 45%" }}
-            label="Patient Name"
-            name="patientName"
-            value={form.patientName}
-            disabled={true}
-            onChange={handleChange}
-            type="text"
-            required
-            error={!!errors.patientName}
-            helperText={errors.patientName}
-          />
-          <TextField
-            fullWidth
-            sx={{ flex: "1 1 45%" }}
-            label="Amount"
-            name="amount"
-            value={form.amount}
-            onChange={handleChange}
-            type="number"
-            required
-            error={!!errors.amount}
-            helperText={errors.amount}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">₹</InputAdornment>
-              ),
-            }}
-          />
-        </Box>
-
-        {/* Row 3: Purpose of Transaction */}
-        <Box display="flex">
-          <TextField
-            fullWidth
-            label="Purpose of Transaction"
-            name="purpose"
-            value={form.purpose || ""}
-            onChange={handleChange}
-            required
-            error={!!errors.purpose}
-            helperText={errors.purpose}
-          />
-        </Box>
-
-        {/* Row 4: Mode of Payment */}
-        <Box display="flex" flexWrap="wrap" gap={2}>
-          <TextField
-            select
-            fullWidth
-            sx={{ flexBasis: "30%", flexGrow: 1 }}
-            label="Mode of Payment"
-            name="modeOfPayment"
-            value={form.modeOfPayment}
-            onChange={handleChange}
-            required
-            error={!!errors.modeOfPayment}
-            helperText={errors.modeOfPayment}
-          >
-            <MenuItem value="">Select</MenuItem>
-            <MenuItem value="CASH">Cash</MenuItem>
-            <MenuItem value="CARD">Card</MenuItem>
-            <MenuItem value="CHEQUE">Cheque</MenuItem>
-            <MenuItem value="UPI">UPI</MenuItem>
-          </TextField>
-        </Box>
-
-        {/* Row 5: Cheque-specific Fields */}
-        {form.modeOfPayment === "CHEQUE" && (
+        <Box display="flex" flexDirection="column" gap={2}>
+          {/* Row 1: Transaction ID, UHID, Registration Number, Date */}
           <Box display="flex" flexWrap="wrap" gap={2}>
-            <Box flexBasis="25%" flexGrow={1}>
-              <Autocomplete
-                freeSolo
-                options={bankOptions}
-                value={form.bankName}
-                onChange={(e, value) => {
-                  setForm((prev) => ({ ...prev, bankName: value }));
-                  // Clear error for bank name when user makes a change
-                  if (errors.bankName) {
-                    setErrors(prev => {
-                      const newErrors = { ...prev };
-                      delete newErrors.bankName;
-                      return newErrors;
-                    });
-                  }
-                }}
-                onInputChange={(e, value) => {
-                  setForm((prev) => ({ ...prev, bankName: value }));
-                  // Clear error for bank name when user makes a change
-                  if (errors.bankName) {
-                    setErrors(prev => {
-                      const newErrors = { ...prev };
-                      delete newErrors.bankName;
-                      return newErrors;
-                    });
-                  }
-                }}
-                renderInput={(params) => (
-                  <TextField 
-                    {...params} 
-                    label="Bank Name" 
-                    fullWidth 
-                    required={form.modeOfPayment === "CHEQUE"}
-                    error={!!errors.bankName}
-                    helperText={errors.bankName}
-                  />
-                )}
-              />
-            </Box>
-
-            <Box flexBasis="30%" flexGrow={1}>
+            {[
+              {
+                label: "Transaction ID",
+                name: "transactionId",
+                disabled: true,
+              },
+              { label: "UHID", name: "uhid" },
+              {
+                label: "Registration Number",
+                name: "registrationNumber",
+                disabled: true,
+              },
+              { label: "Date", name: "date", type: "date", disabled: true },
+            ].map((field, i) => (
               <TextField
-                label="Cheque Number"
-                name="chequeNumber"
-                value={form.chequeNumber}
-                onChange={handleChange}
+                key={i}
                 fullWidth
-                required={form.modeOfPayment === "CHEQUE"}
-                error={!!errors.chequeNumber}
-                helperText={errors.chequeNumber}
-              />
-            </Box>
-
-            <Box flexBasis="30%" flexGrow={1}>
-              <TextField
-                label="Date of Cheque"
-                name="chequeDate"
-                type="date"
-                value={form.chequeDate}
+                sx={{ flex: "1 1 23%" }}
+                label={field.label}
+                name={field.name}
+                value={form[field.name]}
                 onChange={handleChange}
-                fullWidth
-                required={form.modeOfPayment === "CHEQUE"}
-                error={!!errors.chequeDate}
-                helperText={errors.chequeDate}
-                InputLabelProps={{ shrink: true }}
+                disabled={field.disabled}
+                type={field.type || "text"}
+                InputLabelProps={field.type === "date" ? { shrink: true } : {}}
+                required={!field.disabled}
+                error={!!errors[field.name]}
+                helperText={errors[field.name]}
               />
-            </Box>
+            ))}
           </Box>
-        )}
 
-        <Box mt={8}>
-          <Box display="flex" gap={2} mb={2}>
+          {/* Row 2: Patient Name, Amount */}
+          <Box display="flex" flexWrap="wrap" gap={2}>
             <TextField
-              label="Search by UHID"
-              value={uhidSearch}
-              onChange={(e) => setUhidSearch(e.target.value)}
+              fullWidth
+              sx={{ flex: "1 1 45%" }}
+              label="Patient Name"
+              name="patientName"
+              value={form.patientName}
+              disabled={true}
+              onChange={handleChange}
+              type="text"
+              required
+              error={!!errors.patientName}
+              helperText={errors.patientName}
             />
-            <Button
-              variant="contained"
-              onClick={handleUhidSearch}
-              sx={{
-                mb: 2,
-                backgroundColor: "#5fc1b2",
-                "&:hover": { backgroundColor: "#4da99f" },
+            <TextField
+              fullWidth
+              sx={{ flex: "1 1 45%" }}
+              label="Amount"
+              name="amount"
+              value={form.amount}
+              onChange={handleChange}
+              type="number"
+              required
+              error={!!errors.amount}
+              helperText={errors.amount}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">₹</InputAdornment>
+                ),
               }}
+            />
+          </Box>
+
+          {/* Row 3: Purpose of Transaction */}
+          <Box display="flex">
+            <TextField
+              fullWidth
+              label="Purpose of Transaction"
+              name="purpose"
+              value={form.purpose || "Advance"}
+              onChange={handleChange}
+              required
+              error={!!errors.purpose}
+              helperText={errors.purpose}
+            />
+          </Box>
+
+          {/* Row 4: Mode of Payment */}
+          <Box display="flex" flexWrap="wrap" gap={2}>
+            <TextField
+              select
+              fullWidth
+              sx={{ flexBasis: "30%", flexGrow: 1 }}
+              label="Mode of Payment"
+              name="modeOfPayment"
+              value={form.modeOfPayment}
+              onChange={handleChange}
+              required
+              error={!!errors.modeOfPayment}
+              helperText={errors.modeOfPayment}
             >
-              Search
-            </Button>
+              <MenuItem value="">Select</MenuItem>
+              <MenuItem value="CASH">Cash</MenuItem>
+              <MenuItem value="CARD">Card</MenuItem>
+              <MenuItem value="CHEQUE">Cheque</MenuItem>
+              <MenuItem value="UPI">UPI</MenuItem>
+            </TextField>
+          </Box>
+
+          {/* Row 5: Cheque-specific Fields */}
+          {form.modeOfPayment === "CHEQUE" && (
+            <Box display="flex" flexWrap="wrap" gap={2}>
+              <Box flexBasis="25%" flexGrow={1}>
+                <Autocomplete
+                  freeSolo
+                  options={bankOptions}
+                  value={form.bankName}
+                  onChange={(e, value) => {
+                    setForm((prev) => ({ ...prev, bankName: value }));
+                    // Clear error for bank name when user makes a change
+                    if (errors.bankName) {
+                      setErrors((prev) => {
+                        const newErrors = { ...prev };
+                        delete newErrors.bankName;
+                        return newErrors;
+                      });
+                    }
+                  }}
+                  onInputChange={(e, value) => {
+                    setForm((prev) => ({ ...prev, bankName: value }));
+                    // Clear error for bank name when user makes a change
+                    if (errors.bankName) {
+                      setErrors((prev) => {
+                        const newErrors = { ...prev };
+                        delete newErrors.bankName;
+                        return newErrors;
+                      });
+                    }
+                  }}
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      label="Bank Name"
+                      fullWidth
+                      required={form.modeOfPayment === "CHEQUE"}
+                      error={!!errors.bankName}
+                      helperText={errors.bankName}
+                    />
+                  )}
+                />
+              </Box>
+
+              <Box flexBasis="30%" flexGrow={1}>
+                <TextField
+                  label="Cheque Number"
+                  name="chequeNumber"
+                  value={form.chequeNumber}
+                  onChange={handleChange}
+                  fullWidth
+                  required={form.modeOfPayment === "CHEQUE"}
+                  error={!!errors.chequeNumber}
+                  helperText={errors.chequeNumber}
+                />
+              </Box>
+
+              <Box flexBasis="30%" flexGrow={1}>
+                <TextField
+                  label="Date of Cheque"
+                  name="chequeDate"
+                  type="date"
+                  value={form.chequeDate}
+                  onChange={handleChange}
+                  fullWidth
+                  required={form.modeOfPayment === "CHEQUE"}
+                  error={!!errors.chequeDate}
+                  helperText={errors.chequeDate}
+                  InputLabelProps={{ shrink: true }}
+                />
+              </Box>
+            </Box>
+          )}
+
+          <Box mt={8}>
+            <Box display="flex" gap={2}>
+              <Button
+                variant="contained"
+                sx={{
+                  mb: 2,
+                  backgroundColor: "#5fc1b2",
+                  "&:hover": { backgroundColor: "#4da99f" },
+                }}
+                onClick={handleSave}
+              >
+                Save
+              </Button>
+            </Box>
           </Box>
         </Box>
-      </Box>
 
-      <Dialog
-        open={previewOpen}
-        onClose={() => setPreviewOpen(false)}
-        maxWidth="md"
-        fullWidth
-      >
-        <DialogTitle>Receipt Preview</DialogTitle>
-        <DialogContent>
-          <iframe
-            ref={iframeRef}
-            width="100%"
-            height="600px"
-            title="PDF Preview"
-          />
-        </DialogContent>
-      </Dialog>
-    </Box>
+        <Dialog
+          open={previewOpen}
+          onClose={() => setPreviewOpen(false)}
+          maxWidth="md"
+          fullWidth
+        >
+          <DialogTitle>Receipt Preview</DialogTitle>
+          <DialogContent>
+            <iframe
+              ref={iframeRef}
+              width="100%"
+              height="600px"
+              title="PDF Preview"
+            />
+          </DialogContent>
+        </Dialog>
+      </Box>
     </>
   );
 };

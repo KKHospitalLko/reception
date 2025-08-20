@@ -94,7 +94,7 @@ export const generateBillPDF = (billData, preview = false) => {
   autoTable(doc, {
     startY: doc.lastAutoTable.finalY + 10,
     theme: "grid",
-    head: [["#", "Particulars", "Qty", "Rate", "Amount (in Rs.)"]],
+    head: [["S.No.", "Particulars", "Qty", "Rate", "Amount (in Rs.)"]],
     body: charges,
     headStyles: { fillColor: [41, 128, 185] },
   });
@@ -136,7 +136,7 @@ export const generateBillPDF = (billData, preview = false) => {
   autoTable(doc, {
     startY: doc.lastAutoTable.finalY + 10,
     theme: "grid",
-    head: [["#", "Transaction No", "Date", "Amount (in Rs.)"]],
+    head: [["S.No.", "Transaction No", "Date", "Amount (in Rs.)"]],
     body: transactionRows,
     headStyles: { fillColor: [46, 204, 113] },
   });
