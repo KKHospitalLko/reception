@@ -129,7 +129,7 @@ export default function BillPage() {
         }
       );
       const data = res.data;
-      // console.log(data);
+      console.log(data);
       setPatient(data.patient || {});
       setBeds(data.beds || {});
       setTransactions(data.transactions || []);
@@ -151,6 +151,80 @@ export default function BillPage() {
       }
     }
   };
+
+//   useEffect(() => {
+//   if (uhid.length === 8) {
+//     checkAndFetchPatientData(uhid);
+//   }
+// }, [uhid]);
+
+// const checkAndFetchPatientData = async (uhidVal) => {
+//   setLoading(true);
+//   try {
+//     // Step 1: Check for an existing final bill first
+//     const billRes = await axios.get(
+//       import.meta.env.VITE_BACKEND_URL + `/final-bill/${uhidVal}`,
+//       {
+//         headers: {
+//           "Content-Type": "application/json",
+//           "x-api-key": import.meta.env.VITE_API_KEY,
+//         },
+//       }
+//     );
+
+//     console.log("Final Bill Check Response:", billRes.data);
+//     const hasActiveBill = billRes.data.some(bill => bill.status !== "cancelled");
+
+//   if (hasActiveBill) {
+//     alert("An active final bill is already present for this patient. Please use the 'Search UHID' field to view it.");
+//     setLoading(false);
+//     return; // Stop the function here
+//   }
+//   } catch (error) {
+//     // This is the expected path if no final bill exists (e.g., a 404 response)
+//     // We will now proceed to fetch patient data
+//     console.log("No final bill found, proceeding with patient data fetch.");
+//   }
+
+//   // Step 2: Normal flow - Fetch patient data
+//   try {
+//     const res = await axios.get(
+//       import.meta.env.VITE_BACKEND_URL +
+//         `/patient/bed/transaction/${uhidVal}/forbill`,
+//       {
+//         headers: {
+//           "Content-Type": "application/json",
+//           "x-api-key": import.meta.env.VITE_API_KEY,
+//         },
+//       }
+//     );
+//     const data = res.data;
+//     setPatient(data.patient || {});
+//     setBeds(data.beds || {});
+//     setTransactions(data.transactions || []);
+//     setLoading(false);
+//   } catch (error) {
+//     setLoading(false);
+//     if (error.response && Array.isArray(error.response.data?.detail)) {
+//       const messages = error.response.data.detail
+//         .map((d) => d.msg)
+//         .join("\n");
+//       alert(messages);
+//     } else if (error.response?.data?.detail) {
+//       alert(error.response.data.detail);
+//     } else {
+//       console.error("Error fetching patient data:", error);
+//       alert("Something went wrong. Please try again.");
+//     }
+//   }
+// };
+
+
+
+
+
+
+
 
   useEffect(() => {
     if (searchUhid.length === 8) {
@@ -199,7 +273,7 @@ export default function BillPage() {
       ...rows,
       {
         description: "",
-        descriptionType: "", // "service" or "doctor"
+        descriptionType: "",
         unit: 1,
         rate: "",
         amount: "",
@@ -307,6 +381,7 @@ export default function BillPage() {
         consultant_doctor: (patient.doctorIncharge || []).join(", "),
         room_type: beds.department || "",
         bed_no: beds.bed_number || "",
+        created_by: sessionStorage.getItem("username") || "Unknown",
 
         charges_summary: rows.map((r, idx) => ({
           // sr_no: idx + 1,
@@ -333,10 +408,9 @@ export default function BillPage() {
         balance: balance,
       };
 
-      console.log("Final Bill Payload:", payload);
+      // console.log("Final Bill Payload:", payload);
 
-      // Send to backend
-      await axios.post(
+      const res = await axios.post(
         import.meta.env.VITE_BACKEND_URL + "/final-bill",
         payload,
         {
@@ -346,8 +420,25 @@ export default function BillPage() {
           },
         }
       );
+      
+      
+      console.log("response", res.data);
+      navigate("/billList", { state: { billData: [res.data] } });
 
       alert("Final bill generated successfully!");
+
+      // Clear form after successful submission
+      setUhid("");
+      setPatient({});
+      setBeds({});
+      setRows([]);
+      setTransactions([]);
+      setDiscounts({
+        medication: 0,
+        roomService: 0,
+        consultancy: 0,
+      });
+
       setLoading(false);
     } catch (error) {
       setLoading(false);
@@ -387,7 +478,7 @@ export default function BillPage() {
           </Grid>
           <Grid item xs={3}>
             <TextField
-              label="Search UHID (8 digits)"
+              label="Search UHID"
               value={searchUhid}
               onChange={(e) => setSearchUhid(e.target.value)}
               fullWidth
@@ -611,11 +702,11 @@ export default function BillPage() {
             <TextField
               label="Medication Discount"
               type="number"
-              value={discounts.medication}
+              value= {discounts.medication}
               onChange={(e) =>
                 handleDiscountChange(
                   "medication",
-                  parseFloat(e.target.value) || 0
+                  parseFloat(e.target.value) || 0 
                 )
               }
               fullWidth

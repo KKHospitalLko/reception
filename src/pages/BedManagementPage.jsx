@@ -127,7 +127,7 @@ export default function BedAllocationPage() {
             "x-api-key": import.meta.env.VITE_API_KEY,
           },
         });
-        console.log("Patient API response:", res.data);
+        // console.log("Patient API response:", res.data);
         setName(res.data.fullname);
         setLoading(false);
       } catch (error) {
@@ -186,14 +186,6 @@ export default function BedAllocationPage() {
         setBed("");
         showToast("Bed successfully allotted", "success");
       })
-      // .catch((err) => {
-      //   console.error("Error allotting bed:", err);
-      //   if (err.response && err.response.status === 403) {
-      //     showToast(err.response.data?.detail || "Permission denied.", "error");
-      //   } else {
-      //     showToast("Failed to allot bed. Please try again.", "error");
-      //   }
-      // })
       .catch((error) => {
         setLoading(false);
         if (error.response && Array.isArray(error.response.data?.detail)) {

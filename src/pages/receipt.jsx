@@ -76,6 +76,7 @@ const PaymentForm = () => {
   useEffect(() => {
     const fetchPatientData = async () => {
       if (form.uhid.length === 8 && /^\d{8}$/.test(form.uhid)) {
+        setLoading(true);
         try {
           const response = await axios.get(
             backendUrl + `/transactions/patient/${form.uhid}`,
@@ -97,8 +98,10 @@ const PaymentForm = () => {
             date: data.dateofreg || "",
             registrationNumber: data.regno || "",
           }));
+          setLoading(false);
         } catch (error) {
           console.error("Error fetching patient data:", error);
+          setLoading(false);
         }
       }
     };

@@ -179,7 +179,7 @@ const NewReportPage = () => {
         registered_by: username,
       };
 
-      console.log("Payload to be sent:", payload);
+      // console.log("Payload to be sent:", payload);
       await axios.put(`${backendUrl}/patient/${formData.uhid}`, payload, {
         headers: {
           "Content-Type": "application/json",

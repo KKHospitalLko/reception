@@ -24,8 +24,11 @@ import { generateReceiptPDF } from "../utils/generateReceiptPDF.js";
 import axios from "axios";
 
 const ReceiptsList = () => {
-  const { state: receipts } = useLocation();
+  const { state: initialReceipts } = useLocation();
   const navigate = useNavigate();
+
+  // Use useState to manage the receipts data so it can be updated
+  const [receipts, setReceipts] = useState(initialReceipts || []);
   const [selectedReceipt, setSelectedReceipt] = useState(null);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -35,9 +38,7 @@ const ReceiptsList = () => {
   const backendUrl = import.meta.env.VITE_BACKEND_URL;
   const username = sessionStorage.getItem("username");
 
-  // console.log("ReceiptsList state:", receipts);
-
-  // Group receipts by registration number
+  // This useEffect will now react to changes in the 'receipts' state
   useEffect(() => {
     if (receipts && receipts.length > 0) {
       const grouped = receipts.reduce((acc, receipt) => {
@@ -49,18 +50,21 @@ const ReceiptsList = () => {
         return acc;
       }, {});
       setGroupedReceipts(grouped);
+    } else {
+      setGroupedReceipts({});
     }
   }, [receipts]);
 
   if (!receipts || receipts.length === 0) {
     return (
-      <Typography textAlign="center" mt={5}>
-        No receipts data available.
-      </Typography>
+      <>
+        <Navbar />
+        <Typography textAlign="center" mt={5}>
+          No receipts data available.
+        </Typography>
+      </>
     );
   }
-
-  // Removed handleViewReceipt as we're showing full receipts directly
 
   const handlePrint = (receipt) => {
     generateReceiptPDF(receipt, true);
@@ -90,39 +94,28 @@ const ReceiptsList = () => {
         }
       );
 
-      console.log("Cancel response:", response.data);
+      // console.log("Cancel response:", response.data);
       setSuccess(
         `Receipt ${selectedReceipt.transaction_no} has been cancelled successfully`
       );
 
-      // Get the status from the response or default to "cancelled"
       const cancelledStatus = response.data?.status || "cancelled";
 
-      // Update the receipt status in the list
-      const updatedReceipts = receipts.map((receipt) => {
-        if (receipt.transaction_no === selectedReceipt.transaction_no) {
-          return { ...receipt, status: cancelledStatus };
-        }
-        return receipt;
-      });
+      // Update the receipt status in the state directly
+      setReceipts((prevReceipts) =>
+        prevReceipts.map((receipt) => {
+          if (receipt.transaction_no === selectedReceipt.transaction_no) {
+            return { ...receipt, status: cancelledStatus, cancelled_by: username };
+          }
+          return receipt;
+        })
+      );
+
+      // The useEffect will automatically re-group the updated receipts
 
       // Close the dialog
       setConfirmOpen(false);
 
-      // Update the grouped receipts
-      const updatedGrouped = {};
-      for (const regNo in groupedReceipts) {
-        updatedGrouped[regNo] = groupedReceipts[regNo].map((receipt) => {
-          if (receipt.transaction_no === selectedReceipt.transaction_no) {
-            return { ...receipt, status: cancelledStatus };
-          }
-          return receipt;
-        });
-      }
-      setGroupedReceipts(updatedGrouped);
-
-      // Navigate back to the list with updated data
-      navigate("/receipts/list", { state: updatedReceipts, replace: true });
     } catch (err) {
       console.error("Error cancelling receipt:", err);
       setError(err.response?.data?.detail || "Failed to cancel receipt");

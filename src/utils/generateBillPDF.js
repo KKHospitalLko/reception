@@ -1,119 +1,191 @@
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 
-export const generateBillPDF = (billData) => {
-  const doc = new jsPDF("p", "mm", "a4");
+export const generateBillPDF = (billData, preview = false) => {
+  // console.log("Generating Bill PDF with data:", billData);
 
-  // ---------- HEADER ----------
-  doc.setFont("helvetica", "bold");
+  const doc = new jsPDF();
+  const pageWidth = doc.internal.pageSize.getWidth();
+
+  // Safe defaults
+  const chargesSummary = Array.isArray(billData[0].charges_summary)
+    ? billData[0].charges_summary
+    : [];
+  const transactions = Array.isArray(billData[0].transaction_breakdown)
+    ? billData[0].transaction_breakdown
+    : [];
+
+  // const username = sessionStorage.getItem("username") || "Unknown";
+
+  const now = new Date();
+  const currentDate = now.toISOString().split("T")[0]; // YYYY-MM-DD
+  const rawTime = now.toTimeString().split(" ")[0]; // HH:MM:SS
+  const [hours, minutes, seconds] = rawTime.split(":");
+  const hh = parseInt(hours);
+  const ampm = hh >= 12 ? "PM" : "AM";
+  const formattedHour = hh % 12 || 12;
+  const currentTime = `${formattedHour}:${minutes}:${seconds} ${ampm}`;
+
+  // ---------------- HEADER ----------------
   doc.setFontSize(16);
-  doc.text("City Hospital", 105, 15, { align: "center" });
+  doc.setTextColor(204, 0, 0);
+  doc.text("K.K. HOSPITAL, LUCKNOW", 20, 15);
 
-  doc.setFont("helvetica", "normal");
   doc.setFontSize(10);
-  doc.text("123 Health Street, Medical City, India", 105, 22, { align: "center" });
-  doc.text("Phone: +91 9876543210 | Email: info@cityhospital.com", 105, 28, { align: "center" });
+  doc.setTextColor(0);
+  doc.text(
+    "Address: 87/88, Nabiullah Road, Opp. SSP Office, River Bank Colony, Lucknow",
+    20,
+    21
+  );
+  doc.text("Phone: 0522-2619049/50 & 2231932", 20, 26);
+  doc.text(
+    "Email: kkhospitallko1991@gmail.com, contact@kkhospitallucknow.com",
+    20,
+    31
+  );
+  doc.text("GSTIN: 09AAATK4016C2ZZ, Registration Number: 0915700003", 20, 37);
+  doc.text(
+    "___________________________________________________________________________________",
+    20,
+    40
+  );
 
-  doc.setDrawColor(100);
-  doc.line(10, 32, 200, 32);
+  doc.setFontSize(13);
+  doc.setTextColor(33, 150, 243);
+  doc.text("FINAL BILL SUMMARY", 75, 55);
 
-  // ---------- BILL TITLE ----------
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(14);
-  doc.text("FINAL BILL", 105, 40, { align: "center" });
-
-  // ---------- PATIENT DETAILS ----------
-  doc.setFont("helvetica", "normal");
-  doc.setFontSize(10);
-
-  let y = 50;
-  doc.text(`Bill No: ${billData.final_bill_no || ""}`, 14, y);
-  doc.text(`Date: ${billData.discharge_date || ""} ${billData.discharge_time || ""}`, 150, y);
-
-  y += 8;
-  doc.text(`Patient Name: ${billData.patient_name || ""}`, 14, y);
-  doc.text(`UHID: ${billData.patient_uhid || ""}`, 150, y);
-
-  y += 8;
-  doc.text(`Reg No: ${billData.patient_regno || ""}`, 14, y);
-  doc.text(`Age/Gender: ${billData.age || ""} / ${billData.gender || ""}`, 150, y);
-
-  y += 8;
-  doc.text(`Consultant: ${billData.consultant_doctor || ""}`, 14, y);
-
-  y += 8;
-  doc.text(`Admission: ${billData.admission_date || ""}`, 14, y);
-  doc.text(`Discharge: ${billData.discharge_date || ""}`, 150, y);
-
-  y += 8;
-  doc.text(`Room Type: ${billData.room_type || ""}`, 14, y);
-  doc.text(`Bed No: ${billData.bed_no || ""}`, 150, y);
-
-  // ---------- CHARGES SUMMARY ----------
-  const chargesHead = [["S.No", "Particulars", "Qty", "Rate", "Amount"]];
-  const chargesBody =
-    billData.charges_summary?.map((item, idx) => [
-      idx + 1,
-      item.particulars,
-      item.quantity,
-      item.rate?.toFixed(2),
-      item.amount?.toFixed(2),
-    ]) || [];
+  // ---------------- PATIENT DETAILS ----------------
+  const patientRows = [
+    ["Bill No.", billData[0].final_bill_no || "-"],
+    ["UHID", billData[0].patient_uhid || "-"],
+    ["Registration No.", billData[0].patient_regno || "-"],
+    ["Patient Name", billData[0].patient_name || "-"],
+    ["Age / Gender", `${billData[0].age || "-"} / ${billData[0].gender || "-"}`],
+    ["Consultant Doctor(s)", billData[0].consultant_doctor || "-"],
+    ["Room", `${billData[0].room_type || "-"} (${billData[0].bed_no || "-"})`],
+    ["Admission Date", billData[0].admission_date || "-"],
+    ["Discharge Date", billData[0].discharge_date || "-"],
+    ["Discharge Time", billData[0].discharge_time || "-"],
+  ];
 
   autoTable(doc, {
-    startY: y + 10,
-    head: chargesHead,
-    body: chargesBody,
+    startY: 65,
     theme: "grid",
-    styles: { fontSize: 10, cellPadding: 3 },
-    headStyles: { fillColor: [41, 128, 185], textColor: 255 },
-    bodyStyles: { textColor: 50 },
-    alternateRowStyles: { fillColor: [245, 245, 245] },
-    margin: { left: 14, right: 14 },
+    head: [["Patient Details", "Information"]],
+    body: patientRows,
+    columnStyles: {
+      0: { cellWidth: 60 },
+      1: { cellWidth: 120 },
+    },
   });
 
-  let afterChargesY = doc.lastAutoTable.finalY + 10;
-
-  // ---------- TOTALS ----------
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(11);
-
-  doc.text(`Total Charges: ₹${billData.total_charges || 0}`, 180, afterChargesY, { align: "right" });
-  afterChargesY += 6;
-  doc.text(`Total Discount: ₹${billData.total_discount || 0}`, 180, afterChargesY, { align: "right" });
-  afterChargesY += 6;
-  doc.text(`Net Amount: ₹${billData.net_amount || 0}`, 180, afterChargesY, { align: "right" });
-  afterChargesY += 6;
-  doc.text(`Paid: ₹${billData.total_paid || 0}`, 180, afterChargesY, { align: "right" });
-  afterChargesY += 6;
-  doc.text(`Balance: ₹${billData.balance || 0}`, 180, afterChargesY, { align: "right" });
-
-  // ---------- TRANSACTION BREAKDOWN ----------
-  const txnHead = [["Date", "Transaction No", "Amount"]];
-  const txnBody =
-    billData.transaction_breakdown?.map((txn) => [
-      txn.date,
-      txn.transaction_no,
-      txn.amount?.toFixed(2),
-    ]) || [];
+  // ---------------- CHARGES SUMMARY ----------------
+  const charges = chargesSummary.length
+    ? chargesSummary.map((item, i) => [
+        i + 1,
+        item.particulars || "-",
+        item.quantity || "-",
+        item.rate || "-",
+        item.amount || "-",
+      ])
+    : [["-", "No charges found", "-", "-", "-"]];
 
   autoTable(doc, {
-    startY: afterChargesY + 10,
-    head: txnHead,
-    body: txnBody,
-    theme: "striped",
-    styles: { fontSize: 10, cellPadding: 3 },
-    headStyles: { fillColor: [22, 160, 133], textColor: 255 },
-    margin: { left: 14, right: 14 },
+    startY: doc.lastAutoTable.finalY + 10,
+    theme: "grid",
+    head: [["#", "Particulars", "Qty", "Rate", "Amount (in Rs.)"]],
+    body: charges,
+    headStyles: { fillColor: [41, 128, 185] },
   });
 
-  // ---------- FOOTER ----------
-  doc.setFont("helvetica", "italic");
-  doc.setFontSize(9);
-  doc.text("This is a computer generated final bill. No signature required.", 105, 285, { align: "center" });
+  // ---------------- DISCOUNTS & TOTALS ----------------
+  const totals = [
+    ["Total Charges", billData[0].total_charges || 0],
+    ["Consultancy Discount", billData[0].consultancy_charges_discount || 0],
+    ["Medication Discount", billData[0].medication_discount || 0],
+    ["Room Service Discount", billData[0].room_service_discount || 0],
+    ["Total Discount", billData[0].total_discount || 0],
+    ["Net Amount", billData[0].net_amount || 0],
+    ["Total Paid", billData[0].total_paid || 0],
+    ["Balance", billData[0].balance || 0],
+  ];
 
-  // ---------- PREVIEW ----------
-  const pdfBlob = doc.output("blob");
-  const pdfUrl = URL.createObjectURL(pdfBlob);
-  window.open(pdfUrl); // open in new tab for preview
+  autoTable(doc, {
+    startY: doc.lastAutoTable.finalY + 10,
+    theme: "grid",
+    head: [["Summary", "Amount (in Rs.)"]],
+    body: totals,
+    columnStyles: {
+      0: { cellWidth: 80, fontStyle: "bold" },
+      1: { halign: "left" },
+    },
+  });
+
+  // ---------------- TRANSACTIONS ----------------
+  // doc.addPage();
+  const transactionRows = transactions.length
+    ? transactions.map((t, i) => [
+        i + 1,
+        t.transaction_no || "-",
+        t.date || "-",
+        t.amount || "-",
+      ])
+    : [["-", "No transactions available", "-", "-"]];
+
+  autoTable(doc, {
+    startY: doc.lastAutoTable.finalY + 10,
+    theme: "grid",
+    head: [["#", "Transaction No", "Date", "Amount (in Rs.)"]],
+    body: transactionRows,
+    headStyles: { fillColor: [46, 204, 113] },
+  });
+
+  // ---------------- FOOTER ----------------
+  const baseY = doc.lastAutoTable.finalY + 15;
+  doc.setFont("helvetica", "bold");
+  doc.setTextColor(0);
+
+  doc.text("Declaration:", 14, baseY);
+  doc.setFontSize(9);
+  doc.setFont("helvetica", "normal");
+  doc.text(
+    "This is a computer-generated bill. Please retain this for your records.",
+    14,
+    baseY + 5
+  );
+
+  doc.setFontSize(11);
+  doc.setFont("helvetica", "bold");
+  doc.text("Authorized Signatory:", 14, baseY + 20);
+  doc.setFont("helvetica", "normal");
+  doc.text("_______________________", 60, baseY + 20);
+
+  doc.setFont("helvetica", "bold");
+  doc.text("Generated by:", 14, baseY + 30);
+  doc.setFont("helvetica", "normal");
+  doc.text(billData[0].created_by, 50, baseY + 30);
+
+  doc.setFont("helvetica", "bold");
+  doc.text("Bill Generated Date:", 14, baseY + 40);
+  doc.setFont("helvetica", "normal");
+  doc.text(currentDate, 60, baseY + 40);
+
+  doc.setFont("helvetica", "bold");
+  doc.text("Bill Generated Time:", 14, baseY + 50);
+  doc.setFont("helvetica", "normal");
+  doc.text(currentTime, 60, baseY + 50);
+
+  doc.setFontSize(8);
+  doc.setFont("helvetica", "italic", "bold");
+  doc.text("Note: Payments are accepted at reception only", 14, baseY + 65);
+
+  // ---------------- OUTPUT ----------------
+  if (preview) {
+    const pdfBlob = doc.output("blob");
+    const pdfUrl = URL.createObjectURL(pdfBlob);
+    window.open(pdfUrl);
+  } else {
+    doc.save(`bill_${billData[0].final_bill_no || "NA"}.pdf`);
+  }
 };
