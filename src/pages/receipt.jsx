@@ -16,6 +16,8 @@ import {
   Backdrop,
   CircularProgress,
   InputAdornment,
+  Typography,
+
 } from "@mui/material";
 import { generateTransactionId } from "../utils/generateTransactionId";
 
@@ -263,6 +265,14 @@ const PaymentForm = () => {
     <>
       <Navbar />
       <Box p={4} bgcolor="#fff" minHeight="100vh">
+        <Typography
+        variant="h4"
+        gutterBottom
+        align="center"
+        className="bg-[#5fc1b2] text-white p-3 rounded-lg shadow-md"
+      >
+        Transaction Generation Form
+      </Typography>
         <Backdrop open={loading} sx={{ color: "#fff", zIndex: 9999 }}>
           <CircularProgress color="inherit" />
         </Backdrop>
@@ -380,7 +390,7 @@ const PaymentForm = () => {
               fullWidth
               label="Purpose of Transaction"
               name="purpose"
-              value={form.purpose || "Advance"}
+              value={form.purpose || ""}
               onChange={handleChange}
               required
               error={!!errors.purpose}
@@ -404,9 +414,10 @@ const PaymentForm = () => {
             >
               <MenuItem value="">Select</MenuItem>
               <MenuItem value="CASH">Cash</MenuItem>
-              <MenuItem value="CARD">Card</MenuItem>
+              <MenuItem value="CARD">Credit Card / Debit Card</MenuItem>
               <MenuItem value="CHEQUE">Cheque</MenuItem>
               <MenuItem value="UPI">UPI</MenuItem>
+              <MenuItem value="CASHLESS">Cashless</MenuItem>
             </TextField>
           </Box>
 

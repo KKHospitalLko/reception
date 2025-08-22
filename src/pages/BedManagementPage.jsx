@@ -316,7 +316,12 @@ export default function BedAllocationPage() {
         <CircularProgress color="inherit" />
       </Backdrop>
 
-      <Typography variant="h4" mb={2}>
+      <Typography
+        variant="h4"
+        gutterBottom
+        align="center"
+        className="bg-[#5fc1b2] text-white p-3 rounded-lg shadow-md"
+      >
         Bed Allocation
       </Typography>
       <Button

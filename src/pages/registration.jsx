@@ -126,7 +126,7 @@ const RegistrationForm = () => {
         religion: formData.religion,
         // intimationOrExtension: formData.empanelType,
         maritalStatus: formData.maritalStatus,
-        fatherHusband: formData.fatherOrHusband,
+        fatherHusband: "Mr. "+formData.fatherOrHusband,
         doctorIncharge: formData.doctorIncharge,
         regAmount: Number(formData.regAmount) || 0,
         localAddress: {
@@ -470,7 +470,7 @@ const RegistrationForm = () => {
 
           {/* Row 4 */}
           <Box>
-            <FormControl fullWidth required>
+            <FormControl sx={{ width: "24%" }} required>
               <InputLabel>Consulting Doctor(s) Incharge</InputLabel>
               <Select
                 multiple

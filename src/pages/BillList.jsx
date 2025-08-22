@@ -34,7 +34,7 @@ export default function BillList() {
   const navigate = useNavigate();
   const location = useLocation();
   const [billData, setBillData] = useState(location.state?.billData || []);
-  // console.log("Bill Data:", billData);
+  console.log("Bill Data:", billData);
   
   const [error, setError] = useState("");
   const backendUrl = import.meta.env.VITE_BACKEND_URL;
@@ -211,6 +211,13 @@ export default function BillList() {
                             Admission Date:
                           </Typography>
                           <Typography>{bill.admission_date}</Typography>
+                        </Box>
+
+                        <Box flex="1 1 45%">
+                          <Typography fontWeight="bold">
+                            Admission Time:
+                          </Typography>
+                          <Typography>{bill.admission_time}</Typography>
                         </Box>
 
                         <Box flex="1 1 45%">

@@ -65,6 +65,7 @@ export const generateBillPDF = (billData, preview = false) => {
     ["Consultant Doctor(s)", billData[0].consultant_doctor || "-"],
     ["Room", `${billData[0].room_type || "-"} (${billData[0].bed_no || "-"})`],
     ["Admission Date", billData[0].admission_date || "-"],
+    ["Admission Time", billData[0].admission_time || "-"],
     ["Discharge Date", billData[0].discharge_date || "-"],
     ["Discharge Time", billData[0].discharge_time || "-"],
   ];
