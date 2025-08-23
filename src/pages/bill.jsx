@@ -83,6 +83,7 @@ export default function BillPage() {
   const [patient, setPatient] = useState({});
   const [beds, setBeds] = useState({});
   const [rows, setRows] = useState([]);
+  const [amount, setAmount] = useState(0);
   const [transactions, setTransactions] = useState([]);
   const [discounts, setDiscounts] = useState({
     medication: 0,
@@ -141,10 +142,21 @@ export default function BillPage() {
           amount: 500,
         },
       ];
+
+      // const registrationAmount = [
+      //   {
+      //     amount: data.patient.regAmount,
+      //     transaction_date: data.patient.dateofreg,
+      //     transaction_no: "Registration Fee",
+      //   },
+      // ];
+      // setTransactions([...(data.transactions || []), ...(registrationAmount || []),]);
+
+      setAmount(data.patient.regAmount || 0);
+      setTransactions(data.transactions || []);
       setPatient(data.patient || {});
       setBeds(data.beds || {});
-      setTransactions(data.transactions || []);
-      setRows(initialRows); // Set initial rows with registration and pollution charges
+      setRows(initialRows);
       setLoading(false);
     } catch (error) {
       setLoading(false);
@@ -382,16 +394,14 @@ export default function BillPage() {
         gender: patient.sex || "",
         admission_date: patient.dateofreg || "",
         admission_time: patient.time || "",
-        discharge_date: todayDate, // you may want actual discharge date instead
-        discharge_time: new Date().toLocaleTimeString(), // adjust if backend provides
+        discharge_date: todayDate,
+        discharge_time: new Date().toLocaleTimeString(),
         consultant_doctor: (patient.doctorIncharge || []).join(", "),
         room_type: beds.department || "",
         bed_no: beds.bed_number || "",
         created_by: sessionStorage.getItem("username") || "Unknown",
-
+        reg_amount: patient.regAmount || 0,
         charges_summary: rows.map((r, idx) => ({
-          // sr_no: idx + 1,
-          // type: r.descriptionType,
           particulars: r.description,
           quantity: Number(r.unit),
           rate: Number(r.rate),
@@ -527,7 +537,10 @@ export default function BillPage() {
                 { label: "Bed No: ", value: beds.bed_number },
                 { label: "Date of Admission: ", value: patient.dateofreg },
                 { label: "Time of Admission: ", value: patient.time },
-                { label: "Registration Amount: ", value: "Rs."+patient.regAmount+" (Paid)"},
+                {
+                  label: "Registration Amount: ",
+                  value: "Rs." + patient.regAmount + " (Paid)",
+                },
                 { label: "Date: ", value: todayDate },
                 {
                   label: "Doctor Incharge: ",
@@ -542,7 +555,7 @@ export default function BillPage() {
                   key={index}
                   sx={{
                     display: "flex",
-                    width: { xs: "100%", sm: "48%" }, // 2 per row on sm+, 1 per row on mobile
+                    width: { xs: "100%", sm: "48%" },
                   }}
                 >
                   <Typography
@@ -794,92 +807,96 @@ export default function BillPage() {
           <Typography variant="h6" gutterBottom mt={3}>
             Summary
           </Typography>
-          <Table sx={{ "& td": { padding: "12px 16px" } }}>
-            <TableBody>
-              <TableRow>
-                <TableCell>
-                  <b>Total Charges</b>
-                </TableCell>
-                <TableCell align="right">
-                  ₹
-                  {rows
-                    .reduce((sum, r) => sum + Number(r.amount || 0), 0)
-                    .toLocaleString("en-IN", {
-                      minimumFractionDigits: 2,
-                      maximumFractionDigits: 2,
-                    })}
-                </TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>
-                  <b>Total Discounts</b>
-                </TableCell>
-                <TableCell align="right">
-                  ₹
-                  {(
-                    discounts.medication +
-                    discounts.roomService +
-                    discounts.consultancy
-                  ).toLocaleString("en-IN", {
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2,
-                  })}
-                </TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>
-                  <b>Net Amount</b>
-                </TableCell>
-                <TableCell align="right">
-                  ₹
-                  {(
-                    rows.reduce((sum, r) => sum + Number(r.amount || 0), 0) -
-                    (discounts.medication +
-                      discounts.roomService +
-                      discounts.consultancy)
-                  ).toLocaleString("en-IN", {
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2,
-                  })}
-                </TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>
-                  <b>Total Paid</b>
-                </TableCell>
-                <TableCell align="right">
-                  ₹
-                  {transactions
-                    .reduce((sum, t) => sum + Number(t.amount || 0), 0)
-                    .toLocaleString("en-IN", {
-                      minimumFractionDigits: 2,
-                      maximumFractionDigits: 2,
-                    })}
-                </TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>
-                  <b>Balance</b>
-                </TableCell>
-                <TableCell align="right">
-                  ₹
-                  {(
-                    rows.reduce((sum, r) => sum + Number(r.amount || 0), 0) -
-                    (discounts.medication +
-                      discounts.roomService +
-                      discounts.consultancy) -
-                    transactions.reduce(
-                      (sum, t) => sum + Number(t.amount || 0),
-                      0
-                    )
-                  ).toLocaleString("en-IN", {
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2,
-                  })}
-                </TableCell>
-              </TableRow>
-            </TableBody>
-          </Table>
+          {(() => {
+            const totalCharges = rows.reduce(
+              (sum, r) => sum + Number(r.amount || 0),
+              0
+            );
+            const totalDiscounts =
+              Number(discounts.medication || 0) +
+              Number(discounts.roomService || 0) +
+              Number(discounts.consultancy || 0);
+            const netAmount = totalCharges - totalDiscounts;
+
+            const transactionsTotal = transactions.reduce(
+              (sum, t) => sum + Number(t.amount || 0),
+              0
+            );
+
+            // Registration amount set in `amount` is already paid; include it ONCE in total paid
+            const regAmountPaid = Number(amount || 0);
+
+            const totalPaid = transactionsTotal + regAmountPaid;
+
+            const balance = netAmount - totalPaid;
+
+            return (
+              <Table sx={{ "& td": { padding: "12px 16px" } }}>
+                <TableBody>
+                  <TableRow>
+                    <TableCell>
+                      <b>Total Charges</b>
+                    </TableCell>
+                    <TableCell align="right">
+                      ₹
+                      {totalCharges.toLocaleString("en-IN", {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      })}
+                    </TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell>
+                      <b>Total Discounts</b>
+                    </TableCell>
+                    <TableCell align="right">
+                      ₹
+                      {totalDiscounts.toLocaleString("en-IN", {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      })}
+                    </TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell>
+                      <b>Net Amount</b>
+                    </TableCell>
+                    <TableCell align="right">
+                      ₹
+                      {netAmount.toLocaleString("en-IN", {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      })}
+                    </TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell>
+                      <b>Total Paid</b>
+                    </TableCell>
+                    <TableCell align="right">
+                      ₹
+                      {totalPaid.toLocaleString("en-IN", {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      })}
+                    </TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell>
+                      <b>Balance</b>
+                    </TableCell>
+                    <TableCell align="right">
+                      ₹
+                      {balance.toLocaleString("en-IN", {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      })}
+                    </TableCell>
+                  </TableRow>
+                </TableBody>
+              </Table>
+            );
+          })()}
 
           {/* Action Buttons */}
           <Box

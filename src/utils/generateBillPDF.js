@@ -2,7 +2,7 @@ import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 
 export const generateBillPDF = (billData, preview = false) => {
-  // console.log("Generating Bill PDF with data:", billData);
+  console.log("Generating Bill PDF with data:", billData);
 
   const doc = new jsPDF();
   const pageWidth = doc.internal.pageSize.getWidth();
@@ -68,6 +68,7 @@ export const generateBillPDF = (billData, preview = false) => {
     ["Admission Time", billData[0].admission_time || "-"],
     ["Discharge Date", billData[0].discharge_date || "-"],
     ["Discharge Time", billData[0].discharge_time || "-"],
+    ["Registration Amount", "Rs. "+ billData[0].reg_amount || "-"],
   ];
 
   autoTable(doc, {

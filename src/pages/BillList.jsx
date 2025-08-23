@@ -221,9 +221,23 @@ export default function BillList() {
                         </Box>
 
                         <Box flex="1 1 45%">
-                          <Typography fontWeight="bold">Discharge:</Typography>
+                          <Typography fontWeight="bold">Discharge Date:</Typography>
                           <Typography>
-                            {bill.discharge_date} {bill.discharge_time}
+                            {bill.discharge_date}
+                          </Typography>
+                        </Box>
+
+                        <Box flex="1 1 45%">
+                          <Typography fontWeight="bold">Discharge Time:</Typography>
+                          <Typography>
+                            {bill.discharge_time}
+                          </Typography>
+                        </Box>
+                        
+                        <Box flex="1 1 45%">
+                          <Typography fontWeight="bold">Registration Amount:</Typography>
+                          <Typography>
+                            ₹{bill.reg_amount} (Paid)
                           </Typography>
                         </Box>
 
