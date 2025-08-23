@@ -414,7 +414,7 @@ const PaymentForm = () => {
             >
               <MenuItem value="">Select</MenuItem>
               <MenuItem value="CASH">Cash</MenuItem>
-              <MenuItem value="CARD">Credit Card / Debit Card</MenuItem>
+              <MenuItem value="DEBIT / CREDIT CARD">Credit Card / Debit Card</MenuItem>
               <MenuItem value="CHEQUE">Cheque</MenuItem>
               <MenuItem value="UPI">UPI</MenuItem>
               <MenuItem value="CASHLESS">Cashless</MenuItem>
