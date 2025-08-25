@@ -5,7 +5,7 @@ export const generateReceiptPDF = (form, preview = false) => {
   const doc = new jsPDF();
 
   const now = new Date();
-  const currentDate = now.toISOString().split("T")[0]; // YYYY-MM-DD
+  // const currentDate = now.toISOString().split("T")[0]; // YYYY-MM-DD
 
   // Convert to 12-hour format
   const rawTime = now.toTimeString().split(" ")[0]; // HH:MM:SS
@@ -105,7 +105,7 @@ export const generateReceiptPDF = (form, preview = false) => {
   doc.setFont("helvetica", "bold");
   doc.text("Transaction Date:", 14, baseY + 42);
   doc.setFont("helvetica", "normal");
-  doc.text(`${currentDate}`, 50, baseY + 42);
+  doc.text(`${form.transaction_date}`, 50, baseY + 42);
 
   doc.setFont("helvetica", "bold");
   doc.text("Transaction Time:", 14, baseY + 49);

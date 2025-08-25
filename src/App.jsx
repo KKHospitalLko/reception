@@ -23,7 +23,6 @@ const handleLogout = () => {
   window.location.href = "/login";
 };
 
-
   const sections = [
     {
       label: "Registration",

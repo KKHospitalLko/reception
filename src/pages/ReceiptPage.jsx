@@ -75,6 +75,8 @@ const ReceiptPage = () => {
   const [previewOpen, setPreviewOpen] = useState(false);
   const iframeRef = useRef(null);
 
+  const currentDate = now.toISOString().split("T")[0];
+
   useEffect(() => {
     const fetchPatientData = async () => {
       if (form.uhid.length === 8 && /^\d{8}$/.test(form.uhid)) {
@@ -182,7 +184,7 @@ const ReceiptPage = () => {
               cheque_date: form.chequeDate,
             }
           : null,
-      transaction_date: form.date, // assuming already in YYYY-MM-DD
+      transaction_date: currentDate, // assuming already in YYYY-MM-DD
       transaction_time: formattedTime,
       transaction_no: form.transactionId || generateTransactionId(),
       created_by: username, // Replace with dynamic user if needed

@@ -90,7 +90,9 @@ export default function BillPage() {
     roomService: 0,
     consultancy: 0,
   });
-  const todayDate = new Date().toLocaleDateString();
+  // const todayDate = new Date().toLocaleDateString();
+  const now = new Date();
+  const todayDate = now.toISOString().split("T")[0];
 
   // Auto-fetch patient data when UHID reaches 8 digits
   useEffect(() => {
@@ -379,7 +381,6 @@ export default function BillPage() {
     return `${hh}:${mm}:${ss} ${ampm}`;
   };
 
-  const now = new Date();
   const formattedTime = formatTimeTo12Hour(now);
 
   const handleGenerateBill = async () => {
