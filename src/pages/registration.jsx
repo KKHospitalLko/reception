@@ -22,7 +22,7 @@ import {
 import HomeIcon from "@mui/icons-material/Home";
 import axios from "axios";
 
-const RegistrationForm = () => {
+const Registration = () => {
   const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
   const [searchId, setSearchId] = useState("");
@@ -668,4 +668,4 @@ const RegistrationForm = () => {
   );
 };
 
-export default RegistrationForm;
+export default Registration;

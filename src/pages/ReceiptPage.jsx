@@ -21,7 +21,7 @@ import {
 } from "@mui/material";
 import { generateTransactionId } from "../utils/generateTransactionId";
 
-const PaymentForm = () => {
+const ReceiptPage = () => {
   const backendUrl = import.meta.env.VITE_BACKEND_URL;
   const [loading, setLoading] = useState(false);
   const [uhidSearch, setUhidSearch] = useState("");
@@ -532,4 +532,4 @@ const PaymentForm = () => {
   );
 };
 
-export default PaymentForm;
+export default ReceiptPage;

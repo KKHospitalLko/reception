@@ -2,12 +2,12 @@ import { createRoot } from 'react-dom/client';
 import './index.css';
 import App from './App.jsx';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import BillPage from './pages/bill.jsx';
-import ReceiptPage from './pages/receipt.jsx';
+import BillPage from './pages/BillPage.jsx';
+import ReceiptPage from './pages/ReceiptPage.jsx';
 import RegistrationPage from './pages/registration.jsx';
-import PatientPage from './pages/patientPage.jsx';
+import PatientPreview from './pages/PatientPreview.jsx';
 import NewReportPage from './pages/newReportPage.jsx';
-import BedManagementPage from './pages/BedManagementPage.jsx';
+import BedAllocationPage from './pages/BedAllocationPage.jsx';
 import LoginPage from './pages/LoginPage.jsx';
 import ProtectedRoute from './pages/ProtectedRoute.jsx';
 // import ReceiptPreview from "./pages/ReceiptPreview.jsx";
@@ -70,7 +70,7 @@ createRoot(document.getElementById('root')).render(
           path="/bedManagement"
           element={
             <ProtectedRoute>
-              <BedManagementPage />
+              <BedAllocationPage />
             </ProtectedRoute>
           }
         />
@@ -86,7 +86,7 @@ createRoot(document.getElementById('root')).render(
           path="/patient/:id"
           element={
             <ProtectedRoute>
-              <PatientPage />
+              <PatientPreview />
             </ProtectedRoute>
           }
         />

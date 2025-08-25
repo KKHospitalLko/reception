@@ -12,7 +12,7 @@ import {
   Paper
 } from "@mui/material";
 
-const PatientPage = () => {
+const PatientPreview = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [data, setData] = useState([]);
@@ -157,4 +157,4 @@ const PatientPage = () => {
 
 };
 
-export default PatientPage;
+export default PatientPreview;

@@ -368,6 +368,20 @@ export default function BillPage() {
     });
   };
 
+    const formatTimeTo12Hour = (date) => {
+    const hours = date.getHours();
+    const minutes = date.getMinutes();
+    const seconds = date.getSeconds();
+    const ampm = hours >= 12 ? "PM" : "AM";
+    const hh = hours % 12 || 12;
+    const mm = String(minutes).padStart(2, "0");
+    const ss = String(seconds).padStart(2, "0");
+    return `${hh}:${mm}:${ss} ${ampm}`;
+  };
+
+  const now = new Date();
+  const formattedTime = formatTimeTo12Hour(now);
+
   const handleGenerateBill = async () => {
     setLoading(true);
     try {
@@ -395,7 +409,7 @@ export default function BillPage() {
         admission_date: patient.dateofreg || "",
         admission_time: patient.time || "",
         discharge_date: todayDate,
-        discharge_time: new Date().toLocaleTimeString(),
+        discharge_time: formattedTime,
         consultant_doctor: (patient.doctorIncharge || []).join(", "),
         room_type: beds.department || "",
         bed_no: beds.bed_number || "",
