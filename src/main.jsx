@@ -14,93 +14,93 @@ import ProtectedRoute from './pages/ProtectedRoute.jsx';
 import ReceiptsList from "./pages/ReceiptsList.jsx";
 import BillList from './pages/BillList.jsx';
 
-import New from './pages/New.jsx';
+// import New from './pages/New.jsx';
 
 createRoot(document.getElementById('root')).render(
-  <New />
-    // <Router>
-    //   <Routes>
-    //     <Route path="/login" element={<LoginPage />} />
-    //     <Route
-    //       path="/"
-    //       element={
-    //         <ProtectedRoute>
-    //           <App />
-    //         </ProtectedRoute>
-    //       }
-    //     />
-    //     <Route
-    //       path="/bill"
-    //       element={
-    //         <ProtectedRoute>
-    //           <BillPage />
-    //         </ProtectedRoute>
-    //       }
-    //     />
-    //     <Route
-    //       path="/billList"
-    //       element={
-    //         <ProtectedRoute>
-    //           <BillList />
-    //         </ProtectedRoute>
-    //       }
-    //     />
-    //     <Route
-    //       path="/receipt"
-    //       element={
-    //         <ProtectedRoute>
-    //           <ReceiptPage />
-    //         </ProtectedRoute>
-    //       }
-    //     />
-    //     {/* <Route
-    //       path="/receipt/preview"
-    //       element={
-    //         <ProtectedRoute>
-    //           <ReceiptPreview />
-    //         </ProtectedRoute>
-    //       } 
-    //     /> */}
-    //     <Route
-    //       path="/receipts/list"
-    //       element={
-    //         <ProtectedRoute>
-    //           <ReceiptsList />
-    //         </ProtectedRoute>
-    //       } 
-    //     />       
-    //     <Route
-    //       path="/bedManagement"
-    //       element={
-    //         <ProtectedRoute>
-    //           <BedAllocationPage />
-    //         </ProtectedRoute>
-    //       }
-    //     />
-    //     <Route
-    //       path="/registration"
-    //       element={
-    //         <ProtectedRoute>
-    //           <RegistrationPage />
-    //         </ProtectedRoute>
-    //       }
-    //     />
-    //     <Route
-    //       path="/patient/:id"
-    //       element={
-    //         <ProtectedRoute>
-    //           <PatientPreview />
-    //         </ProtectedRoute>
-    //       }
-    //     />
-    //     <Route
-    //       path="/patient/:id/new"
-    //       element={
-    //         <ProtectedRoute>
-    //           <NewReportPage />
-    //         </ProtectedRoute>
-    //       }
-    //     />
-    //   </Routes>
-    // </Router>
+  // <New />
+    <Router>
+      <Routes>
+        <Route path="/login" element={<LoginPage />} />
+        <Route
+          path="/"
+          element={
+            <ProtectedRoute>
+              <App />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/bill"
+          element={
+            <ProtectedRoute>
+              <BillPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/billList"
+          element={
+            <ProtectedRoute>
+              <BillList />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/receipt"
+          element={
+            <ProtectedRoute>
+              <ReceiptPage />
+            </ProtectedRoute>
+          }
+        />
+        {/* <Route
+          path="/receipt/preview"
+          element={
+            <ProtectedRoute>
+              <ReceiptPreview />
+            </ProtectedRoute>
+          } 
+        /> */}
+        <Route
+          path="/receipts/list"
+          element={
+            <ProtectedRoute>
+              <ReceiptsList />
+            </ProtectedRoute>
+          } 
+        />       
+        <Route
+          path="/bedManagement"
+          element={
+            <ProtectedRoute>
+              <BedAllocationPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/registration"
+          element={
+            <ProtectedRoute>
+              <RegistrationPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/patient/:id"
+          element={
+            <ProtectedRoute>
+              <PatientPreview />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/patient/:id/new"
+          element={
+            <ProtectedRoute>
+              <NewReportPage />
+            </ProtectedRoute>
+          }
+        />
+      </Routes>
+    </Router>
 );

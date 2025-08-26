@@ -63,7 +63,7 @@ const Navbar = () => {
   const drawer = (
     <Box onClick={handleDrawerToggle} sx={{ textAlign: "center" }}>
       <Typography variant="h6" sx={{ my: 2 }}>
-        KK Hospital
+        K.K. Hospital
       </Typography>
       <List>
         {navItems.map((item) => (
