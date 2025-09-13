@@ -4,7 +4,7 @@ import App from './App.jsx';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import BillPage from './pages/BillPage.jsx';
 import ReceiptPage from './pages/ReceiptPage.jsx';
-import RegistrationPage from './pages/registration.jsx';
+import RegistrationPage from './pages/Registration.jsx';
 import PatientPreview from './pages/PatientPreview.jsx';
 import NewReportPage from './pages/newReportPage.jsx';
 import BedAllocationPage from './pages/BedAllocationPage.jsx';
@@ -13,6 +13,7 @@ import ProtectedRoute from './pages/ProtectedRoute.jsx';
 // import ReceiptPreview from "./pages/ReceiptPreview.jsx";
 import ReceiptsList from "./pages/ReceiptsList.jsx";
 import BillList from './pages/BillList.jsx';
+import FilterPage from './pages/filter/FilterPage.jsx';
 
 // import New from './pages/New.jsx';
 
@@ -34,6 +35,14 @@ createRoot(document.getElementById('root')).render(
           element={
             <ProtectedRoute>
               <BillPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/filter"
+          element={
+            <ProtectedRoute>
+              <FilterPage />
             </ProtectedRoute>
           }
         />

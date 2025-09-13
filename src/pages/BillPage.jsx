@@ -18,16 +18,38 @@ import {
   Box,
   IconButton,
   FormControl,
-  InputLabel,
   InputAdornment,
   CircularProgress,
   Backdrop,
+  FormControlLabel,
+  Radio,
+  RadioGroup,
+  Snackbar,
+  Alert,
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 
 export default function BillPage() {
   const navigate = useNavigate();
   const [searchUhid, setSearchUhid] = useState("");
+  const [discountType, setDiscountType] = useState("amount"); // "amount" | "percentage"
+  const [discountValue, setDiscountValue] = useState("");
+
+  // Toast state
+  const [toast, setToast] = useState({
+    open: false,
+    message: "",
+    severity: "success",
+  });
+
+  const showToast = (message, severity = "success") => {
+    setToast({ open: true, message, severity });
+  };
+
+  const handleToastClose = (_, reason) => {
+    if (reason === "clickaway") return;
+    setToast((prev) => ({ ...prev, open: false }));
+  };
 
   // Tariff list for services
   const tariffList = [
@@ -85,11 +107,11 @@ export default function BillPage() {
   const [rows, setRows] = useState([]);
   const [amount, setAmount] = useState(0);
   const [transactions, setTransactions] = useState([]);
-  const [discounts, setDiscounts] = useState({
-    medication: 0,
-    roomService: 0,
-    consultancy: 0,
-  });
+  // const [discounts, setDiscounts] = useState({
+  //   medication: 0,
+  //   roomService: 0,
+  //   consultancy: 0,
+  // });
   // const todayDate = new Date().toLocaleDateString();
   const now = new Date();
   const todayDate = now.toISOString().split("T")[0];
@@ -108,13 +130,12 @@ export default function BillPage() {
           const messages = error.response.data.detail
             .map((d) => d.msg)
             .join("\n");
-          alert(messages);
+          showToast(messages, "error");
         } else if (error.response?.data?.detail) {
           // Single validation message
-          alert(error.response.data.detail);
+          showToast(error.response.data.detail);
         } else {
-          console.error("Error submitting form:", error);
-          alert("Something went wrong. Please try again.");
+          showToast("Something went wrong. Please try again.", "error");
         }
       }
     }
@@ -145,15 +166,6 @@ export default function BillPage() {
         },
       ];
 
-      // const registrationAmount = [
-      //   {
-      //     amount: data.patient.regAmount,
-      //     transaction_date: data.patient.dateofreg,
-      //     transaction_no: "Registration Fee",
-      //   },
-      // ];
-      // setTransactions([...(data.transactions || []), ...(registrationAmount || []),]);
-
       setAmount(data.patient.regAmount || 0);
       setTransactions(data.transactions || []);
       setPatient(data.patient || {});
@@ -167,83 +179,16 @@ export default function BillPage() {
         const messages = error.response.data.detail
           .map((d) => d.msg)
           .join("\n");
-        alert(messages);
+        showToast(messages, "error");
       } else if (error.response?.data?.detail) {
         // Single validation message
-        alert(error.response.data.detail);
+        showToast(error.response.data.detail, "error");
       } else {
         console.error("Error submitting form:", error);
-        alert("Something went wrong. Please try again.");
+        showToast("Something went wrong. Please try again.", "error");
       }
     }
   };
-
-  //   useEffect(() => {
-  //   if (uhid.length === 8) {
-  //     checkAndFetchPatientData(uhid);
-  //   }
-  // }, [uhid]);
-
-  // const checkAndFetchPatientData = async (uhidVal) => {
-  //   setLoading(true);
-  //   try {
-  //     // Step 1: Check for an existing final bill first
-  //     const billRes = await axios.get(
-  //       import.meta.env.VITE_BACKEND_URL + `/final-bill/${uhidVal}`,
-  //       {
-  //         headers: {
-  //           "Content-Type": "application/json",
-  //           "x-api-key": import.meta.env.VITE_API_KEY,
-  //         },
-  //       }
-  //     );
-
-  //     console.log("Final Bill Check Response:", billRes.data);
-  //     const hasActiveBill = billRes.data.some(bill => bill.status !== "cancelled");
-
-  //   if (hasActiveBill) {
-  //     alert("An active final bill is already present for this patient. Please use the 'Search UHID' field to view it.");
-  //     setLoading(false);
-  //     return; // Stop the function here
-  //   }
-  //   } catch (error) {
-  //     // This is the expected path if no final bill exists (e.g., a 404 response)
-  //     // We will now proceed to fetch patient data
-  //     console.log("No final bill found, proceeding with patient data fetch.");
-  //   }
-
-  //   // Step 2: Normal flow - Fetch patient data
-  //   try {
-  //     const res = await axios.get(
-  //       import.meta.env.VITE_BACKEND_URL +
-  //         `/patient/bed/transaction/${uhidVal}/forbill`,
-  //       {
-  //         headers: {
-  //           "Content-Type": "application/json",
-  //           "x-api-key": import.meta.env.VITE_API_KEY,
-  //         },
-  //       }
-  //     );
-  //     const data = res.data;
-  //     setPatient(data.patient || {});
-  //     setBeds(data.beds || {});
-  //     setTransactions(data.transactions || []);
-  //     setLoading(false);
-  //   } catch (error) {
-  //     setLoading(false);
-  //     if (error.response && Array.isArray(error.response.data?.detail)) {
-  //       const messages = error.response.data.detail
-  //         .map((d) => d.msg)
-  //         .join("\n");
-  //       alert(messages);
-  //     } else if (error.response?.data?.detail) {
-  //       alert(error.response.data.detail);
-  //     } else {
-  //       console.error("Error fetching patient data:", error);
-  //       alert("Something went wrong. Please try again.");
-  //     }
-  //   }
-  // };
 
   useEffect(() => {
     if (searchUhid.length === 8) {
@@ -276,13 +221,13 @@ export default function BillPage() {
         const messages = error.response.data.detail
           .map((d) => d.msg)
           .join("\n");
-        alert(messages);
+        showToast(messages, "error");
       } else if (error.response?.data?.detail) {
         // Single validation message
-        alert(error.response.data.detail);
+        showToast(error.response.data.detail, "error");
       } else {
         console.error("Error submitting form:", error);
-        alert("Something went wrong. Please try again.");
+        showToast("Something went wrong. Please try again.", "error");
       }
     }
   };
@@ -370,7 +315,7 @@ export default function BillPage() {
     });
   };
 
-    const formatTimeTo12Hour = (date) => {
+  const formatTimeTo12Hour = (date) => {
     const hours = date.getHours();
     const minutes = date.getMinutes();
     const seconds = date.getSeconds();
@@ -383,21 +328,71 @@ export default function BillPage() {
 
   const formattedTime = formatTimeTo12Hour(now);
 
+  // discountValue is string from input, discountType is "amount" | "percentage"
+  const calculateBill = ({
+    rows,
+    discountValue,
+    discountType,
+    transactions,
+  }) => {
+    const totalCharges = rows.reduce(
+      (sum, r) => sum + Number(r.amount || 0),
+      0
+    );
+
+    const numericDiscount = parseFloat(discountValue) || 0;
+
+    let totalDiscount = 0;
+    if (discountType === "percentage") {
+      totalDiscount = (totalCharges * numericDiscount) / 100;
+    } else {
+      totalDiscount = numericDiscount;
+    }
+
+    const netAmount = totalCharges - totalDiscount;
+
+    const regAmountPaid = Number(amount || 0);
+
+    const totalPaid =
+      transactions.reduce((sum, t) => sum + Number(t.amount || 0), 0) +
+      regAmountPaid;
+
+    const balance = netAmount - totalPaid;
+
+    return {
+      totalCharges,
+      numericDiscount,
+      totalDiscount,
+      netAmount,
+      totalPaid,
+      balance,
+    };
+  };
+
+  const {
+    totalCharges,
+    numericDiscount,
+    totalDiscount,
+    netAmount,
+    totalPaid,
+    balance,
+  } = calculateBill({ rows, discountValue, discountType, transactions });
+
   const handleGenerateBill = async () => {
     setLoading(true);
     try {
-      const totalCharges = rows.reduce(
-        (sum, r) => sum + Number(r.amount || 0),
-        0
-      );
-      const totalDiscount =
-        discounts.medication + discounts.roomService + discounts.consultancy;
-      const netAmount = totalCharges - totalDiscount;
-      const totalPaid = transactions.reduce(
-        (sum, t) => sum + Number(t.amount || 0),
-        0
-      );
-      const balance = netAmount - totalPaid;
+      // const totalCharges = rows.reduce(
+      //   (sum, r) => sum + Number(r.amount || 0),
+      //   0
+      // );
+      // const totalDiscount =
+      //   discounts.medication + discounts.roomService + discounts.consultancy;
+      // const netAmount = totalCharges - totalDiscount;
+      // const totalPaid = transactions.reduce(
+      //   (sum, t) => sum + Number(t.amount || 0),
+      //   0
+      // );
+      // const balance = netAmount - totalPaid;
 
       // Build request payload
       const payload = {
@@ -405,12 +400,14 @@ export default function BillPage() {
         patient_uhid: patient.uhid || "",
         patient_regno: patient.regno || "",
         patient_name: patient.fullname || "",
+        patient_type: patient.patient_type || "",
         age: patient.age?.toString() || "",
         gender: patient.sex || "",
         admission_date: patient.dateofreg || "",
         admission_time: patient.time || "",
         discharge_date: todayDate,
         discharge_time: formattedTime,
+        empanelment: patient.empanelment || "",
         consultant_doctor: (patient.doctorIncharge || []).join(", "),
         room_type: beds.department || "",
         bed_no: beds.bed_number || "",
@@ -429,17 +426,19 @@ export default function BillPage() {
           amount: Number(t.amount),
         })),
 
-        medication_discount: discounts.medication,
-        room_service_discount: discounts.roomService,
-        consultancy_charges_discount: discounts.consultancy,
-        total_charges: totalCharges,
-        total_discount: totalDiscount,
+        // total_charges: totalCharges,
+        total_discount: {
+          discount_type: discountType,
+          discount_percent: numericDiscount,
+          discount_rupee: totalDiscount,
+        },
         net_amount: netAmount,
         total_paid: totalPaid,
+        total_charges: totalCharges,
         balance: balance,
       };
 
-      // console.log("Final Bill Payload:", payload);
+      console.log("Final Bill Payload:", payload);
 
       const res = await axios.post(
         import.meta.env.VITE_BACKEND_URL + "/final-bill",
@@ -455,7 +454,7 @@ export default function BillPage() {
       console.log("response", res.data);
       navigate("/billList", { state: { billData: [res.data] } });
 
-      alert("Final bill generated successfully!");
+      showToast("Final bill generated successfully!", "success");
 
       // Clear form after successful submission
       setUhid("");
@@ -463,11 +462,6 @@ export default function BillPage() {
       setBeds({});
       setRows([]);
       setTransactions([]);
-      setDiscounts({
-        medication: 0,
-        roomService: 0,
-        consultancy: 0,
-      });
 
       setLoading(false);
     } catch (error) {
@@ -477,13 +471,12 @@ export default function BillPage() {
         const messages = error.response.data.detail
           .map((d) => d.msg)
           .join("\n");
-        alert(messages);
+        showToast(messages, "error");
       } else if (error.response?.data?.detail) {
         // Single validation message
-        alert(error.response.data.detail);
+        showToast(error.response.data.detail, "error");
       } else {
-        console.error("Error submitting form:", error);
-        alert("Something went wrong. Please try again.");
+        showToast("Something went wrong. Please try again.", "error");
       }
     }
   };
@@ -543,15 +536,21 @@ export default function BillPage() {
                   label: "UHID / Registration No:",
                   value: `${patient.uhid} / ${patient.regno}`,
                 },
+                { label: "Patient Type: ", value: patient.patient_type },
                 { label: "Patient Name: ", value: patient.fullname },
                 {
                   label: "Age / Sex: ",
                   value: `${patient.age} / ${patient.sex}`,
                 },
-                { label: "Department: ", value: beds.department },
-                { label: "Bed No: ", value: beds.bed_number },
+                ...(patient.patient_type === "IPD"
+                  ? [
+                      { label: "Department: ", value: beds.department },
+                      { label: "Bed No: ", value: beds.bed_number },
+                    ]
+                  : []),
                 { label: "Date of Admission: ", value: patient.dateofreg },
                 { label: "Time of Admission: ", value: patient.time },
+                { label: "Empanelment: ", value: patient.empanelment },
                 {
                   label: "Registration Amount: ",
                   value: "Rs." + patient.regAmount + " (Paid)",
@@ -756,62 +755,51 @@ export default function BillPage() {
 
           {/* Discounts Section */}
           <Typography variant="h6" gutterBottom mt={3}>
-            Discounts
+            Discount
           </Typography>
+
+          {/* Radio Button to choose type */}
+          <FormControl component="fieldset" sx={{ mb: 2 }}>
+            <RadioGroup
+              row
+              value={discountType}
+              onChange={(e) => {
+                setDiscountType(e.target.value);
+                setDiscountValue(0); // reset value when switching type
+              }}
+            >
+              <FormControlLabel
+                value="amount"
+                control={<Radio />}
+                label="Amount (₹)"
+              />
+              <FormControlLabel
+                value="percentage"
+                control={<Radio />}
+                label="Percentage (%)"
+              />
+            </RadioGroup>
+          </FormControl>
+
+          {/* Single Input Field */}
           <Grid container spacing={2} sx={{ mb: 3 }}>
-            <Grid item xs={12} md={4}>
+            <Grid item xs={12} md={4} width={{ xs: "100%", md: "33.33%" }}>
               <TextField
-                label="Medication Discount"
+                label="Discount"
                 type="number"
-                value={discounts.medication}
-                onChange={(e) =>
-                  handleDiscountChange(
-                    "medication",
-                    parseFloat(e.target.value) || 0
-                  )
+                value={discountValue}
+                onChange={(e) => setDiscountValue(parseFloat(e.target.value))}
+                sx={{ width: "70%" }}
+                inputProps={
+                  discountType === "percentage"
+                    ? { min: 0, max: 100 }
+                    : { min: 0 }
                 }
-                fullWidth
                 InputProps={{
                   startAdornment: (
-                    <InputAdornment position="start">₹</InputAdornment>
-                  ),
-                }}
-              />
-            </Grid>
-            <Grid item xs={12} md={4}>
-              <TextField
-                label="Room Service Discount"
-                type="number"
-                value={discounts.roomService}
-                onChange={(e) =>
-                  handleDiscountChange(
-                    "roomService",
-                    parseFloat(e.target.value) || 0
-                  )
-                }
-                fullWidth
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">₹</InputAdornment>
-                  ),
-                }}
-              />
-            </Grid>
-            <Grid item xs={12} md={4}>
-              <TextField
-                label="Consultancy Charges Discount"
-                type="number"
-                value={discounts.consultancy}
-                onChange={(e) =>
-                  handleDiscountChange(
-                    "consultancy",
-                    parseFloat(e.target.value) || 0
-                  )
-                }
-                fullWidth
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">₹</InputAdornment>
+                    <InputAdornment position="start">
+                      {discountType === "percentage" ? "%" : "₹"}
+                    </InputAdornment>
                   ),
                 }}
               />
@@ -827,10 +815,16 @@ export default function BillPage() {
               (sum, r) => sum + Number(r.amount || 0),
               0
             );
-            const totalDiscounts =
-              Number(discounts.medication || 0) +
-              Number(discounts.roomService || 0) +
-              Number(discounts.consultancy || 0);
+
+            // calculate discount based on type
+            let totalDiscounts = 0;
+            const numericDiscount = parseFloat(discountValue) || 0;
+            if (discountType === "percentage") {
+              totalDiscounts = (totalCharges * numericDiscount) / 100;
+            } else {
+              totalDiscounts = numericDiscount;
+            }
+
             const netAmount = totalCharges - totalDiscounts;
 
             const transactionsTotal = transactions.reduce(
@@ -838,9 +832,7 @@ export default function BillPage() {
               0
             );
 
-            // Registration amount set in `amount` is already paid; include it ONCE in total paid
             const regAmountPaid = Number(amount || 0);
-
             const totalPaid = transactionsTotal + regAmountPaid;
 
             const balance = netAmount - totalPaid;
@@ -856,7 +848,6 @@ export default function BillPage() {
                       ₹
                       {totalCharges.toLocaleString("en-IN", {
                         minimumFractionDigits: 2,
-                        maximumFractionDigits: 2,
                       })}
                     </TableCell>
                   </TableRow>
@@ -868,7 +859,6 @@ export default function BillPage() {
                       ₹
                       {totalDiscounts.toLocaleString("en-IN", {
                         minimumFractionDigits: 2,
-                        maximumFractionDigits: 2,
                       })}
                     </TableCell>
                   </TableRow>
@@ -880,7 +870,6 @@ export default function BillPage() {
                       ₹
                       {netAmount.toLocaleString("en-IN", {
                         minimumFractionDigits: 2,
-                        maximumFractionDigits: 2,
                       })}
                     </TableCell>
                   </TableRow>
@@ -892,7 +881,6 @@ export default function BillPage() {
                       ₹
                       {totalPaid.toLocaleString("en-IN", {
                         minimumFractionDigits: 2,
-                        maximumFractionDigits: 2,
                       })}
                     </TableCell>
                   </TableRow>
@@ -904,7 +892,6 @@ export default function BillPage() {
                       ₹
                       {balance.toLocaleString("en-IN", {
                         minimumFractionDigits: 2,
-                        maximumFractionDigits: 2,
                       })}
                     </TableCell>
                   </TableRow>
@@ -929,19 +916,25 @@ export default function BillPage() {
             >
               Generate Bill
             </Button>
-            {/* <Button
-            variant="contained"
-            size="large"
-            sx={{
-              mb: 2,
-              backgroundColor: "#5fc1b2",
-              "&:hover": { backgroundColor: "#4da99f" },
-            }}
-          >
-            Clear
-          </Button> */}
           </Box>
         </Paper>
+
+        {/* Toast Notification */}
+        <Snackbar
+          open={toast.open}
+          autoHideDuration={4000}
+          onClose={handleToastClose}
+          anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+        >
+          <Alert
+            onClose={handleToastClose}
+            severity={toast.severity}
+            variant="filled"
+            sx={{ width: "100%" }}
+          >
+            {toast.message}
+          </Alert>
+        </Snackbar>
       </Box>
     </>
   );

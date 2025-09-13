@@ -1,0 +1,75 @@
+import React from "react";
+import {
+  Button,
+  Box,
+  Typography,
+  Grid,
+  Card,
+  CardActionArea,
+  CardContent,
+} from "@mui/material";
+import { Link } from "react-router-dom";
+import LocalHospitalIcon from "@mui/icons-material/LocalHospital";
+import ReceiptIcon from "@mui/icons-material/Receipt";
+import AssignmentIcon from "@mui/icons-material/Assignment";
+import HotelIcon from "@mui/icons-material/Hotel";
+import FilterAltOutlinedIcon from '@mui/icons-material/FilterAltOutlined';
+
+export default function App() {
+
+  const sections = [
+    {
+      label: "Registration",
+      to: "/registration",
+      icon: <LocalHospitalIcon fontSize="large" color="error" />,
+    },
+    {
+      label: "Bed Allotment",
+      to: "/bedManagement",
+      icon: <HotelIcon fontSize="large" color="secondary" />,
+    },
+    {
+      label: "Receipt",
+      to: "/receipt",
+      icon: <AssignmentIcon fontSize="large" color="success" />,
+    },
+    {
+      label: "Bill",
+      to: "/bill",
+      icon: <ReceiptIcon fontSize="large" color="primary" />,
+    },
+    {
+      label: "Filter",
+      to: "/filter",
+      icon: <FilterAltOutlinedIcon fontSize="large" color="primary" />,
+    },
+  ];
+
+  return (
+    <Box sx={{ textAlign: "center", mt: 4 }}>
+
+      <Grid container spacing={3} justifyContent="center" mt={2}>
+        {sections.map(({ label, to, icon }) => (
+          <Grid item xs={12} sm={6} md={3} key={label}>
+            <Card sx={{ minHeight: 150, minWidth: 200 }}>
+              <CardActionArea component={Link} to={to}>
+                <CardContent>
+                  <Box
+                    display="flex"
+                    flexDirection="column"
+                    alignItems="center"
+                  >
+                    {icon}
+                    <Typography variant="h6" mt={1}>
+                      {label}
+                    </Typography>
+                  </Box>
+                </CardContent>
+              </CardActionArea>
+            </Card>
+          </Grid>
+        ))}
+      </Grid>
+    </Box>
+  );
+}

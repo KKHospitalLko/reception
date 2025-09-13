@@ -35,7 +35,7 @@ export default function BillList() {
   const location = useLocation();
   const [billData, setBillData] = useState(location.state?.billData || []);
   console.log("Bill Data:", billData);
-  
+
   const [error, setError] = useState("");
   const backendUrl = import.meta.env.VITE_BACKEND_URL;
   const username = sessionStorage.getItem("username");
@@ -190,20 +190,33 @@ export default function BillList() {
                         </Box>
 
                         <Box flex="1 1 45%">
-                          <Typography fontWeight="bold">Room Type:</Typography>
-                          <Typography>{bill.room_type}</Typography>
+                          <Typography fontWeight="bold">Patient Type:</Typography>
+                          <Typography>{bill.patient_type}</Typography>
                         </Box>
 
-                        <Box flex="1 1 45%">
-                          <Typography fontWeight="bold">Bed No:</Typography>
-                          <Typography>{bill.bed_no}</Typography>
-                        </Box>
+                        {bill.patient_type === "IPD" && (
+
+                        <><Box flex="1 1 45%">
+                            <Typography fontWeight="bold">Room Type:</Typography>
+                            <Typography>{bill.room_type}</Typography>
+                          </Box><Box flex="1 1 45%">
+                              <Typography fontWeight="bold">Bed No:</Typography>
+                              <Typography>{bill.bed_no}</Typography>
+                            </Box></>
+                        )}
 
                         <Box flex="1 1 45%">
                           <Typography fontWeight="bold">
                             Consultant Doctor:
                           </Typography>
                           <Typography>{bill.consultant_doctor}</Typography>
+                        </Box>
+
+                        <Box flex="1 1 45%">
+                          <Typography fontWeight="bold">
+                            Empanelment:
+                          </Typography>
+                          <Typography>{bill.empanelment}</Typography>
                         </Box>
 
                         <Box flex="1 1 45%">
@@ -221,24 +234,26 @@ export default function BillList() {
                         </Box>
 
                         <Box flex="1 1 45%">
-                          <Typography fontWeight="bold">Discharge Date:</Typography>
-                          <Typography>
-                            {bill.discharge_date}
+                          <Typography fontWeight="bold">
+                            Discharge Date:
                           </Typography>
+                          <Typography>{bill.discharge_date}</Typography>
                         </Box>
 
                         <Box flex="1 1 45%">
-                          <Typography fontWeight="bold">Discharge Time:</Typography>
-                          <Typography>
-                            {bill.discharge_time}
+                          <Typography fontWeight="bold">
+                            Discharge Time:
                           </Typography>
+                          <Typography>{bill.discharge_time}</Typography>
                         </Box>
+
                         
+
                         <Box flex="1 1 45%">
-                          <Typography fontWeight="bold">Registration Amount:</Typography>
-                          <Typography>
-                            ₹{bill.reg_amount} (Paid)
+                          <Typography fontWeight="bold">
+                            Registration Amount:
                           </Typography>
+                          <Typography>₹{bill.reg_amount} (Paid)</Typography>
                         </Box>
 
                         <Box flex="1 1 45%">
@@ -263,13 +278,12 @@ export default function BillList() {
                           </Typography>
                           <Typography color="error.main">
                             ₹
-                            {Number(bill.total_discount).toLocaleString(
-                              "en-IN",
-                              {
-                                minimumFractionDigits: 2,
-                                maximumFractionDigits: 2,
-                              }
-                            )}
+                            {Number(
+                              bill.total_discount.discount_rupee
+                            ).toLocaleString("en-IN", {
+                              minimumFractionDigits: 2,
+                              maximumFractionDigits: 2,
+                            })}
                           </Typography>
                         </Box>
 

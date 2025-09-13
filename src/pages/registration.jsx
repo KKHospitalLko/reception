@@ -18,6 +18,11 @@ import {
   Box,
   Backdrop,
   CircularProgress,
+  Radio,
+  RadioGroup,
+  FormLabel,
+  Snackbar,
+  Alert,
 } from "@mui/material";
 import HomeIcon from "@mui/icons-material/Home";
 import axios from "axios";
@@ -28,6 +33,22 @@ const Registration = () => {
   const [searchId, setSearchId] = useState("");
   const [loading, setLoading] = useState(false);
 
+  // Toast state
+  const [toast, setToast] = useState({
+    open: false,
+    message: "",
+    severity: "success",
+  });
+
+  const showToast = (message, severity = "success") => {
+    setToast({ open: true, message, severity });
+  };
+
+  const handleToastClose = (_, reason) => {
+    if (reason === "clickaway") return;
+    setToast((prev) => ({ ...prev, open: false }));
+  };
+
   const username = sessionStorage.getItem("username");
 
   const navigate = useNavigate();
@@ -35,7 +56,7 @@ const Registration = () => {
   const handleUHIDSearch = (e) => {
     e.preventDefault();
     if (!searchId) {
-      alert("Enter patient ID or number");
+      showToast("Enter patient ID or number", "warning");
       return;
     }
     navigate(`/patient/${searchId}`);
@@ -67,6 +88,7 @@ const Registration = () => {
     name: "",
     gender: "",
     phone: "",
+    adhaar_no: "",
     age: "",
     empanelment: "other",
     empanelmentText: "",
@@ -76,6 +98,7 @@ const Registration = () => {
     maritalStatus: "",
     fatherOrHusband: "",
     doctorIncharge: [],
+    patientType: "",
     regAmount: "",
     localAddress: "",
     localCity: "",
@@ -118,6 +141,7 @@ const Registration = () => {
         fullname: formData.name,
         sex: formData.gender,
         mobile: formData.phone,
+        adhaar_no: formData.adhaar_no,
         dateofreg: "",
         time: "",
         age: Number(formData.age) || 0,
@@ -126,7 +150,8 @@ const Registration = () => {
         religion: formData.religion,
         // intimationOrExtension: formData.empanelType,
         maritalStatus: formData.maritalStatus,
-        fatherHusband: "Mr. "+formData.fatherOrHusband,
+        fatherHusband: "Mr. " + formData.fatherOrHusband,
+        patient_type: formData.patientType,
         doctorIncharge: formData.doctorIncharge,
         regAmount: Number(formData.regAmount) || 0,
         localAddress: {
@@ -156,12 +181,13 @@ const Registration = () => {
       const savedPatient = response.data;
       setLoading(false);
       // console.log("Response from server:", savedPatient.uhid);
-      alert(
+      showToast(
         `Patient saved successfully!\n\n` +
           `UHID: ${savedPatient.uhid}\n` +
           `Name: ${savedPatient.fullname}\n` +
           `Reg No: ${savedPatient.regno}\n` +
-          `Mobile: ${savedPatient.mobile}`
+          `Mobile: ${savedPatient.mobile}`,
+        "success"
       );
       navigate(`/patient/${savedPatient.uhid}`);
 
@@ -173,13 +199,12 @@ const Registration = () => {
         const messages = error.response.data.detail
           .map((d) => d.msg)
           .join("\n");
-        alert(messages);
+        showToast(messages, "error");
       } else if (error.response?.data?.detail) {
         // Single validation message
-        alert(error.response.data.detail);
+        showToast(error.response.data.detail, "error");
       } else {
-        console.error("Error submitting form:", error);
-        alert("Something went wrong. Please try again.");
+        showToast("Something went wrong. Please try again.", "error");
       }
     }
   };
@@ -200,137 +225,143 @@ const Registration = () => {
     <>
       <Navbar />
       <div style={{ padding: "20px" }}>
-      <Typography
-        variant="h4"
-        gutterBottom
-        align="center"
-        className="bg-[#5fc1b2] text-white p-3 rounded-lg shadow-md"
-      >
-        Patient Registration Form
-      </Typography>
+        <Typography
+          variant="h4"
+          gutterBottom
+          align="center"
+          className="bg-[#5fc1b2] text-white p-3 rounded-lg shadow-md"
+        >
+          Patient Registration Form
+        </Typography>
 
-      <Box display="flex" justifyContent="space-between" gap={20} mt={2} p={1}>
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={handleGoHome}
-          startIcon={<HomeIcon />}
-          sx={{
-            mb: 2,
-            backgroundColor: "#5fc1b2",
-            "&:hover": { backgroundColor: "#4da99f" },
-          }}
-        >
-          Home
-        </Button>
-        {/* <h2>
-          Welcome, <strong>{username}</strong>
-        </h2> */}
-      </Box>
-      <Box display="flex" justifyContent="end" mr={2}>
         <Box
-          component="form"
-          onSubmit={handleUHIDSearch}
           display="flex"
-          gap={2}
+          justifyContent="space-between"
+          gap={20}
           mt={2}
+          p={1}
         >
-          <TextField
-            label="Patient ID / Phone Number"
-            value={searchId}
-            onChange={(e) => setSearchId(e.target.value)}
-          />
           <Button
-            type="submit" // ✅ Triggers on Enter key press
             variant="contained"
+            color="primary"
+            onClick={handleGoHome}
+            startIcon={<HomeIcon />}
             sx={{
+              mb: 2,
               backgroundColor: "#5fc1b2",
-              "&:hover": {
-                backgroundColor: "#4da99f",
-              },
+              "&:hover": { backgroundColor: "#4da99f" },
             }}
           >
-            Search
+            Home
           </Button>
+          {/* <h2>
+          Welcome, <strong>{username}</strong>
+        </h2> */}
         </Box>
-      </Box>
-
-      <form onSubmit={handleSubmit}>
-        <div className="w-full mx-auto bg-white p-6 rounded-lg shadow-md">
-          {/* Row 1 */}
+        <Box display="flex" justifyContent="end" mr={2}>
           <Box
-            display="grid"
-            gridTemplateColumns="0.4fr 1.6fr 1fr 1fr"
+            component="form"
+            onSubmit={handleUHIDSearch}
+            display="flex"
             gap={2}
             mt={2}
           >
-            <FormControl fullWidth required>
-              <InputLabel>Title</InputLabel>
-              <Select
-                name="title"
-                value={formData.title}
-                label="Title"
-                onChange={handleChange}
-              >
-                <MenuItem value="Mr.">Mr.</MenuItem>
-                <MenuItem value="Ms.">Ms.</MenuItem>
-                <MenuItem value="Mrs.">Mrs.</MenuItem>
-                <MenuItem value="Baby">Baby</MenuItem>
-              </Select>
-            </FormControl>
-
             <TextField
-              label="Name"
-              name="name"
-              value={formData.name}
-              onChange={handleChange}
-              fullWidth
-              required
+              label="Patient ID / Phone Number"
+              value={searchId}
+              onChange={(e) => setSearchId(e.target.value)}
             />
-
-            <TextField
-              label="Age"
-              name="age"
-              type="number"
-              value={formData.age}
-              onChange={handleChange}
-              fullWidth
-              required
-            />
-
-            <FormControl fullWidth required>
-              <InputLabel>Gender</InputLabel>
-              <Select
-                name="gender"
-                value={formData.gender}
-                label="Gender"
-                onChange={handleChange}
-              >
-                <MenuItem value="Male">Male</MenuItem>
-                <MenuItem value="Female">Female</MenuItem>
-                <MenuItem value="Other">Other</MenuItem>
-              </Select>
-            </FormControl>
+            <Button
+              type="submit" // ✅ Triggers on Enter key press
+              variant="contained"
+              sx={{
+                backgroundColor: "#5fc1b2",
+                "&:hover": {
+                  backgroundColor: "#4da99f",
+                },
+              }}
+            >
+              Search
+            </Button>
           </Box>
+        </Box>
 
-          {/* Row 2 */}
-          <Box
-            display="grid"
-            gridTemplateColumns="repeat(4, 1fr)"
-            gap={2}
-            mt={2}
-          >
-            <TextField
-              label="Phone Number"
-              name="phone"
-              type="number"
-              value={formData.phone}
-              onChange={handleChange}
-              fullWidth
-              required
-            />
+        <form onSubmit={handleSubmit}>
+          <div className="w-full mx-auto bg-white p-6 rounded-lg shadow-md">
+            {/* Row 1 */}
+            <Box
+              display="grid"
+              gridTemplateColumns="0.4fr 1.6fr 1fr 1fr"
+              gap={2}
+              mt={2}
+            >
+              <FormControl fullWidth required>
+                <InputLabel>Title</InputLabel>
+                <Select
+                  name="title"
+                  value={formData.title}
+                  label="Title"
+                  onChange={handleChange}
+                >
+                  <MenuItem value="Mr.">Mr.</MenuItem>
+                  <MenuItem value="Ms.">Ms.</MenuItem>
+                  <MenuItem value="Mrs.">Mrs.</MenuItem>
+                  <MenuItem value="Baby">Baby</MenuItem>
+                </Select>
+              </FormControl>
 
-            {/* <FormControl fullWidth required>
+              <TextField
+                label="Name"
+                name="name"
+                value={formData.name}
+                onChange={handleChange}
+                fullWidth
+                required
+              />
+
+              <TextField
+                label="Age"
+                name="age"
+                type="number"
+                value={formData.age}
+                onChange={handleChange}
+                fullWidth
+                required
+              />
+
+              <FormControl fullWidth required>
+                <InputLabel>Gender</InputLabel>
+                <Select
+                  name="gender"
+                  value={formData.gender}
+                  label="Gender"
+                  onChange={handleChange}
+                >
+                  <MenuItem value="Male">Male</MenuItem>
+                  <MenuItem value="Female">Female</MenuItem>
+                  <MenuItem value="Other">Other</MenuItem>
+                </Select>
+              </FormControl>
+            </Box>
+
+            {/* Row 2 */}
+            <Box
+              display="grid"
+              gridTemplateColumns="repeat(4, 1fr)"
+              gap={2}
+              mt={2}
+            >
+              <TextField
+                label="Phone Number"
+                name="phone"
+                type="number"
+                value={formData.phone}
+                onChange={handleChange}
+                fullWidth
+                required
+              />
+
+              {/* <FormControl fullWidth required>
               <InputLabel>Blood Group</InputLabel>
               <Select
                 name="bloodGroup"
@@ -349,96 +380,124 @@ const Registration = () => {
               </Select>
             </FormControl> */}
 
-            <FormControl fullWidth required>
-              <InputLabel>Religion</InputLabel>
-              <Select
-                name="religion"
-                value={formData.religion}
-                label="Religion"
-                onChange={handleChange}
-              >
-                <MenuItem value="Hindu">Hindu</MenuItem>
-                <MenuItem value="Muslim">Muslim</MenuItem>
-                <MenuItem value="Christian">Christian</MenuItem>
-                <MenuItem value="Other">Other</MenuItem>
-              </Select>
-            </FormControl>
-            <FormControl fullWidth required>
-              <InputLabel>Marital Status</InputLabel>
-              <Select
-                name="maritalStatus"
-                value={formData.maritalStatus}
-                label="Marital Status"
-                onChange={handleChange}
-              >
-                <MenuItem value="Single">Single</MenuItem>
-                <MenuItem value="Married">Married</MenuItem>
-              </Select>
-            </FormControl>
+              <FormControl fullWidth required>
+                <InputLabel>Religion</InputLabel>
+                <Select
+                  name="religion"
+                  value={formData.religion}
+                  label="Religion"
+                  onChange={handleChange}
+                >
+                  <MenuItem value="Hindu">Hindu</MenuItem>
+                  <MenuItem value="Muslim">Muslim</MenuItem>
+                  <MenuItem value="Christian">Christian</MenuItem>
+                  <MenuItem value="Other">Other</MenuItem>
+                </Select>
+              </FormControl>
+              <FormControl fullWidth required>
+                <InputLabel>Marital Status</InputLabel>
+                <Select
+                  name="maritalStatus"
+                  value={formData.maritalStatus}
+                  label="Marital Status"
+                  onChange={handleChange}
+                >
+                  <MenuItem value="Single">Single</MenuItem>
+                  <MenuItem value="Married">Married</MenuItem>
+                </Select>
+              </FormControl>
 
-            <TextField
-              label="Registration Amount"
-              name="regAmount"
-              type="number"
-              value={formData.regAmount}
-              onChange={handleChange}
-              fullWidth
-              required
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">₹</InputAdornment>
-                ),
-              }}
-            />
-          </Box>
-
-          {/* Row 3 */}
-          <Box
-            display="grid"
-            gridTemplateColumns="1fr 1fr 2fr"
-            gap={2}
-            mt={2}
-          >
-            <FormControl fullWidth required>
-              <InputLabel>Empanelment</InputLabel>
-              <Select
-                name="empanelment"
-                value={formData.empanelment}
-                label="Empanelment"
-                onChange={(e) => {
-                  handleChange(e);
-                  setFormData((prev) => ({
-                    ...prev,
-                    empanelmentText: e.target.value,
-                  }));
+              <TextField
+                label="Registration Amount"
+                name="regAmount"
+                type="number"
+                value={formData.regAmount}
+                onChange={handleChange}
+                fullWidth
+                required
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">₹</InputAdornment>
+                  ),
                 }}
-              >
-                <MenuItem value="ECHS">ECHS</MenuItem>
-                <MenuItem value="ESIC">ESIC</MenuItem>
-                <MenuItem value="CGHS">CGHS</MenuItem>
-                <MenuItem value="NR">NR</MenuItem>
-                <MenuItem value="NER">NER</MenuItem>
-                <MenuItem value="RDSO">RDSO</MenuItem>
-                <MenuItem value="Rail Coach">Rail Coach</MenuItem>
-                <MenuItem value="Insurance">Insurance</MenuItem>
-                <MenuItem value="UP Police">UP Police</MenuItem>
-                <MenuItem value="Ayushman Bharat">Ayushman Bharat</MenuItem>
-                <MenuItem value="DDU">DDU</MenuItem>
-                <MenuItem value="CMRF">CMRF</MenuItem>
-                <MenuItem value="Private">Private</MenuItem>
-              </Select>
-            </FormControl>
+              />
+            </Box>
 
-            <TextField
-              label="Empanelment Detail"
-              name="empanelmentText"
-              value={formData.empanelmentText}
-              onChange={handleChange}
-              fullWidth
-              required
-            />
+            {/* Row 3 */}
+            <Box
+              display="grid"
+              gridTemplateColumns="1fr 1fr 2fr"
+              gap={2}
+              mt={2}
+            >
+              <FormControl fullWidth required>
+                <InputLabel>Empanelment</InputLabel>
+                <Select
+                  name="empanelment"
+                  value={formData.empanelment}
+                  label="Empanelment"
+                  onChange={(e) => {
+                    handleChange(e);
+                    setFormData((prev) => ({
+                      ...prev,
+                      empanelmentText: e.target.value,
+                    }));
+                  }}
+                >
+                  <MenuItem value="ECHS (Cashless)">ECHS (Cashless)</MenuItem>
+                  <MenuItem value="ESIC (Cashless)">ESIC (Cashless)</MenuItem>
+                  <MenuItem value="CGHS (Cashless)">CGHS (Cashless)</MenuItem>
+                  <MenuItem value="NR (Cashless)">NR (Cashless)</MenuItem>
+                  <MenuItem value="NER (Cashless)">NER (Cashless)</MenuItem>
+                  <MenuItem value="RDSO (Cashless)">RDSO (Cashless)</MenuItem>
+                  <MenuItem value="Rail Coach (Cashless)">
+                    Rail Coach (Cashless)
+                  </MenuItem>
+                  <MenuItem value="Insurance (Cashless)">
+                    Insurance (Cashless)
+                  </MenuItem>
+                  <MenuItem value="UP Police (Cashless)">
+                    UP Police (Cashless)
+                  </MenuItem>
+                  <MenuItem value="Ayushman Bharat (Cashless)">
+                    Ayushman Bharat (Cashless)
+                  </MenuItem>
+                  <MenuItem value="DDU (Cashless)">DDU (Cashless)</MenuItem>
+                  <MenuItem value="CMRF (Cashless)">CMRF (Cashless)</MenuItem>
+                  <MenuItem value="Private (Cashless)">
+                    Private (Cashless)
+                  </MenuItem>
 
-            {/* <FormControl component="fieldset">
+                  <MenuItem value="ECHS (Cash)">ECHS (Cash)</MenuItem>
+                  <MenuItem value="ESIC (Cash)">ESIC (Cash)</MenuItem>
+                  <MenuItem value="CGHS (Cash)">CGHS (Cash)</MenuItem>
+                  <MenuItem value="NR (Cash)">NR (Cash)</MenuItem>
+                  <MenuItem value="NER (Cash)">NER (Cash)</MenuItem>
+                  <MenuItem value="RDSO (Cash)">RDSO (Cash)</MenuItem>
+                  <MenuItem value="Rail Coach (Cash)">
+                    Rail Coach (Cash)
+                  </MenuItem>
+                  <MenuItem value="Insurance (Cash)">Insurance (Cash)</MenuItem>
+                  <MenuItem value="UP Police (Cash)">UP Police (Cash)</MenuItem>
+                  <MenuItem value="Ayushman Bharat (Cash)">
+                    Ayushman Bharat (Cash)
+                  </MenuItem>
+                  <MenuItem value="DDU (Cash)">DDU (Cash)</MenuItem>
+                  <MenuItem value="CMRF (Cash)">CMRF (Cash)</MenuItem>
+                  <MenuItem value="Private (Cash)">Private (Cash)</MenuItem>
+                </Select>
+              </FormControl>
+
+              <TextField
+                label="Empanelment Detail"
+                name="empanelmentText"
+                value={formData.empanelmentText}
+                onChange={handleChange}
+                fullWidth
+                required
+              />
+
+              {/* <FormControl component="fieldset">
             <RadioGroup
               row
               name="empanelType"
@@ -457,213 +516,268 @@ const Registration = () => {
               />
             </RadioGroup>
           </FormControl> */}
-          <TextField
-              label="Father's / Husband's Name"
-              name="fatherOrHusband"
-              value={formData.fatherOrHusband}
-              onChange={handleChange}
-              fullWidth
-              required
-            />
-            <div />
-          </Box>
-
-          {/* Row 4 */}
-          <Box>
-            <FormControl sx={{ width: "24%" }} required>
-              <InputLabel>Consulting Doctor(s) Incharge</InputLabel>
-              <Select
-                multiple
-                name="doctorIncharge"
-                value={formData.doctorIncharge}
+              <TextField
+                label="Father's / Husband's Name"
+                name="fatherOrHusband"
+                value={formData.fatherOrHusband}
                 onChange={handleChange}
-                input={<OutlinedInput label="Consulting Doctor(s) Incharge" />}
-                renderValue={(selected) => (
-                  <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
-                    {selected.map((value) => (
-                      <Chip key={value} label={value} />
-                    ))}
-                  </Box>
-                )}
-              >
-                {doctorOptions.map((doc) => (
-                  <MenuItem key={doc} value={doc}>
-                    {doc}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </Box>
-
-          {/* Address Sections */}
-          <div className="flex justify-center w-full">
-            <Typography
-              variant="h6"
-              marginTop={8}
-              marginBottom={1}
-              className="bg-[#5fc1b2] text-white p-1 rounded-lg shadow-md mt-2 text-center w-[20%]"
-            >
-              Address
-            </Typography>
-          </div>
-
-          {/* Local address */}
-          <Typography
-            variant="subtitle1"
-            sx={{ textDecoration: "underline", textUnderlineOffset: "2px" }}
-          >
-            Local Address
-          </Typography>
-          <Box
-            display="grid"
-            gridTemplateColumns="repeat(4, 1fr)"
-            gap={2}
-            mt={2}
-          >
-            {/* Address takes full width by spanning all 4 columns */}
-            <TextField
-              label="Address"
-              name="localAddress"
-              value={formData.localAddress}
-              onChange={handleChange}
-              fullWidth
-              required
-              sx={{ gridColumn: "span 4" }}
-            />
-
-            <TextField
-              label="City"
-              name="localCity"
-              value={formData.localCity}
-              onChange={handleChange}
-              fullWidth
-              required
-            />
-
-            <TextField
-              label="State"
-              name="localState"
-              value={formData.localState}
-              onChange={handleChange}
-              fullWidth
-              required
-            />
-
-            <TextField
-              label="Country"
-              name="localCountry"
-              value={formData.localCountry}
-              onChange={handleChange}
-              fullWidth
-              required
-            />
-
-            <TextField
-              label="ZIP"
-              name="localZip"
-              type="number"
-              value={formData.localZip}
-              onChange={handleChange}
-              fullWidth
-              required
-            />
-            <div />
-            <div />
-          </Box>
-
-          {/* Permanent address */}
-          <Typography
-            variant="subtitle1"
-            marginTop={2}
-            sx={{ textDecoration: "underline", textUnderlineOffset: "2px" }}
-          >
-            Permanent Address
-          </Typography>
-          <FormControlLabel
-            control={
-              <Checkbox
-                checked={formData.sameAsLocal}
-                onChange={handleCheckbox}
+                fullWidth
+                required
               />
-            }
-            label="Same as Local"
-          />
+              <div />
+            </Box>
 
-          <Box
-            display="grid"
-            gridTemplateColumns="repeat(4, 1fr)"
-            gap={2}
-            mt={2}
+            {/* Row 4 */}
+            <Box gap={2} display="flex" mt={2} flexWrap="wrap">
+              <FormControl sx={{ width: "25%" }} required>
+                <InputLabel>Consulting Doctor(s) Incharge</InputLabel>
+                <Select
+                  multiple
+                  name="doctorIncharge"
+                  value={formData.doctorIncharge}
+                  onChange={handleChange}
+                  input={
+                    <OutlinedInput label="Consulting Doctor(s) Incharge" />
+                  }
+                  renderValue={(selected) => (
+                    <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
+                      {selected.map((value) => (
+                        <Chip key={value} label={value} />
+                      ))}
+                    </Box>
+                  )}
+                >
+                  {doctorOptions.map((doc) => (
+                    <MenuItem key={doc} value={doc}>
+                      {doc}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+              <TextField
+                sx={{ width: "25%" }}
+                label="Aadhaar Number"
+                name="adhaar_no"
+                type="number"
+                value={formData.adhaar_no}
+                onChange={handleChange}
+                fullWidth
+                required
+              />
+
+              {/* OPD / IPD / Daycare Radios */}
+              <FormControl sx={{ width: "25%" }} required>
+                <FormLabel>Patient Type</FormLabel>
+                <RadioGroup
+                  row
+                  name="patientType"
+                  value={formData.patientType}
+                  onChange={handleChange}
+                >
+                  <FormControlLabel
+                    value="OPD"
+                    control={<Radio />}
+                    label="OPD"
+                  />
+                  <FormControlLabel
+                    value="IPD"
+                    control={<Radio />}
+                    label="IPD"
+                  />
+                  <FormControlLabel
+                    value="DAYCARE"
+                    control={<Radio />}
+                    label="Daycare"
+                  />
+                </RadioGroup>
+              </FormControl>
+            </Box>
+
+            {/* Address Sections */}
+            <div className="flex justify-center w-full">
+              <Typography
+                variant="h6"
+                marginTop={8}
+                marginBottom={1}
+                className="bg-[#5fc1b2] text-white p-1 rounded-lg shadow-md mt-2 text-center w-[20%]"
+              >
+                Address
+              </Typography>
+            </div>
+
+            {/* Local address */}
+            <Typography
+              variant="subtitle1"
+              sx={{ textDecoration: "underline", textUnderlineOffset: "2px" }}
+            >
+              Local Address
+            </Typography>
+            <Box
+              display="grid"
+              gridTemplateColumns="repeat(4, 1fr)"
+              gap={2}
+              mt={2}
+            >
+              {/* Address takes full width by spanning all 4 columns */}
+              <TextField
+                label="Address"
+                name="localAddress"
+                value={formData.localAddress}
+                onChange={handleChange}
+                fullWidth
+                required
+                sx={{ gridColumn: "span 4" }}
+              />
+
+              <TextField
+                label="City"
+                name="localCity"
+                value={formData.localCity}
+                onChange={handleChange}
+                fullWidth
+                required
+              />
+
+              <TextField
+                label="State"
+                name="localState"
+                value={formData.localState}
+                onChange={handleChange}
+                fullWidth
+                required
+              />
+
+              <TextField
+                label="Country"
+                name="localCountry"
+                value={formData.localCountry}
+                onChange={handleChange}
+                fullWidth
+                required
+              />
+
+              <TextField
+                label="ZIP"
+                name="localZip"
+                type="number"
+                value={formData.localZip}
+                onChange={handleChange}
+                fullWidth
+                required
+              />
+              <div />
+              <div />
+            </Box>
+
+            {/* Permanent address */}
+            <Typography
+              variant="subtitle1"
+              marginTop={2}
+              sx={{ textDecoration: "underline", textUnderlineOffset: "2px" }}
+            >
+              Permanent Address
+            </Typography>
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={formData.sameAsLocal}
+                  onChange={handleCheckbox}
+                />
+              }
+              label="Same as Local"
+            />
+
+            <Box
+              display="grid"
+              gridTemplateColumns="repeat(4, 1fr)"
+              gap={2}
+              mt={2}
+            >
+              <TextField
+                label="Address"
+                name="permanentAddress"
+                value={formData.permanentAddress}
+                onChange={handleChange}
+                fullWidth
+                required
+                sx={{ gridColumn: "span 4" }}
+              />
+
+              <TextField
+                label="City"
+                name="permanentCity"
+                value={formData.permanentCity}
+                onChange={handleChange}
+                fullWidth
+                required
+              />
+
+              <TextField
+                label="State"
+                name="permanentState"
+                value={formData.permanentState}
+                onChange={handleChange}
+                fullWidth
+                required
+              />
+
+              <TextField
+                label="Country"
+                name="permanentCountry"
+                value={formData.permanentCountry}
+                onChange={handleChange}
+                fullWidth
+                required
+              />
+
+              <TextField
+                label="ZIP"
+                name="permanentZip"
+                type="number"
+                value={formData.permanentZip}
+                onChange={handleChange}
+                fullWidth
+                required
+              />
+
+              <div />
+              <div />
+            </Box>
+
+            {/* Submit */}
+            <Button
+              type="submit"
+              variant="contained"
+              // onClick={handleSubmit}
+              sx={{
+                mt: 3,
+                backgroundColor: "#5fc1b2",
+                "&:hover": {
+                  backgroundColor: "#4da99f",
+                },
+              }}
+            >
+              Submit
+            </Button>
+          </div>
+        </form>
+        {/* Toast Notification */}
+        <Snackbar
+          open={toast.open}
+          autoHideDuration={4000}
+          onClose={handleToastClose}
+          anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+        >
+          <Alert
+            onClose={handleToastClose}
+            severity={toast.severity}
+            variant="filled"
+            sx={{ width: "100%" }}
           >
-            <TextField
-              label="Address"
-              name="permanentAddress"
-              value={formData.permanentAddress}
-              onChange={handleChange}
-              fullWidth
-              required
-              sx={{ gridColumn: "span 4" }}
-            />
-
-            <TextField
-              label="City"
-              name="permanentCity"
-              value={formData.permanentCity}
-              onChange={handleChange}
-              fullWidth
-              required
-            />
-
-            <TextField
-              label="State"
-              name="permanentState"
-              value={formData.permanentState}
-              onChange={handleChange}
-              fullWidth
-              required
-            />
-
-            <TextField
-              label="Country"
-              name="permanentCountry"
-              value={formData.permanentCountry}
-              onChange={handleChange}
-              fullWidth
-              required
-            />
-
-            <TextField
-              label="ZIP"
-              name="permanentZip"
-              type="number"
-              value={formData.permanentZip}
-              onChange={handleChange}
-              fullWidth
-              required
-            />
-
-            <div />
-            <div />
-          </Box>
-
-          {/* Submit */}
-          <Button
-            type="submit"
-            variant="contained"
-            // onClick={handleSubmit}
-            sx={{
-              mt: 3,
-              backgroundColor: "#5fc1b2",
-              "&:hover": {
-                backgroundColor: "#4da99f",
-              },
-            }}
-          >
-            Submit
-          </Button>
-        </div>
-      </form>
-    </div>
+            {toast.message}
+          </Alert>
+        </Snackbar>
+      </div>
     </>
   );
 };

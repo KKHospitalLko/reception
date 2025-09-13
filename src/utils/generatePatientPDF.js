@@ -1,12 +1,13 @@
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
-import { LogoBase64 } from './Logo';
+import { LogoBase64 } from "./Logo";
 
-export const generateReceiptPDF = (form, preview = false) => {
+export const generatePatientPDF = (patient, preview = false) => {
+  console.log("Generating Patient PDF with data:", patient);
   const doc = new jsPDF();
-const pageWidth = doc.internal.pageSize.getWidth();
+  const pageWidth = doc.internal.pageSize.getWidth();
 
-  const now = new Date();
+    const now = new Date();
   // const currentDate = now.toISOString().split("T")[0]; // YYYY-MM-DD
 
   // Convert to 12-hour format
@@ -19,70 +20,71 @@ const pageWidth = doc.internal.pageSize.getWidth();
 
   const username = sessionStorage.getItem("username") || "Unknown";
 
-  // Header
-    doc.addImage(LogoBase64, 'PNG', (pageWidth - 40), 15, 20, 20);
-  
+  // ---------------- HEADER ----------------
+  doc.addImage(LogoBase64, "PNG", pageWidth - 40, 15, 20, 20);
+
   doc.setFontSize(16);
   doc.setTextColor(204, 0, 0);
   doc.text("K.K. HOSPITAL, LUCKNOW", 20, 15);
 
   doc.setFontSize(10);
   doc.setTextColor(0);
-  doc.text("Address: 87/88, Nabiullah Road, Opp. SSP Office, River Bank Colony, Lucknow", 20, 21);
+  doc.text(
+    "Address: 87/88, Nabiullah Road, Opp. SSP Office, River Bank Colony, Lucknow",
+    20,
+    21
+  );
   doc.text("Phone: 0522-2619049/50 & 2231932", 20, 26);
-  doc.text("Email: kkhospitallko1991@gmail.com, contact@kkhospitallucknow.com", 20, 31);
+  doc.text(
+    "Email: kkhospitallko1991@gmail.com, contact@kkhospitallucknow.com",
+    20,
+    31
+  );
   doc.text("GSTIN: 09AAATK4016C2ZZ, Registration Number: 0915700003", 20, 37);
-  doc.text("___________________________________________________________________________________", 20, 40 );
-
+  doc.text(
+    "___________________________________________________________________________________",
+    20,
+    40
+  );
 
   doc.setFontSize(13);
   doc.setTextColor(33, 150, 243);
-  doc.text("TRANSACTION SUMMARY", 70, 55);
+  doc.text("REGISTRATION SUMMARY", 75, 55);
 
-  // Main Table
   const rows = [
-    ["Transaction No.", form.transaction_no],
-    ["Patient UHID", form.patient_uhid],
-    ["Patient Reg. No.", form.patient_regno],
-    ["Patient Name", form.patient_name],
-    ["Admission Date", form.admission_date],
-    ["Payment Mode", form.payment_mode],
-    ["Amount (In Figures)", `Rs. ${Number(form.amount).toLocaleString('en-IN', {
-      maximumFractionDigits: 2,
-      minimumFractionDigits: 2
-    })}`],
+    ["UHID / Reg No", patient.uhid +" / "+ patient.regno],
+    ["Name", `${patient.title || ""} ${patient.fullname || ""}`],
+    ["Patient Type", patient.patient_type || "-"],
+    ["Registration Amount", patient.regAmount || "-"],
+    ["Registration Date", patient.dateofreg || "-"],
+    ["Registration Time", patient.time || "-"],
+    ["Age", patient.age || "-"],
+    ["Sex", patient.sex || "-"],
+    ["Mobile Number", patient.mobile || "-"],
+    ["Aadhaar Number", patient.adhaar_no || "-"],
+    ["Religion", patient.religion || "-"],
+    ["Marital Status", patient.maritalStatus || "-"],
+    ["Father / Husband", patient.fatherHusband || "-"],
+    ["Doctor(s)", (patient.doctorIncharge || []).join(", ") || "-"],
+    [
+      "Local Address",
+      `${patient.localAddress?.address || ""}, ${
+        patient.localAddress?.city || ""
+      }`,
+    ],
+    [
+      "Permanent Address",
+      `${patient.permanentAddress?.address || ""}, ${
+        patient.permanentAddress?.city || ""
+      }`,
+    ],
   ];
 
-  if (form.payment_mode === "CHEQUE" && form.payment_details) {
-    rows.push(
-      ["Bank Name", form.payment_details.bank_name || "-"],
-      ["Cheque No.", form.payment_details.cheque_number || "-"],
-      ["Cheque Date", form.payment_details.cheque_date || "-"]
-    );
-  }
-
   autoTable(doc, {
-    startY: 65,
-    theme: "grid",
-    head: [["Details", "Information"]],
+    startY: 60,
+    head: [["Field", "Value"]],
     body: rows,
-    columnStyles: {
-      0: { cellWidth: 60 },
-      1: { cellWidth: 110 },
-    },
-  });
-
-  // Purpose of Transaction
-  autoTable(doc, {
-    startY: doc.lastAutoTable.finalY + 10,
-    head: [["Purpose of Transaction"]],
-    body: [[form.transaction_purpose || ""]],
     theme: "grid",
-    styles: { fontSize: 10 },
-    columnStyles: {
-      0: { cellWidth: 171 },
-      // 1: { cellWidth: 110 },
-    },
   });
 
   // Footer Notes
@@ -107,12 +109,12 @@ const pageWidth = doc.internal.pageSize.getWidth();
   doc.text("_______________________", 60, baseY + 35);
 
   doc.setFont("helvetica", "bold");
-  doc.text("Transaction Date:", 14, baseY + 42);
+  doc.text("Printing Date:", 14, baseY + 42);
   doc.setFont("helvetica", "normal");
-  doc.text(`${form.transaction_date}`, 50, baseY + 42);
+  doc.text(`${patient.dateofreg}`, 50, baseY + 42);
 
   doc.setFont("helvetica", "bold");
-  doc.text("Transaction Time:", 14, baseY + 49);
+  doc.text("Printing Time:", 14, baseY + 49);
   doc.setFont("helvetica", "normal");
   doc.text(`${currentTime}`, 50, baseY + 49);
 
@@ -126,12 +128,14 @@ const pageWidth = doc.internal.pageSize.getWidth();
 
   doc.text("Note: We receive payment at reception only", 14, baseY + 67);
 
-  // Output
+
+  // doc.save(`patient_${patient.uhid}.pdf`);
+
   if (preview) {
     const pdfBlob = doc.output("blob");
     const pdfUrl = URL.createObjectURL(pdfBlob);
-    window.open(pdfUrl); // opens in new tab
+    window.open(pdfUrl);
   } else {
-    doc.save(`receipt_${form.transaction_no}.pdf`);
+    doc.save(`bill_${billData[0].final_bill_no || "NA"}.pdf`);
   }
 };

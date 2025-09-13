@@ -13,6 +13,12 @@ import {
   Select,
   OutlinedInput,
   Chip,
+  RadioGroup,
+  FormControlLabel,
+  Radio,
+  FormLabel,
+  Snackbar,
+  Alert,
 } from "@mui/material";
 import InputAdornment from "@mui/material/InputAdornment";
 
@@ -25,11 +31,28 @@ const NewReportPage = () => {
   const [loading, setLoading] = useState(true);
   const [patient, setPatient] = useState(null);
 
+  // Toast state
+  const [toast, setToast] = useState({
+    open: false,
+    message: "",
+    severity: "success",
+  });
+
+  const showToast = (message, severity = "success") => {
+    setToast({ open: true, message, severity });
+  };
+
+  const handleToastClose = (_, reason) => {
+    if (reason === "clickaway") return;
+    setToast((prev) => ({ ...prev, open: false }));
+  };
+
   const [formData, setFormData] = useState({
     title: "",
     name: "",
     gender: "",
     phone: "",
+    aadhaar: "",
     age: "",
     empanelment: "",
     // bloodGroup: "",
@@ -38,6 +61,7 @@ const NewReportPage = () => {
     maritalStatus: "",
     fatherOrHusband: "",
     doctorIncharge: [],
+    patientType: "",
     regAmount: "",
     localAddress: "",
     localCity: "",
@@ -96,6 +120,7 @@ const NewReportPage = () => {
           name: p.fullname,
           gender: p.sex,
           phone: p.mobile,
+          aadhaar: p.adhaar_no || "",
           age: p.age,
           // bloodGroup: p.bloodGroup,
           empanelment: p.empanelment,
@@ -105,6 +130,7 @@ const NewReportPage = () => {
           maritalStatus: p.maritalStatus,
           fatherOrHusband: p.fatherHusband,
           doctorIncharge: p.doctorIncharge || [],
+          patientType: p.patient_type || "",
           localAddress: p.localAddress?.address || "",
           localCity: p.localAddress?.city || "",
           localState: p.localAddress?.state || "",
@@ -151,6 +177,7 @@ const NewReportPage = () => {
         fullname: formData.name,
         sex: formData.gender,
         mobile: formData.phone,
+        adhaar_no: formData.aadhaar,
         dateofreg: "",
         time: "",
         age: Number(formData.age) || 0,
@@ -161,6 +188,7 @@ const NewReportPage = () => {
         maritalStatus: formData.maritalStatus,
         fatherHusband: formData.fatherOrHusband,
         doctorIncharge: formData.doctorIncharge,
+        patient_type: formData.patientType,
         regAmount: Number(formData.regAmount) || 0,
         localAddress: {
           address: formData.localAddress,
@@ -195,13 +223,12 @@ const NewReportPage = () => {
         const messages = error.response.data.detail
           .map((d) => d.msg)
           .join("\n");
-        alert(messages);
+        show(messages);
       } else if (error.response?.data?.detail) {
         // Single validation message
-        alert(error.response.data.detail);
+        showToast(error.response.data.detail, "error");
       } else {
-        console.error("Error submitting form:", error);
-        alert("Something went wrong. Please try again.");
+        showToast("Something went wrong. Please try again.", "error");
       }
     }
   };
@@ -232,69 +259,68 @@ const NewReportPage = () => {
       </Typography>
 
       <form onSubmit={handleSubmit}>
+        <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2, mb: 2 }}>
+          <TextField
+            select
+            label="Title"
+            name="title"
+            required
+            value={formData.title}
+            onChange={handleChange}
+            sx={{ flex: "1 1 20%" }}
+          >
+            {titles.map((t) => (
+              <MenuItem key={t} value={t}>
+                {t}
+              </MenuItem>
+            ))}
+          </TextField>
+          <TextField
+            label="Full Name"
+            name="name"
+            required
+            value={formData.name}
+            onChange={handleChange}
+            sx={{ flex: "1 1 20%" }}
+          />
+          <TextField
+            label="Age"
+            name="age"
+            type="number"
+            required
+            value={formData.age}
+            onChange={handleChange}
+            sx={{ flex: "1 1 20%" }}
+          />
+          <TextField
+            select
+            label="Gender"
+            name="gender"
+            required
+            value={formData.gender}
+            onChange={handleChange}
+            sx={{ flex: "1 1 20%" }}
+          >
+            {genders.map((g) => (
+              <MenuItem key={g} value={g}>
+                {g}
+              </MenuItem>
+            ))}
+          </TextField>
+        </Box>
 
-      <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2, mb: 2 }}>
-        <TextField
-          select
-          label="Title"
-          name="title"
-          required
-          value={formData.title}
-          onChange={handleChange}
-          sx={{ flex: "1 1 20%" }}
-        >
-          {titles.map((t) => (
-            <MenuItem key={t} value={t}>
-              {t}
-            </MenuItem>
-          ))}
-        </TextField>
-        <TextField
-          label="Full Name"
-          name="name"
-          required
-          value={formData.name}
-          onChange={handleChange}
-          sx={{ flex: "1 1 20%" }}
-        />
-        <TextField
-          label="Age"
-          name="age"
-          type="number"
-          required
-          value={formData.age}
-          onChange={handleChange}
-          sx={{ flex: "1 1 20%" }}
-        />
-        <TextField
-          select
-          label="Gender"
-          name="gender"
-          required
-          value={formData.gender}
-          onChange={handleChange}
-          sx={{ flex: "1 1 20%" }}
-        >
-          {genders.map((g) => (
-            <MenuItem key={g} value={g}>
-              {g}
-            </MenuItem>
-          ))}
-        </TextField>
-      </Box>
-
-      {/* Row 2: Phone, Blood Group, Religion, Marital Status */}
-      <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2, mb: 2 }}>
-        <TextField
-          label="Phone"
-          name="phone"
-          required
-          value={formData.phone}
-          onChange={handleChange}
-          sx={{ flex: "1 1 20%" }}
-          fullWidth
-        />
-        {/* <TextField
+        {/* Row 2: Phone, Blood Group, Religion, Marital Status */}
+        <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2, mb: 2 }}>
+          <TextField
+            label="Phone"
+            name="phone"
+            required
+            value={formData.phone}
+            onChange={handleChange}
+            sx={{ flex: "1 1 20%" }}
+            fullWidth
+          />
+          {/* <TextField
           label="Blood Group"
           name="bloodGroup"
           required
@@ -303,241 +329,294 @@ const NewReportPage = () => {
           sx={{ flex: "1 1 20%" }}
           fullWidth
         /> */}
-        <TextField
-          select
-          label="Religion"
-          name="religion"
-          required
-          value={formData.religion}
-          onChange={handleChange}
-          sx={{ flex: "1 1 20%" }}
-          fullWidth
-        >
-          {religions.map((r) => (
-            <MenuItem key={r} value={r}>
-              {r}
-            </MenuItem>
-          ))}
-        </TextField>
-        <TextField
-          select
-          label="Marital Status"
-          name="maritalStatus"
-          required
-          value={formData.maritalStatus}
-          onChange={handleChange}
-          sx={{ flex: "1 1 20%" }}
-          fullWidth
-        >
-          {maritalStatuses.map((m) => (
-            <MenuItem key={m} value={m}>
-              {m}
-            </MenuItem>
-          ))}
-        </TextField>
-      </Box>
-
-      {/* Row 3: Empanelment, Amount */}
-      <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap", mb: 2 }}>
-        <TextField
-          select
-          label="Empanelment"
-          name="empanelment"
-          required
-          value={formData.empanelment}
-          onChange={handleChange}
-          sx={{ flex: "1 1 45%" }}
-          fullWidth
-        >
-          {[
-            "ECHS",
-            "ESIC",
-            "CGHS",
-            "NR",
-            "NER",
-            "RDSO",
-            "Rail Coach",
-            "Insurance",
-            "UP Police",
-            "Ayushman Bharat",
-            "DDU",
-            "CMRF",
-            "Private",
-          ].map((option) => (
-            <MenuItem key={option} value={option}>
-              {option}
-            </MenuItem>
-          ))}
-        </TextField>
-
-        <TextField
-          label="Registration Amount"
-          name="regAmount"
-          required
-          value={formData.regAmount}
-          onChange={handleChange}
-          fullWidth
-          InputProps={{
-            startAdornment: <InputAdornment position="start">₹</InputAdornment>,
-          }}
-        />
-        <div />
-      </Box>
-
-      {/* Row 4: Father/Husband, Doctor */}
-      <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap", mb: 2 }}>
-        <TextField
-          label="Father / Husband"
-          name="fatherOrHusband"
-          required
-          value={formData.fatherOrHusband}
-          onChange={handleChange}
-          sx={{ flex: "1 1 45%" }}
-          fullWidth
-        />
-        <FormControl fullWidth required>
-          <InputLabel>Consulting Doctor(s) Incharge</InputLabel>
-          <Select
-            multiple
-            name="doctorIncharge"
-            value={formData.doctorIncharge}
+          <TextField
+            select
+            label="Religion"
+            name="religion"
+            required
+            value={formData.religion}
             onChange={handleChange}
-            input={<OutlinedInput label="Consulting Doctor(s) Incharge" />}
-            renderValue={(selected) => (
-              <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
-                {selected.map((value) => (
-                  <Chip key={value} label={value} />
-                ))}
-              </Box>
-            )}
+            sx={{ flex: "1 1 20%" }}
+            fullWidth
           >
-            {doctorOptions.map((doc) => (
-              <MenuItem key={doc} value={doc}>
-                {doc}
+            {religions.map((r) => (
+              <MenuItem key={r} value={r}>
+                {r}
               </MenuItem>
             ))}
-          </Select>
-        </FormControl>
-      </Box>
+          </TextField>
+          <TextField
+            select
+            label="Marital Status"
+            name="maritalStatus"
+            required
+            value={formData.maritalStatus}
+            onChange={handleChange}
+            sx={{ flex: "1 1 20%" }}
+            fullWidth
+          >
+            {maritalStatuses.map((m) => (
+              <MenuItem key={m} value={m}>
+                {m}
+              </MenuItem>
+            ))}
+          </TextField>
+        </Box>
 
-      {/* Local Address Section */}
-      <Typography variant="h6" sx={{ mt: 3, mb: 1 }}>
-        Local Address
-      </Typography>
-      <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2, mb: 2 }}>
-        <TextField
-          label="Address"
-          name="localAddress"
-          required
-          value={formData.localAddress}
-          onChange={handleChange}
-          sx={{ flex: "1 1 100%" }}
-          fullWidth
-        />
-        <TextField
-          label="City"
-          name="localCity"
-          required
-          value={formData.localCity}
-          onChange={handleChange}
-          sx={{ flex: "1 1 20%" }}
-          fullWidth
-        />
-        <TextField
-          label="State"
-          name="localState"
-          required
-          value={formData.localState}
-          onChange={handleChange}
-          sx={{ flex: "1 1 20%" }}
-          fullWidth
-        />
-        <TextField
-          label="Country"
-          name="localCountry"
-          required
-          value={formData.localCountry}
-          onChange={handleChange}
-          sx={{ flex: "1 1 20%" }}
-          fullWidth
-        />
-        <TextField
-          label="ZIP"
-          name="localZip"
-          required
-          value={formData.localZip}
-          onChange={handleChange}
-          sx={{ flex: "1 1 20%" }}
-          fullWidth
-        />
-      </Box>
-
-      {/* Permanent Address Section */}
-      <Typography variant="h6" sx={{ mt: 3, mb: 1 }}>
-        Permanent Address
-      </Typography>
-      <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2, mb: 2 }}>
-        <TextField
-          label="Address"
-          name="permanentAddress"
-          required
-          value={formData.permanentAddress}
-          onChange={handleChange}
-          sx={{ flex: "1 1 100%" }}
-          fullWidth
-        />
-        <TextField
-          label="City"
-          name="permanentCity"
-          required
-          value={formData.permanentCity}
-          onChange={handleChange}
-          sx={{ flex: "1 1 20%" }}
-          fullWidth
-        />
-        <TextField
-          label="State"
-          name="permanentState"
-          required
-          value={formData.permanentState}
-          onChange={handleChange}
-          sx={{ flex: "1 1 20%" }}
-          fullWidth
-        />
-        <TextField
-          label="Country"
-          name="permanentCountry"
-          required
-          value={formData.permanentCountry}
-          onChange={handleChange}
-          sx={{ flex: "1 1 20%" }}
-          fullWidth
-        />
-        <TextField
-          label="ZIP"
-          name="permanentZip"
-          required
-          value={formData.permanentZip}
-          onChange={handleChange}
-          sx={{ flex: "1 1 20%" }}
-          fullWidth
-        />
-
-        <Button
-        type="submit"
-          variant="contained"
-          // onClick={handleSubmit}
+        {/* Row 3: Empanelment, Amount */}
+        <Box
           sx={{
+            display: "flex",
+            gap: 2,
             mb: 2,
-            backgroundColor: "#5fc1b2",
-            "&:hover": { backgroundColor: "#4da99f" },
           }}
         >
-          Save New Report
-        </Button>
-      </Box>
-      </form>
+          {/* Empanelment Dropdown */}
+          <TextField
+            select
+            label="Empanelment"
+            name="empanelment"
+            required
+            value={formData.empanelment}
+            onChange={handleChange}
+            sx={{ flex: 1 }} // 👈 equal flex
+          >
+            {[
+              "Ayushman Bharat (cash)",
+              "Ayushman Bharat (cashless)",
+              "CGHS (cash)",
+              "CGHS (cashless)",
+              "CMRF (cash)",
+              "CMRF (cashless)",
+              "DDU (cash)",
+              "DDU (cashless)",
+              "ECHS (cash)",
+              "ECHS (cashless)",
+              "ESIC (cash)",
+              "ESIC (cashless)",
+              "Insurance (cash)",
+              "Insurance (cashless)",
+              "NER (cash)",
+              "NER (cashless)",
+              "NR (cash)",
+              "NR (cashless)",
+              "Private (cash)",
+              "Private (cashless)",
+              "Rail Coach (cash)",
+              "Rail Coach (cashless)",
+              "RDSO (cash)",
+              "RDSO (cashless)",
+              "UP Police (cash)",
+              "UP Police (cashless)",
+            ].map((option) => (
+              <MenuItem key={option} value={option}>
+                {option}
+              </MenuItem>
+            ))}
+          </TextField>
 
+          {/* Registration Amount */}
+          <TextField
+            label="Registration Amount"
+            name="regAmount"
+            required
+            value={formData.regAmount}
+            onChange={handleChange}
+            sx={{ flex: 1 }} // 👈 equal flex
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">₹</InputAdornment>
+              ),
+            }}
+          />
+        </Box>
+
+        {/* Row 4: Father/Husband, Doctor */}
+        <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap", mb: 2 }}>
+          <TextField
+            label="Father / Husband"
+            name="fatherOrHusband"
+            required
+            value={formData.fatherOrHusband}
+            onChange={handleChange}
+            sx={{ flex: "1 1 45%" }}
+            fullWidth
+          />
+          <FormControl sx={{ width: "53%" }} required>
+            <InputLabel>Consulting Doctor(s) Incharge</InputLabel>
+            <Select
+              multiple
+              name="doctorIncharge"
+              value={formData.doctorIncharge}
+              onChange={handleChange}
+              input={<OutlinedInput label="Consulting Doctor(s) Incharge" />}
+              renderValue={(selected) => (
+                <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
+                  {selected.map((value) => (
+                    <Chip key={value} label={value} />
+                  ))}
+                </Box>
+              )}
+            >
+              {doctorOptions.map((doc) => (
+                <MenuItem key={doc} value={doc}>
+                  {doc}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        </Box>
+        <FormControl sx={{ width: "25%" }} required>
+          <FormLabel>Patient Type</FormLabel>
+          <RadioGroup
+            row
+            name="patientType"
+            value={formData.patientType}
+            onChange={handleChange}
+          >
+            <FormControlLabel value="OPD" control={<Radio />} label="OPD" />
+            <FormControlLabel value="IPD" control={<Radio />} label="IPD" />
+            <FormControlLabel
+              value="DAYCARE"
+              control={<Radio />}
+              label="Daycare"
+            />
+          </RadioGroup>
+        </FormControl>
+
+        {/* Local Address Section */}
+        <Typography variant="h6" sx={{ mt: 3, mb: 1 }}>
+          Local Address
+        </Typography>
+        <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2, mb: 2 }}>
+          <TextField
+            label="Address"
+            name="localAddress"
+            required
+            value={formData.localAddress}
+            onChange={handleChange}
+            sx={{ flex: "1 1 100%" }}
+            fullWidth
+          />
+          <TextField
+            label="City"
+            name="localCity"
+            required
+            value={formData.localCity}
+            onChange={handleChange}
+            sx={{ flex: "1 1 20%" }}
+            fullWidth
+          />
+          <TextField
+            label="State"
+            name="localState"
+            required
+            value={formData.localState}
+            onChange={handleChange}
+            sx={{ flex: "1 1 20%" }}
+            fullWidth
+          />
+          <TextField
+            label="Country"
+            name="localCountry"
+            required
+            value={formData.localCountry}
+            onChange={handleChange}
+            sx={{ flex: "1 1 20%" }}
+            fullWidth
+          />
+          <TextField
+            label="ZIP"
+            name="localZip"
+            required
+            value={formData.localZip}
+            onChange={handleChange}
+            sx={{ flex: "1 1 20%" }}
+            fullWidth
+          />
+        </Box>
+
+        {/* Permanent Address Section */}
+        <Typography variant="h6" sx={{ mt: 3, mb: 1 }}>
+          Permanent Address
+        </Typography>
+        <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2, mb: 2 }}>
+          <TextField
+            label="Address"
+            name="permanentAddress"
+            required
+            value={formData.permanentAddress}
+            onChange={handleChange}
+            sx={{ flex: "1 1 100%" }}
+            fullWidth
+          />
+          <TextField
+            label="City"
+            name="permanentCity"
+            required
+            value={formData.permanentCity}
+            onChange={handleChange}
+            sx={{ flex: "1 1 20%" }}
+            fullWidth
+          />
+          <TextField
+            label="State"
+            name="permanentState"
+            required
+            value={formData.permanentState}
+            onChange={handleChange}
+            sx={{ flex: "1 1 20%" }}
+            fullWidth
+          />
+          <TextField
+            label="Country"
+            name="permanentCountry"
+            required
+            value={formData.permanentCountry}
+            onChange={handleChange}
+            sx={{ flex: "1 1 20%" }}
+            fullWidth
+          />
+          <TextField
+            label="ZIP"
+            name="permanentZip"
+            required
+            value={formData.permanentZip}
+            onChange={handleChange}
+            sx={{ flex: "1 1 20%" }}
+            fullWidth
+          />
+
+          <Button
+            type="submit"
+            variant="contained"
+            // onClick={handleSubmit}
+            sx={{
+              mb: 2,
+              backgroundColor: "#5fc1b2",
+              "&:hover": { backgroundColor: "#4da99f" },
+            }}
+          >
+            Save New Report
+          </Button>
+        </Box>
+      </form>
+      {/* Toast Notification */}
+      <Snackbar
+        open={toast.open}
+        autoHideDuration={4000}
+        onClose={handleToastClose}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+      >
+        <Alert
+          onClose={handleToastClose}
+          severity={toast.severity}
+          variant="filled"
+          sx={{ width: "100%" }}
+        >
+          {toast.message}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 };

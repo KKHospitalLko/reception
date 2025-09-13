@@ -17,7 +17,8 @@ import {
   CircularProgress,
   InputAdornment,
   Typography,
-
+  Snackbar,
+  Alert,
 } from "@mui/material";
 import { generateTransactionId } from "../utils/generateTransactionId";
 
@@ -30,6 +31,22 @@ const ReceiptPage = () => {
   const [errors, setErrors] = useState({});
   const username = sessionStorage.getItem("username");
   const navigate = useNavigate();
+
+  // Toast state
+  const [toast, setToast] = useState({
+    open: false,
+    message: "",
+    severity: "success",
+  });
+
+  const showToast = (message, severity = "success") => {
+    setToast({ open: true, message, severity });
+  };
+
+  const handleToastClose = (_, reason) => {
+    if (reason === "clickaway") return;
+    setToast((prev) => ({ ...prev, open: false }));
+  };
 
   const [form, setForm] = useState({
     transactionId: "",
@@ -104,8 +121,34 @@ const ReceiptPage = () => {
           }));
           setLoading(false);
         } catch (error) {
-          console.error("Error fetching patient data:", error);
           setLoading(false);
+          console.error("Error fetching patient data:", error);
+          if (error.response && Array.isArray(error.response.data?.detail)) {
+            // Show all validation messages if available
+            const messages = error.response.data.detail
+              .map((d) => d.msg)
+              .join("\n");
+            showToast(messages, "error");
+          } else if (
+            error.response?.data?.detail.includes(
+              "directly generate a bill of it"
+            )
+          ) {
+            // Single validation message
+            showToast(error.response.data.detail, "error");
+            setForm((prev) => ({
+              ...prev,
+              uhid: "",
+              patientName: "",
+              date: "",
+              registrationNumber: "",
+            }));
+          } else if (error.response?.data?.detail) {
+            // Single validation message
+            showToast(error.response.data.detail, "error");
+          } else {
+            showToast("Something went wrong. Please try again.", "error");
+          }
         }
       }
     };
@@ -162,7 +205,7 @@ const ReceiptPage = () => {
   const handleSave = async () => {
     // Validate form before proceeding
     if (!validateForm()) {
-      alert("Please fill all required fields");
+      showToast("Please fill all required fields", "error");
       return;
     }
 
@@ -209,13 +252,12 @@ const ReceiptPage = () => {
         const messages = error.response.data.detail
           .map((d) => d.msg)
           .join("\n");
-        alert(messages);
+        showToast(messages, "error");
       } else if (error.response?.data?.detail) {
         // Single validation message
-        alert(error.response.data.detail);
+        showToast(error.response.data.detail, "error");
       } else {
-        console.error("Error submitting form:", error);
-        alert("Something went wrong. Please try again.");
+        showToast("Something went wrong. Please try again.", "error");
       }
     } finally {
       setLoading(false);
@@ -237,11 +279,6 @@ const ReceiptPage = () => {
           },
         }
       );
-      // console.log("Search results:", res.data);
-      // if (res.data.length === 0) {
-      //   alert("No receipts found for this UHID.");
-      //   return;
-      // }
       setReceipts(res.data); // adjust based on actual API shape
       setSearchLoading(false);
       navigate("/receipts/list", { state: res.data });
@@ -252,13 +289,12 @@ const ReceiptPage = () => {
         const messages = error.response.data.detail
           .map((d) => d.msg)
           .join("\n");
-        alert(messages);
+        showToast(messages, "error");
       } else if (error.response?.data?.detail) {
         // Single validation message
-        alert(error.response.data.detail);
+        showToast(error.response.data.detail, "error");
       } else {
-        console.error("Error submitting form:", error);
-        alert("Something went wrong. Please try again.");
+        showToast("Something went wrong. Please try again.", "error");
       }
     }
   };
@@ -268,13 +304,13 @@ const ReceiptPage = () => {
       <Navbar />
       <Box p={4} bgcolor="#fff" minHeight="100vh">
         <Typography
-        variant="h4"
-        gutterBottom
-        align="center"
-        className="bg-[#5fc1b2] text-white p-3 rounded-lg shadow-md"
-      >
-        Transaction Generation Form
-      </Typography>
+          variant="h4"
+          gutterBottom
+          align="center"
+          className="bg-[#5fc1b2] text-white p-3 rounded-lg shadow-md"
+        >
+          Transaction Generation Form
+        </Typography>
         <Backdrop open={loading} sx={{ color: "#fff", zIndex: 9999 }}>
           <CircularProgress color="inherit" />
         </Backdrop>
@@ -297,24 +333,24 @@ const ReceiptPage = () => {
           >
             Back
           </Button>
-            <Box display="flex" gap={2} mb={2}>
-              <TextField
-                label="Search by UHID"
-                value={uhidSearch}
-                onChange={(e) => setUhidSearch(e.target.value)}
-              />
-              <Button
-                variant="contained"
-                onClick={handleUhidSearch}
-                sx={{
-                  mb: 2,
-                  backgroundColor: "#5fc1b2",
-                  "&:hover": { backgroundColor: "#4da99f" },
-                }}
-              >
-                Search
-              </Button>
-            </Box>
+          <Box display="flex" gap={2} mb={2}>
+            <TextField
+              label="Search by UHID"
+              value={uhidSearch}
+              onChange={(e) => setUhidSearch(e.target.value)}
+            />
+            <Button
+              variant="contained"
+              onClick={handleUhidSearch}
+              sx={{
+                mb: 2,
+                backgroundColor: "#5fc1b2",
+                "&:hover": { backgroundColor: "#4da99f" },
+              }}
+            >
+              Search
+            </Button>
+          </Box>
         </Box>
 
         <Box display="flex" flexDirection="column" gap={2}>
@@ -416,7 +452,9 @@ const ReceiptPage = () => {
             >
               <MenuItem value="">Select</MenuItem>
               <MenuItem value="CASH">Cash</MenuItem>
-              <MenuItem value="DEBIT / CREDIT CARD">Credit Card / Debit Card</MenuItem>
+              <MenuItem value="DEBIT / CREDIT CARD">
+                Credit Card / Debit Card
+              </MenuItem>
               <MenuItem value="CHEQUE">Cheque</MenuItem>
               <MenuItem value="UPI">UPI</MenuItem>
               <MenuItem value="CASHLESS">Cashless</MenuItem>
@@ -529,6 +567,23 @@ const ReceiptPage = () => {
             />
           </DialogContent>
         </Dialog>
+
+        {/* Toast Notification */}
+        <Snackbar
+          open={toast.open}
+          autoHideDuration={4000}
+          onClose={handleToastClose}
+          anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+        >
+          <Alert
+            onClose={handleToastClose}
+            severity={toast.severity}
+            variant="filled"
+            sx={{ width: "100%" }}
+          >
+            {toast.message}
+          </Alert>
+        </Snackbar>
       </Box>
     </>
   );

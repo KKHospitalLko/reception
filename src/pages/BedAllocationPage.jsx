@@ -23,6 +23,7 @@ import {
   Snackbar,
   Alert,
   TableContainer,
+  filledInputClasses,
 } from "@mui/material";
 import HomeIcon from "@mui/icons-material/Home";
 
@@ -33,6 +34,7 @@ export default function BedAllocationPage() {
   const [bed, setBed] = useState("");
   const [bedData, setBedData] = useState({});
   const [allottedBeds, setAllottedBeds] = useState([]);
+  const [filledBeds, setFilledBeds] = useState([]);
   const [loading, setLoading] = useState(false);
   const [filterDepartment, setFilterDepartment] = useState("");
   const [shiftModalOpen, setShiftModalOpen] = useState(false);
@@ -109,7 +111,9 @@ export default function BedAllocationPage() {
         },
       })
       .then((res) => {
-        setAllottedBeds(res.data);
+        setAllottedBeds(res.data.beds);
+        setFilledBeds(res.data.total_allotted);
+        // console.log("Allotted beds data:", res.data.total_allotted);
       })
       .catch((err) => {
         console.error("Error fetching allotted beds:", err);
@@ -132,19 +136,27 @@ export default function BedAllocationPage() {
         setLoading(false);
       } catch (error) {
         setLoading(false);
-        if (error.response && Array.isArray(error.response.data?.detail)) {
+          if (
+            error.response?.data?.detail.includes(
+              "is not registered as IPD"
+            )
+          ) {
+            // Single validation message
+            showToast(error.response.data.detail , "error");
+            setUhid("");
+          }else if (error.response && Array.isArray(error.response.data?.detail)) {
           // Show all validation messages if available
           const messages = error.response.data.detail
             .map((d) => d.msg)
             .join("\n");
-          alert(messages);
+          showToast(messages, "error");
         } else if (error.response?.data?.detail) {
           // Single validation message
-          alert(error.response.data.detail);
+          showToast(error.response.data.detail);
         } else {
           console.error("Error submitting form:", error);
-          alert("Something went wrong. Please try again.");
-        }
+          showToast("Something went wrong. Please try again.", "error");
+        }        
       }
     };
 
@@ -193,13 +205,12 @@ export default function BedAllocationPage() {
           const messages = error.response.data.detail
             .map((d) => d.msg)
             .join("\n");
-          alert(messages);
+          showToast(messages, "error");
         } else if (error.response?.data?.detail) {
           // Single validation message
-          alert(error.response.data.detail);
+          showToast(error.response.data.detail, "error");
         } else {
-          console.error("Error submitting form:", error);
-          alert("Something went wrong. Please try again.");
+          showToast("Something went wrong. Please try again.", "error");
         }
       })
       .finally(() => {
@@ -215,7 +226,7 @@ export default function BedAllocationPage() {
 
     setLoading(true);
     axios
-      .delete(`${backendUrl}/bed/${bedNumber}`, {
+      .patch(`${backendUrl}/bed/${bedNumber}`, null,{
         headers: {
           "Content-Type": "application/json",
           "x-api-key": import.meta.env.VITE_API_KEY,
@@ -227,7 +238,7 @@ export default function BedAllocationPage() {
         showToast(`Patient removed from bed ${bedNumber}`, "success");
       })
       .catch((err) => {
-        console.error("Error removing patient:", err);
+        // console.error("Error removing patient:", err);
         showToast("Failed to remove patient.", "error");
       })
       .finally(() => {
@@ -300,7 +311,7 @@ export default function BedAllocationPage() {
   const availableBeds = bedData[department] || [];
 
   // Filter only occupied beds
-  const occupiedBeds = allottedBeds.filter((b) => b.status === "occupied");
+  const occupiedBeds = allottedBeds.filter((b) => b.status === "occupied").sort((a, b) => a.bed_id - b.bed_id);
 
   // Then filter by selected department
   const filteredBeds = filterDepartment
@@ -311,298 +322,72 @@ export default function BedAllocationPage() {
     <>
       <Navbar />
       <Box p={4}>
-      {/* Loading spinner */}
-      <Backdrop open={loading} sx={{ color: "#fff", zIndex: 9999 }}>
-        <CircularProgress color="inherit" />
-      </Backdrop>
+        {/* Loading spinner */}
+        <Backdrop open={loading} sx={{ color: "#fff", zIndex: 9999 }}>
+          <CircularProgress color="inherit" />
+        </Backdrop>
 
-      <Typography
-        variant="h4"
-        gutterBottom
-        align="center"
-        className="bg-[#5fc1b2] text-white p-3 rounded-lg shadow-md"
-      >
-        Bed Allocation
-      </Typography>
-      <Button
-        variant="contained"
-        color="primary"
-        onClick={handleGoHome}
-        startIcon={<HomeIcon />}
-        sx={{
-          mb: 2,
-          backgroundColor: "#5fc1b2",
-          "&:hover": { backgroundColor: "#4da99f" },
-        }}
-      >
-        Home
-      </Button>
-
-      {/* Form */}
-      <Paper sx={{ p: 2, mb: 3 }}>
-        <Grid container spacing={2}>
-          <Grid item width={"28%"}>
-            <TextField
-              label="UHID"
-              type="number"
-              value={uhid}
-              onChange={(e) => setUhid(e.target.value)}
-              fullWidth
-            />
-          </Grid>
-          <Grid item width={"70%"}>
-            <TextField
-              label="Patient Name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              fullWidth
-            />
-          </Grid>
-
-          <Grid item width={"25%"}>
-            <TextField
-              select
-              label="Department"
-              value={department}
-              onChange={(e) => {
-                const selectedDept = e.target.value;
-                setDepartment(selectedDept);
-                setBed(""); // reset bed on dept change
-
-                // Alert if no beds in this department
-                if (
-                  bedData[selectedDept] &&
-                  bedData[selectedDept].length === 0
-                ) {
-                  alert(`${selectedDept} has no beds available.`);
-                }
-              }}
-              fullWidth
-            >
-              {departments.map((dep) => (
-                <MenuItem key={dep} value={dep}>
-                  {dep}
-                </MenuItem>
-              ))}
-            </TextField>
-          </Grid>
-          <Grid item width={"25%"}>
-            <TextField
-              select
-              label="Bed Number"
-              value={bed}
-              onChange={(e) => setBed(e.target.value)}
-              fullWidth
-              disabled={!department}
-            >
-              {availableBeds.map((b) => (
-                <MenuItem key={b} value={b}>
-                  {b}
-                </MenuItem>
-              ))}
-            </TextField>
-          </Grid>
-          <Grid item width={"20%"} display="flex" alignItems="end">
-            <Button
-              variant="contained"
-              onClick={handleAdd}
-              disabled={loading}
-              sx={{
-                backgroundColor: "#5fc1b2",
-                "&:hover": { backgroundColor: "#4da99f" },
-              }}
-            >
-              {loading ? "Allotting..." : "Allot Bed"}
-            </Button>
-          </Grid>
-        </Grid>
-      </Paper>
-
-      {/* Table Filter */}
-      <Grid container spacing={2} alignItems="center" mb={1}>
-        <Grid item width={"30%"} mb={3}>
-          <TextField
-            select
-            label="Filter by Department"
-            value={filterDepartment}
-            onChange={(e) => setFilterDepartment(e.target.value)}
-            fullWidth
-          >
-            <MenuItem value="">All Departments</MenuItem>
-            {departments.map((dep) => (
-              <MenuItem key={dep} value={dep}>
-                {dep}
-              </MenuItem>
-            ))}
-          </TextField>
-        </Grid>
-      </Grid>
-
-      {/* Table */}
-      {filteredBeds.length === 0 ? (
-        <Typography>No occupied beds yet.</Typography>
-      ) : (
-        <TableContainer
-          component={Paper}
-          sx={{ overflowX: "auto", maxWidth: "100%" }}
+        <Typography
+          variant="h4"
+          gutterBottom
+          align="center"
+          className="bg-[#5fc1b2] text-white p-3 rounded-lg shadow-md"
         >
-          <Table sx={{ minWidth: 650 }}>
-            <TableHead>
-              <TableRow sx={{ backgroundColor: "#5fc1b2" }}>
-                <TableCell
-                  sx={{
-                    fontWeight: "bold",
-                    fontSize: "1rem",
-                    color: "#fff",
-                    whiteSpace: "nowrap",
-                  }}
-                >
-                  UHID
-                </TableCell>
-                <TableCell
-                  sx={{
-                    fontWeight: "bold",
-                    fontSize: "1rem",
-                    color: "#fff",
-                    whiteSpace: "nowrap",
-                  }}
-                >
-                  Patient Name
-                </TableCell>
-                <TableCell
-                  sx={{
-                    fontWeight: "bold",
-                    fontSize: "1rem",
-                    color: "#fff",
-                    whiteSpace: "nowrap",
-                  }}
-                >
-                  Department
-                </TableCell>
-                <TableCell
-                  sx={{
-                    fontWeight: "bold",
-                    fontSize: "1rem",
-                    color: "#fff",
-                    whiteSpace: "nowrap",
-                  }}
-                >
-                  Bed Number
-                </TableCell>
-                <TableCell
-                  sx={{
-                    fontWeight: "bold",
-                    fontSize: "1rem",
-                    color: "#fff",
-                    whiteSpace: "nowrap",
-                  }}
-                >
-                  Actions
-                </TableCell>
-              </TableRow>
-            </TableHead>
+          Bed Allocation
+        </Typography>
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={handleGoHome}
+          startIcon={<HomeIcon />}
+          sx={{
+            mb: 2,
+            backgroundColor: "#5fc1b2",
+            "&:hover": { backgroundColor: "#4da99f" },
+          }}
+        >
+          Home
+        </Button>
 
-            <TableBody>
-              {filteredBeds.map((a, index) => (
-                <TableRow
-                  key={a.bed_id}
-                  sx={{
-                    backgroundColor: index % 2 === 0 ? "#ffffff" : "#dcf3ec",
-                  }}
-                >
-                  <TableCell>{a.uhid}</TableCell>
-                  <TableCell>{a.patient_name}</TableCell>
-                  <TableCell>{a.department}</TableCell>
-                  <TableCell>{a.bed_number}</TableCell>
-                  <TableCell sx={{ whiteSpace: "nowrap" }}>
-                    <Button
-                      variant="contained"
-                      size="small"
-                      color="error"
-                      onClick={() => handleRemoveBed(a.bed_number)}
-                    >
-                      Remove
-                    </Button>
-                    <Button
-                      variant="contained"
-                      size="small"
-                      sx={{ ml: 1 }}
-                      onClick={() => handleChangeBed(a)}
-                    >
-                      Shift Patient
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-      )}
-
-      <Dialog
-        open={shiftModalOpen}
-        onClose={() => setShiftModalOpen(false)}
-        fullWidth
-        maxWidth="sm"
-      >
-        <DialogContent dividers sx={{ px: 4, pt: 3, pb: 2 }}>
-          <Box
-            component="form"
-            noValidate
-            sx={{
-              display: "flex",
-              flexDirection: "column",
-              gap: 2,
-            }}
-          >
-            {/* Row 1: UHID & Patient Name */}
-            <Box
-              sx={{
-                display: "flex",
-                flexWrap: "wrap",
-                gap: 2,
-              }}
-            >
+        {/* Form */}
+        <Paper sx={{ p: 2, mb: 3 }}>
+          <Grid container spacing={2}>
+            <Grid item width={"28%"}>
               <TextField
                 label="UHID"
-                value={shiftForm.uhid}
+                type="number"
+                value={uhid}
+                onChange={(e) => setUhid(e.target.value)}
                 fullWidth
-                disabled
-                variant="outlined"
-                sx={{ flex: { xs: "1 1 100%", sm: "1 1 48%" } }}
               />
+            </Grid>
+            <Grid item width={"70%"}>
               <TextField
                 label="Patient Name"
-                value={shiftForm.patient_name}
+                value={name}
+                onChange={(e) => setName(e.target.value)}
                 fullWidth
-                disabled
-                variant="outlined"
-                sx={{ flex: { xs: "1 1 100%", sm: "1 1 48%" } }}
               />
-            </Box>
+            </Grid>
 
-            {/* Row 2: Department & Bed */}
-            <Box
-              sx={{
-                display: "flex",
-                flexWrap: "wrap",
-                gap: 2,
-              }}
-            >
+            <Grid item width={"25%"}>
               <TextField
                 select
-                label="New Department"
-                value={shiftForm.department}
-                onChange={(e) =>
-                  setShiftForm((prev) => ({
-                    ...prev,
-                    department: e.target.value,
-                    bed_number: "",
-                  }))
-                }
+                label="Department"
+                value={department}
+                onChange={(e) => {
+                  const selectedDept = e.target.value;
+                  setDepartment(selectedDept);
+                  setBed(""); // reset bed on dept change
+
+                  if (
+                    bedData[selectedDept] &&
+                    bedData[selectedDept].length === 0
+                  ) {
+                    showToast(`${selectedDept} has no beds available.`, "warning");
+                  }
+                }}
                 fullWidth
-                variant="outlined"
-                sx={{ flex: { xs: "1 1 100%", sm: "1 1 48%" } }}
               >
                 {departments.map((dep) => (
                   <MenuItem key={dep} value={dep}>
@@ -610,63 +395,313 @@ export default function BedAllocationPage() {
                   </MenuItem>
                 ))}
               </TextField>
-
+            </Grid>
+            <Grid item width={"25%"}>
               <TextField
                 select
-                label="New Bed"
-                value={shiftForm.bed_number}
-                onChange={(e) =>
-                  setShiftForm((prev) => ({
-                    ...prev,
-                    bed_number: e.target.value,
-                  }))
-                }
+                label="Bed Number"
+                value={bed}
+                onChange={(e) => setBed(e.target.value)}
                 fullWidth
-                disabled={!shiftForm.department}
-                variant="outlined"
-                sx={{ flex: { xs: "1 1 100%", sm: "1 1 48%" } }}
+                disabled={!department}
               >
-                {(bedData[shiftForm.department] || []).map((b) => (
+                {availableBeds.map((b) => (
                   <MenuItem key={b} value={b}>
                     {b}
                   </MenuItem>
                 ))}
               </TextField>
-            </Box>
-          </Box>
-        </DialogContent>
+            </Grid>
+            <Grid item width={"20%"} display="flex" alignItems="end">
+              <Button
+                variant="contained"
+                onClick={handleAdd}
+                disabled={loading}
+                sx={{
+                  backgroundColor: "#5fc1b2",
+                  "&:hover": { backgroundColor: "#4da99f" },
+                }}
+              >
+                {loading ? "Allotting..." : "Allot Bed"}
+              </Button>
+            </Grid>
+          </Grid>
+        </Paper>
 
-        <DialogActions sx={{ px: 4, pb: 2 }}>
-          <Button onClick={() => setShiftModalOpen(false)}>Cancel</Button>
-          <Button
-            onClick={handleShiftSubmit}
-            variant="contained"
-            sx={{
-              backgroundColor: "#5fc1b2",
-              "&:hover": { backgroundColor: "#4da99f" },
-            }}
-          >
-            Shift
-          </Button>
-        </DialogActions>
-      </Dialog>
-
-      <Snackbar
-        open={toast.open}
-        autoHideDuration={4000}
-        onClose={handleToastClose}
-        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
-      >
-        <Alert
-          onClose={handleToastClose}
-          severity={toast.severity}
-          variant="filled"
-          sx={{ width: "100%" }}
+        {/* Table Filter */}
+        <Grid
+          container
+          alignItems="center"
+          justifyContent="space-between"
+          sx={{
+            p: 2,
+          }}
         >
-          {toast.message}
-        </Alert>
-      </Snackbar>
-    </Box>
+          {/* Dropdown */}
+          <Grid item>
+            <TextField
+              select
+              label="Filter by Department"
+              value={filterDepartment}
+              onChange={(e) => setFilterDepartment(e.target.value)}
+              sx={{ minWidth: 250 }} // control width
+            >
+              <MenuItem value="">All Departments</MenuItem>
+              {departments.map((dep) => (
+                <MenuItem key={dep} value={dep}>
+                  {dep}
+                </MenuItem>
+              ))}
+            </TextField>
+          </Grid>
+
+          {/* Beds count */}
+          <Grid item>
+            <Typography
+              variant="h6"
+              sx={{ color: "primary.main", fontWeight: 600 }}
+            >
+              Total Beds Allotted:{" "}
+              <Typography
+                component="span"
+                color="text.primary"
+                fontWeight={900}
+              >
+                {filledBeds}
+              </Typography>
+            </Typography>
+          </Grid>
+        </Grid>
+
+        {/* Table */}
+        {filteredBeds.length === 0 ? (
+          <Typography>No occupied beds yet.</Typography>
+        ) : (
+          <TableContainer
+            component={Paper}
+            sx={{ overflowX: "auto", maxWidth: "100%" }}
+          >
+            <Table sx={{ minWidth: 650 }}>
+              <TableHead>
+                <TableRow sx={{ backgroundColor: "#5fc1b2" }}>
+                  <TableCell
+                    sx={{
+                      fontWeight: "bold",
+                      fontSize: "1rem",
+                      color: "#fff",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    UHID
+                  </TableCell>
+                  <TableCell
+                    sx={{
+                      fontWeight: "bold",
+                      fontSize: "1rem",
+                      color: "#fff",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    Patient Name
+                  </TableCell>
+                  <TableCell
+                    sx={{
+                      fontWeight: "bold",
+                      fontSize: "1rem",
+                      color: "#fff",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    Department
+                  </TableCell>
+                  <TableCell
+                    sx={{
+                      fontWeight: "bold",
+                      fontSize: "1rem",
+                      color: "#fff",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    Bed Number
+                  </TableCell>
+                  <TableCell
+                    sx={{
+                      fontWeight: "bold",
+                      fontSize: "1rem",
+                      color: "#fff",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    Actions
+                  </TableCell>
+                </TableRow>
+              </TableHead>
+
+              <TableBody>
+                {filteredBeds.map((a, index) => (
+                  <TableRow
+                    key={a.bed_id}
+                    sx={{
+                      backgroundColor: index % 2 === 0 ? "#ffffff" : "#dcf3ec",
+                    }}
+                  >
+                    <TableCell>{a.uhid}</TableCell>
+                    <TableCell>{a.patient_name}</TableCell>
+                    <TableCell>{a.department}</TableCell>
+                    <TableCell>{a.bed_number}</TableCell>
+                    <TableCell sx={{ whiteSpace: "nowrap" }}>
+                      <Button
+                        variant="contained"
+                        size="small"
+                        color="error"
+                        onClick={() => handleRemoveBed(a.bed_number)}
+                      >
+                        Remove
+                      </Button>
+                      <Button
+                        variant="contained"
+                        size="small"
+                        sx={{ ml: 1 }}
+                        onClick={() => handleChangeBed(a)}
+                      >
+                        Shift Patient
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        )}
+
+        <Dialog
+          open={shiftModalOpen}
+          onClose={() => setShiftModalOpen(false)}
+          fullWidth
+          maxWidth="sm"
+        >
+          <DialogContent dividers sx={{ px: 4, pt: 3, pb: 2 }}>
+            <Box
+              component="form"
+              noValidate
+              sx={{
+                display: "flex",
+                flexDirection: "column",
+                gap: 2,
+              }}
+            >
+              {/* Row 1: UHID & Patient Name */}
+              <Box
+                sx={{
+                  display: "flex",
+                  flexWrap: "wrap",
+                  gap: 2,
+                }}
+              >
+                <TextField
+                  label="UHID"
+                  value={shiftForm.uhid}
+                  fullWidth
+                  disabled
+                  variant="outlined"
+                  sx={{ flex: { xs: "1 1 100%", sm: "1 1 48%" } }}
+                />
+                <TextField
+                  label="Patient Name"
+                  value={shiftForm.patient_name}
+                  fullWidth
+                  disabled
+                  variant="outlined"
+                  sx={{ flex: { xs: "1 1 100%", sm: "1 1 48%" } }}
+                />
+              </Box>
+
+              {/* Row 2: Department & Bed */}
+              <Box
+                sx={{
+                  display: "flex",
+                  flexWrap: "wrap",
+                  gap: 2,
+                }}
+              >
+                <TextField
+                  select
+                  label="New Department"
+                  value={shiftForm.department}
+                  onChange={(e) =>
+                    setShiftForm((prev) => ({
+                      ...prev,
+                      department: e.target.value,
+                      bed_number: "",
+                    }))
+                  }
+                  fullWidth
+                  variant="outlined"
+                  sx={{ flex: { xs: "1 1 100%", sm: "1 1 48%" } }}
+                >
+                  {departments.map((dep) => (
+                    <MenuItem key={dep} value={dep}>
+                      {dep}
+                    </MenuItem>
+                  ))}
+                </TextField>
+
+                <TextField
+                  select
+                  label="New Bed"
+                  value={shiftForm.bed_number}
+                  onChange={(e) =>
+                    setShiftForm((prev) => ({
+                      ...prev,
+                      bed_number: e.target.value,
+                    }))
+                  }
+                  fullWidth
+                  disabled={!shiftForm.department}
+                  variant="outlined"
+                  sx={{ flex: { xs: "1 1 100%", sm: "1 1 48%" } }}
+                >
+                  {(bedData[shiftForm.department] || []).map((b) => (
+                    <MenuItem key={b} value={b}>
+                      {b}
+                    </MenuItem>
+                  ))}
+                </TextField>
+              </Box>
+            </Box>
+          </DialogContent>
+
+          <DialogActions sx={{ px: 4, pb: 2 }}>
+            <Button onClick={() => setShiftModalOpen(false)}>Cancel</Button>
+            <Button
+              onClick={handleShiftSubmit}
+              variant="contained"
+              sx={{
+                backgroundColor: "#5fc1b2",
+                "&:hover": { backgroundColor: "#4da99f" },
+              }}
+            >
+              Shift
+            </Button>
+          </DialogActions>
+        </Dialog>
+
+        <Snackbar
+          open={toast.open}
+          autoHideDuration={4000}
+          onClose={handleToastClose}
+          anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+        >
+          <Alert
+            onClose={handleToastClose}
+            severity={toast.severity}
+            variant="filled"
+            sx={{ width: "100%" }}
+          >
+            {toast.message}
+          </Alert>
+        </Snackbar>
+      </Box>
     </>
   );
 }

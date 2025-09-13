@@ -1,81 +1,91 @@
-import React from "react";
-import {
-  Button,
-  Box,
-  Typography,
-  Grid,
-  Card,
-  CardActionArea,
-  CardContent,
-} from "@mui/material";
-import { Link } from "react-router-dom";
-import LocalHospitalIcon from "@mui/icons-material/LocalHospital";
-import ReceiptIcon from "@mui/icons-material/Receipt";
-import AssignmentIcon from "@mui/icons-material/Assignment";
-import HotelIcon from "@mui/icons-material/Hotel";
+import React, { useEffect, useState } from "react";
+import { Box, Typography, Button, CircularProgress } from "@mui/material";
 import LogoutIcon from "@mui/icons-material/Logout";
+import SectionCards from "./pages/home/SectionCards";
+import StatsCards from "./pages/home/StatsCards";
+import ChartsSection from "./pages/home/ChartsSection";
+import axios from "axios";
 
-export default function App() {
- const username = sessionStorage.getItem("username");
+const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
-const handleLogout = () => {
-  sessionStorage.removeItem("username");
-  window.location.href = "/login";
-};
+export default function Dashboard() {
+  const username = sessionStorage.getItem("username");
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  const sections = [
-    {
-      label: "Registration",
-      to: "/registration",
-      icon: <LocalHospitalIcon fontSize="large" color="error" />,
-    },
-    {
-      label: "Bed Allotment",
-      to: "/bedManagement",
-      icon: <HotelIcon fontSize="large" color="secondary" />,
-    },
-    {
-      label: "Receipt",
-      to: "/receipt",
-      icon: <AssignmentIcon fontSize="large" color="success" />,
-    },
-    {
-      label: "Bill",
-      to: "/bill",
-      icon: <ReceiptIcon fontSize="large" color="primary" />,
-    },
-  ];
+  const handleLogout = () => {
+    sessionStorage.removeItem("username");
+    window.location.href = "/login";
+  };
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        const res = await axios.get(backendUrl + "/patients/count_and_graph", {
+          headers: {
+            "Content-Type": "application/json",
+            "x-api-key": import.meta.env.VITE_API_KEY,
+          },
+        });
+        const dashboardData = res.data;
+        setData(dashboardData);
+        console.log("Dashboard data:", dashboardData);
+      } catch (error) {
+        setLoading(false);
+        if (error.response && Array.isArray(error.response.data?.detail)) {
+          // Show all validation messages if available
+          const messages = error.response.data.detail
+            .map((d) => d.msg)
+            .join("\n");
+          alert(messages);
+        } else if (error.response?.data?.detail) {
+          // Single validation message
+          alert(error.response.data.detail);
+        } else {
+          console.error("Error submitting form:", error);
+          // alert("Something went wrong. Please try again.");
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   return (
-    <Box sx={{ textAlign: "center", mt: 4 }}>
+    <Box sx={{ textAlign: "center", mt: 4, px: 2 }}>
       <Typography variant="h3" gutterBottom>
         Welcome to the App
       </Typography>
-      <h2>Welcome, {username}</h2>
+      <Typography variant="h5" gutterBottom>
+        Hello, {username}
+      </Typography>
 
-      <Grid container spacing={3} justifyContent="center" mt={2}>
-        {sections.map(({ label, to, icon }) => (
-          <Grid item xs={12} sm={6} md={3} key={label}>
-            <Card sx={{ minHeight: 150, minWidth: 200 }}>
-              <CardActionArea component={Link} to={to}>
-                <CardContent>
-                  <Box
-                    display="flex"
-                    flexDirection="column"
-                    alignItems="center"
-                  >
-                    {icon}
-                    <Typography variant="h6" mt={1}>
-                      {label}
-                    </Typography>
-                  </Box>
-                </CardContent>
-              </CardActionArea>
-            </Card>
-          </Grid>
-        ))}
-      </Grid>
+      {/* Navigation Section */}
+      <SectionCards />
 
+      {/* Loading & Data Display */}
+      {loading ? (
+        <Box mt={4}>
+          <CircularProgress />
+        </Box>
+      ) : ( data && 
+        <>
+          {/* Stats Summary */}
+          <Box mt={4}>
+            <StatsCards counts={data?.count} />
+          </Box>
+
+          {/* Charts Section */}
+          <Box mt={4}>
+            <ChartsSection graphs={data?.graph} />
+          </Box>
+        </>
+      )}
+
+      {/* Logout */}
       <Box mt={4}>
         <Button
           variant="contained"
