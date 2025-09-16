@@ -4,7 +4,7 @@ import App from './App.jsx';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import BillPage from './pages/BillPage.jsx';
 import ReceiptPage from './pages/ReceiptPage.jsx';
-import RegistrationPage from './pages/Registration.jsx';
+import Registration from './pages/Registration.jsx';
 import PatientPreview from './pages/PatientPreview.jsx';
 import NewReportPage from './pages/newReportPage.jsx';
 import BedAllocationPage from './pages/BedAllocationPage.jsx';
@@ -90,7 +90,7 @@ createRoot(document.getElementById('root')).render(
           path="/registration"
           element={
             <ProtectedRoute>
-              <RegistrationPage />
+              <Registration />
             </ProtectedRoute>
           }
         />
