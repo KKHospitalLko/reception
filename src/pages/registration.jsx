@@ -444,47 +444,47 @@ const Registration = () => {
                     }));
                   }}
                 >
-                  <MenuItem value="ECHS (Cashless)">ECHS (Cashless)</MenuItem>
-                  <MenuItem value="ESIC (Cashless)">ESIC (Cashless)</MenuItem>
-                  <MenuItem value="CGHS (Cashless)">CGHS (Cashless)</MenuItem>
-                  <MenuItem value="NR (Cashless)">NR (Cashless)</MenuItem>
-                  <MenuItem value="NER (Cashless)">NER (Cashless)</MenuItem>
-                  <MenuItem value="RDSO (Cashless)">RDSO (Cashless)</MenuItem>
-                  <MenuItem value="Rail Coach (Cashless)">
-                    Rail Coach (Cashless)
+                  <MenuItem value="ECHS (cashless)">ECHS (cashless)</MenuItem>
+                  <MenuItem value="ESIC (cashless)">ESIC (cashless)</MenuItem>
+                  <MenuItem value="CGHS (cashless)">CGHS (cashless)</MenuItem>
+                  <MenuItem value="NR (cashless)">NR (cashless)</MenuItem>
+                  <MenuItem value="NER (cashless)">NER (cashless)</MenuItem>
+                  <MenuItem value="RDSO (cashless)">RDSO (cashless)</MenuItem>
+                  <MenuItem value="Rail Coach (cashless)">
+                    Rail Coach (cashless)
                   </MenuItem>
-                  <MenuItem value="Insurance (Cashless)">
-                    Insurance (Cashless)
+                  <MenuItem value="Insurance (cashless)">
+                    Insurance (cashless)
                   </MenuItem>
-                  <MenuItem value="UP Police (Cashless)">
-                    UP Police (Cashless)
+                  <MenuItem value="UP Police (cashless)">
+                    UP Police (cashless)
                   </MenuItem>
-                  <MenuItem value="Ayushman Bharat (Cashless)">
-                    Ayushman Bharat (Cashless)
+                  <MenuItem value="Ayushman Bharat (cashless)">
+                    Ayushman Bharat (cashless)
                   </MenuItem>
-                  <MenuItem value="DDU (Cashless)">DDU (Cashless)</MenuItem>
-                  <MenuItem value="CMRF (Cashless)">CMRF (Cashless)</MenuItem>
-                  <MenuItem value="Private (Cashless)">
-                    Private (Cashless)
+                  <MenuItem value="DDU (cashless)">DDU (cashless)</MenuItem>
+                  <MenuItem value="CMRF (cashless)">CMRF (cashless)</MenuItem>
+                  <MenuItem value="Private (cashless)">
+                    Private (cashless)
                   </MenuItem>
 
-                  <MenuItem value="ECHS (Cash)">ECHS (Cash)</MenuItem>
-                  <MenuItem value="ESIC (Cash)">ESIC (Cash)</MenuItem>
-                  <MenuItem value="CGHS (Cash)">CGHS (Cash)</MenuItem>
-                  <MenuItem value="NR (Cash)">NR (Cash)</MenuItem>
-                  <MenuItem value="NER (Cash)">NER (Cash)</MenuItem>
-                  <MenuItem value="RDSO (Cash)">RDSO (Cash)</MenuItem>
-                  <MenuItem value="Rail Coach (Cash)">
-                    Rail Coach (Cash)
+                  <MenuItem value="ECHS (cash)">ECHS (cash)</MenuItem>
+                  <MenuItem value="ESIC (cash)">ESIC (cash)</MenuItem>
+                  <MenuItem value="CGHS (cash)">CGHS (cash)</MenuItem>
+                  <MenuItem value="NR (cash)">NR (cash)</MenuItem>
+                  <MenuItem value="NER (cash)">NER (cash)</MenuItem>
+                  <MenuItem value="RDSO (cash)">RDSO (cash)</MenuItem>
+                  <MenuItem value="Rail Coach (cash)">
+                    Rail Coach (cash)
                   </MenuItem>
-                  <MenuItem value="Insurance (Cash)">Insurance (Cash)</MenuItem>
-                  <MenuItem value="UP Police (Cash)">UP Police (Cash)</MenuItem>
-                  <MenuItem value="Ayushman Bharat (Cash)">
-                    Ayushman Bharat (Cash)
+                  <MenuItem value="Insurance (cash)">Insurance (cash)</MenuItem>
+                  <MenuItem value="UP Police (cash)">UP Police (cash)</MenuItem>
+                  <MenuItem value="Ayushman Bharat (cash)">
+                    Ayushman Bharat (cash)
                   </MenuItem>
-                  <MenuItem value="DDU (Cash)">DDU (Cash)</MenuItem>
-                  <MenuItem value="CMRF (Cash)">CMRF (Cash)</MenuItem>
-                  <MenuItem value="Private (Cash)">Private (Cash)</MenuItem>
+                  <MenuItem value="DDU (cash)">DDU (cash)</MenuItem>
+                  <MenuItem value="CMRF (cash)">CMRF (cash)</MenuItem>
+                  <MenuItem value="Private (cash)">Private (cash)</MenuItem>
                 </Select>
               </FormControl>
 

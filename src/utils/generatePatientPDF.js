@@ -7,7 +7,7 @@ export const generatePatientPDF = (patient, preview = false) => {
   const doc = new jsPDF();
   const pageWidth = doc.internal.pageSize.getWidth();
 
-    const now = new Date();
+  const now = new Date();
   // const currentDate = now.toISOString().split("T")[0]; // YYYY-MM-DD
 
   // Convert to 12-hour format
@@ -52,10 +52,10 @@ export const generatePatientPDF = (patient, preview = false) => {
   doc.text("REGISTRATION SUMMARY", 75, 55);
 
   const rows = [
-    ["UHID / Reg No", patient.uhid +" / "+ patient.regno],
+    ["UHID / Reg No", patient.uhid + " / " + patient.regno],
     ["Name", `${patient.title || ""} ${patient.fullname || ""}`],
     ["Patient Type", patient.patient_type || "-"],
-    ["Registration Amount", patient.regAmount || "-"],
+    ["Registration Amount", "Rs." + patient.regAmount || "-"],
     ["Registration Date", patient.dateofreg || "-"],
     ["Registration Time", patient.time || "-"],
     ["Age", patient.age || "-"],
@@ -70,13 +70,17 @@ export const generatePatientPDF = (patient, preview = false) => {
       "Local Address",
       `${patient.localAddress?.address || ""}, ${
         patient.localAddress?.city || ""
-      }`,
+      }, ${patient.localAddress?.country || ""}, ${
+        patient.localAddress?.state || ""
+      }, ${patient.localAddress?.zip || ""}`,
     ],
     [
       "Permanent Address",
       `${patient.permanentAddress?.address || ""}, ${
         patient.permanentAddress?.city || ""
-      }`,
+      }, ${patient.permanentAddress?.country || ""}, ${
+        patient.permanentAddress?.state || ""
+      }, ${patient.permanentAddress?.zip || ""}`,
     ],
   ];
 
@@ -85,6 +89,9 @@ export const generatePatientPDF = (patient, preview = false) => {
     head: [["Field", "Value"]],
     body: rows,
     theme: "grid",
+    columnStyles: {
+      0: { cellWidth: 50 },
+    },
   });
 
   // Footer Notes
@@ -127,7 +134,6 @@ export const generatePatientPDF = (patient, preview = false) => {
   doc.setFont("helvetica", "italic", "bold");
 
   doc.text("Note: We receive payment at reception only", 14, baseY + 67);
-
 
   // doc.save(`patient_${patient.uhid}.pdf`);
 

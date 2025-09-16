@@ -22,6 +22,7 @@ import AssignmentIcon from "@mui/icons-material/Assignment";
 import HotelIcon from "@mui/icons-material/Hotel";
 import LogoutIcon from "@mui/icons-material/Logout";
 import MenuIcon from "@mui/icons-material/Menu";
+import FilterAltOutlinedIcon from '@mui/icons-material/FilterAltOutlined';
 
 const Navbar = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -57,6 +58,11 @@ const Navbar = () => {
       label: "Bill",
       to: "/bill",
       icon: <ReceiptIcon />,
+    },
+    {
+      label: "Filter",
+      to: "/filter",
+      icon: <FilterAltOutlinedIcon />,
     },
   ];
 
@@ -169,10 +175,11 @@ const Navbar = () => {
             </Box>
             <Button
               variant="outlined"
-              color="inherit"
+              color="white"
+              
               startIcon={<LogoutIcon />}
               onClick={handleLogout}
-              sx={{ borderColor: "white" }}
+              sx={{ ":hover": { background: "red" } }}
             >
               Logout
             </Button>

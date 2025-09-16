@@ -57,11 +57,9 @@ export default function Dashboard() {
   return (
     <Box sx={{ textAlign: "center", mt: 4, px: 2 }}>
       <Typography variant="h3" gutterBottom>
-        Welcome to the App
+        Welcome {username}
       </Typography>
-      <Typography variant="h5" gutterBottom>
-        Hello, {username}
-      </Typography>
+      
 
       {/* Navigation Section */}
       <SectionCards />
@@ -86,7 +84,7 @@ export default function Dashboard() {
       )}
 
       {/* Logout */}
-      <Box mt={4}>
+      <Box mt={4} mb={4}>
         <Button
           variant="contained"
           color="error"

@@ -2,12 +2,14 @@ import React, { useState } from "react";
 import { Box, TextField, MenuItem, Button, Grid } from "@mui/material";
 
 const patientTypes = [
-  { value: "admission", label: "Admission" },
-  { value: "currently_admitted", label: "Currently Admitted" },
-  { value: "discharged", label: "Discharged" },
+  { value: "All", label: "All" },
+  { value: "OPD", label: "OPD" },
+  { value: "IPD", label: "IPD" },
+  { value: "DAYCARE", label: "Daycare" },
 ];
 
 const doctorOptions = [
+  "All",
   "Dr. Dhirendra Pratap",
   "Dr. Sunita Singh",
   "Dr. Anita Singh",
@@ -29,6 +31,7 @@ const doctorOptions = [
 ];
 
 const departmentOptions = [
+  "All",
   "Ayushman Bharat (cash)",
   "Ayushman Bharat (cashless)",
   "CGHS (cash)",
@@ -59,11 +62,11 @@ const departmentOptions = [
 
 export default function FilterForm({ onSearch, onPrint }) {
   const [formValues, setFormValues] = useState({
-    startDate: "",
-    endDate: "",
-    patientType: "",
-    doctor: "",
-    department: "",
+    date_from: "",
+    date_to: "",
+    patient_type: "",
+    doctor_wise: "",
+    empanelment : "",
   });
 
   const handleChange = (e) => {
@@ -84,8 +87,8 @@ export default function FilterForm({ onSearch, onPrint }) {
           <TextField
             type="date"
             label="From Date"
-            name="startDate"
-            value={formValues.startDate}
+            name="date_from"
+            value={formValues.date_from}
             onChange={handleChange}
             InputLabelProps={{ shrink: true }}
             sx={{ width: "100%" }}
@@ -96,8 +99,8 @@ export default function FilterForm({ onSearch, onPrint }) {
           <TextField
             type="date"
             label="To Date"
-            name="endDate"
-            value={formValues.endDate}
+            name="date_to"
+            value={formValues.date_to}
             onChange={handleChange}
             InputLabelProps={{ shrink: true }}
             sx={{ width: "100%" }}
@@ -110,8 +113,8 @@ export default function FilterForm({ onSearch, onPrint }) {
           <TextField
             select
             label="Patient Type"
-            name="patientType"
-            value={formValues.patientType}
+            name="patient_type"
+            value={formValues.patient_type}
             onChange={handleChange}
             sx={{ width: "100%" }}
           >
@@ -127,8 +130,8 @@ export default function FilterForm({ onSearch, onPrint }) {
           <TextField
             select
             label="Doctor"
-            name="doctor"
-            value={formValues.doctor}
+            name="doctor_wise"
+            value={formValues.doctor_wise}
             onChange={handleChange}
             sx={{ width: "100%" }}
           >
@@ -143,9 +146,9 @@ export default function FilterForm({ onSearch, onPrint }) {
         <Box flex={1}>
           <TextField
             select
-            label="Department"
-            name="department"
-            value={formValues.department}
+            label="Empanelment"
+            name="empanelment"
+            value={formValues.empanelment }
             onChange={handleChange}
             sx={{ width: "100%" }}
           >
