@@ -7,13 +7,15 @@ import {
   TableRow,
   Paper,
 } from "@mui/material";
+import { useNavigate } from "react-router-dom";
 
 export default function DataTable({ data }) {
+  const navigate = useNavigate();
+
   if (!data || data.length === 0) {
     return <p>No data available.</p>;
   }
 
-  // Define merged + normal columns
   const columns = [
     { key: "uhid_regno", label: "UHID / Reg. No" },
     { key: "title_fullname", label: "Patient Name" },
@@ -28,6 +30,11 @@ export default function DataTable({ data }) {
     { key: "empanelment", label: "Empanelment" },
     { key: "localAddress", label: "Local Address" },
   ];
+
+  const handleRowClick = (row) => {
+    // Navigate using UHID (or regno if that's unique)
+    navigate(`/patient/${row.uhid}`);
+  };
 
   return (
     <TableContainer
@@ -56,8 +63,11 @@ export default function DataTable({ data }) {
           {data.map((row, idx) => (
             <TableRow
               key={idx}
+              onClick={() => handleRowClick(row)}
               sx={{
                 backgroundColor: idx % 2 === 0 ? "#ffffff" : "#f5fafa",
+                cursor: "pointer",
+                "&:hover": { backgroundColor: "#e0f7f4" },
               }}
             >
               {columns.map((col) => {
