@@ -68,7 +68,7 @@ export const generateBillPDF = (billData, preview = false) => {
     ["Patient Name", patient.patient_name || "-"],
     ["Age / Gender", `${patient.age || "-"} / ${patient.gender || "-"}`],
     ["Consultant Doctor(s)", patient.consultant_doctor || "-"],
-    ["Room", `${patient.room_type || "-"} (${patient.bed_no || "-"})`],
+    // ["Room", `${patient.room_type || "-"} (${patient.bed_no || "-"})`],
     ["Admission Date", patient.admission_date || "-"],
     ["Admission Time", patient.admission_time || "-"],
     ["Registration Amount", "Rs. " + (patient.reg_amount || "-")],
@@ -76,6 +76,7 @@ export const generateBillPDF = (billData, preview = false) => {
 
   // hide discharge date and time if empty
   if (patient.discharge_date !== "") {
+    patientRows.splice(6, 0, ["Room", `${patient.room_type || "-"} (${patient.bed_no || "-"})`]);
     patientRows.splice(9, 0, ["Discharge Date", patient.discharge_date || "-"]);
     patientRows.splice(10, 0, [
       "Discharge Time",
