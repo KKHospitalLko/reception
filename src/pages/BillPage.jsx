@@ -405,8 +405,18 @@ export default function BillPage() {
         gender: patient.sex || "",
         admission_date: patient.dateofreg || "",
         admission_time: patient.time || "",
-        discharge_date: todayDate,
-        discharge_time: formattedTime,
+        discharge_date:
+          patient.patient_type === "OPD" ||
+          patient.empanelment?.toLowerCase().includes("cashless")
+            ? ""
+            : todayDate,
+
+        discharge_time:
+          patient.patient_type === "OPD" ||
+          patient.empanelment?.toLowerCase().includes("cashless")
+            ? ""
+            : formattedTime,
+
         empanelment: patient.empanelment || "",
         consultant_doctor: (patient.doctorIncharge || []).join(", "),
         room_type: beds.department || "",

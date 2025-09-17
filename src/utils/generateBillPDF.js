@@ -1,6 +1,6 @@
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
-import { LogoBase64 } from './Logo';
+import { LogoBase64 } from "./Logo";
 
 export const generateBillPDF = (billData, preview = false) => {
   console.log("Generating Bill PDF with data:", billData);
@@ -28,7 +28,7 @@ export const generateBillPDF = (billData, preview = false) => {
   const currentTime = `${formattedHour}:${minutes}:${seconds} ${ampm}`;
 
   // ---------------- HEADER ----------------
-  doc.addImage(LogoBase64, 'PNG', (pageWidth - 40), 15, 20, 20);
+  doc.addImage(LogoBase64, "PNG", pageWidth - 40, 15, 20, 20);
 
   doc.setFontSize(16);
   doc.setTextColor(204, 0, 0);
@@ -59,20 +59,29 @@ export const generateBillPDF = (billData, preview = false) => {
   doc.text("FINAL BILL SUMMARY", 75, 55);
 
   // ---------------- PATIENT DETAILS ----------------
+  const patient = billData[0]; // for shorter reference
+
   const patientRows = [
-    ["Bill No.", billData[0].final_bill_no || "-"],
-    ["UHID", billData[0].patient_uhid || "-"],
-    ["Registration No.", billData[0].patient_regno || "-"],
-    ["Patient Name", billData[0].patient_name || "-"],
-    ["Age / Gender", `${billData[0].age || "-"} / ${billData[0].gender || "-"}`],
-    ["Consultant Doctor(s)", billData[0].consultant_doctor || "-"],
-    ["Room", `${billData[0].room_type || "-"} (${billData[0].bed_no || "-"})`],
-    ["Admission Date", billData[0].admission_date || "-"],
-    ["Admission Time", billData[0].admission_time || "-"],
-    ["Discharge Date", billData[0].discharge_date || "-"],
-    ["Discharge Time", billData[0].discharge_time || "-"],
-    ["Registration Amount", "Rs. "+ billData[0].reg_amount || "-"],
+    ["Bill No.", patient.final_bill_no || "-"],
+    ["UHID", patient.patient_uhid || "-"],
+    ["Registration No.", patient.patient_regno || "-"],
+    ["Patient Name", patient.patient_name || "-"],
+    ["Age / Gender", `${patient.age || "-"} / ${patient.gender || "-"}`],
+    ["Consultant Doctor(s)", patient.consultant_doctor || "-"],
+    ["Room", `${patient.room_type || "-"} (${patient.bed_no || "-"})`],
+    ["Admission Date", patient.admission_date || "-"],
+    ["Admission Time", patient.admission_time || "-"],
+    ["Registration Amount", "Rs. " + (patient.reg_amount || "-")],
   ];
+
+  // hide discharge date and time if empty
+  if (patient.discharge_date !== "") {
+    patientRows.splice(9, 0, ["Discharge Date", patient.discharge_date || "-"]);
+    patientRows.splice(10, 0, [
+      "Discharge Time",
+      patient.discharge_time || "-",
+    ]);
+  }
 
   autoTable(doc, {
     startY: 65,
@@ -111,15 +120,15 @@ export const generateBillPDF = (billData, preview = false) => {
 
   const totals = [
     ["Total Charges", billData[0].total_charges || 0],
-  [
-    "Discount",
-    discountType === "percentage"
-      ? `${discountRupee} (${discountPercent})`
-      : `${discountRupee}`,
-  ],
-  ["Net Amount", billData[0].net_amount || 0],
-  ["Total Paid", billData[0].total_paid || 0],
-  ["Balance", billData[0].balance || 0],
+    [
+      "Discount",
+      discountType === "percentage"
+        ? `${discountRupee} (${discountPercent})`
+        : `${discountRupee}`,
+    ],
+    ["Net Amount", billData[0].net_amount || 0],
+    ["Total Paid", billData[0].total_paid || 0],
+    ["Balance", billData[0].balance || 0],
   ];
 
   autoTable(doc, {
@@ -133,24 +142,23 @@ export const generateBillPDF = (billData, preview = false) => {
     },
   });
 
- // ---------------- TRANSACTIONS ----------------
-if (transactions.length > 0) {
-  const transactionRows = transactions.map((t, i) => [
-    i + 1,
-    t.transaction_no || "-",
-    t.date || "-",
-    t.amount || "-",
-  ]);
+  // ---------------- TRANSACTIONS ----------------
+  if (transactions.length > 0) {
+    const transactionRows = transactions.map((t, i) => [
+      i + 1,
+      t.transaction_no || "-",
+      t.date || "-",
+      t.amount || "-",
+    ]);
 
-  autoTable(doc, {
-    startY: doc.lastAutoTable.finalY + 10,
-    theme: "grid",
-    head: [["S.No.", "Transaction No", "Date", "Amount (in Rs.)"]],
-    body: transactionRows,
-    headStyles: { fillColor: [46, 204, 113] },
-  });
-}
-
+    autoTable(doc, {
+      startY: doc.lastAutoTable.finalY + 10,
+      theme: "grid",
+      head: [["S.No.", "Transaction No", "Date", "Amount (in Rs.)"]],
+      body: transactionRows,
+      headStyles: { fillColor: [46, 204, 113] },
+    });
+  }
 
   // ---------------- FOOTER ----------------
   const baseY = doc.lastAutoTable.finalY + 15;
@@ -170,20 +178,31 @@ if (transactions.length > 0) {
   doc.setFont("helvetica", "bold");
   doc.text("Authorized Signatory:", 14, baseY + 20);
   doc.setFont("helvetica", "normal");
-  doc.text("_______________________", 60, baseY + 20);
+  doc.text("_______________________", 14, baseY + 30);
+  if (
+    patient.empanelment &&
+    patient.empanelment.toLowerCase().includes("cashless")
+  ) {
+    doc.setFontSize(11);
+    doc.setFont("helvetica", "bold");
+    doc.text("Patient / Attendee Sign:", 130, baseY + 20);
 
-// Only show Date/Time if NOT cashless
-if (!billData[0].empanelment?.toLowerCase().includes("cashless")) {
-  doc.setFont("helvetica", "bold");
-  doc.text("Bill Generated Date:", 14, baseY + 40);
-  doc.setFont("helvetica", "normal");
-  doc.text(currentDate, 60, baseY + 40);
-  
-  doc.setFont("helvetica", "bold");
-  doc.text("Bill Generated Time:", 14, baseY + 50);
-  doc.setFont("helvetica", "normal");
-  doc.text(currentTime, 60, baseY + 50);
-}
+    doc.setFont("helvetica", "normal");
+    doc.text("_______________________", 130, baseY + 30);
+  }
+
+  // Only show Date/Time if NOT cashless
+  if (!billData[0].empanelment?.toLowerCase().includes("cashless")) {
+    doc.setFont("helvetica", "bold");
+    doc.text("Bill Generated Date:", 14, baseY + 40);
+    doc.setFont("helvetica", "normal");
+    doc.text(currentDate, 60, baseY + 40);
+
+    doc.setFont("helvetica", "bold");
+    doc.text("Bill Generated Time:", 14, baseY + 50);
+    doc.setFont("helvetica", "normal");
+    doc.text(currentTime, 60, baseY + 50);
+  }
 
   doc.setFontSize(8);
   doc.setFont("helvetica", "italic", "bold");

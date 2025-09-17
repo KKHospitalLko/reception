@@ -110,21 +110,31 @@ const ReceiptPage = () => {
           );
           const data = response.data;
 
-          // console.log("Patient Data:", data);
+          console.log("Patient Data:", data);
 
-          // Update form fields with API response
-          setForm((prev) => ({
-            ...prev,
+          // Base update
+          let updatedForm = {
+            ...form,
             patientName: data.fullname || "",
             date: data.dateofreg || "",
             registrationNumber: data.regno || "",
-          }));
+          };
+
+          // ✅ If empanelment has 'cashless' substring, set amount & mode
+          if (data.empanelment?.toLowerCase().includes("cashless")) {
+            updatedForm = {
+              ...updatedForm,
+              amount: 0,
+              modeOfPayment: "CASHLESS",
+            };
+          }
+
+          setForm(updatedForm);
           setLoading(false);
         } catch (error) {
           setLoading(false);
           console.error("Error fetching patient data:", error);
           if (error.response && Array.isArray(error.response.data?.detail)) {
-            // Show all validation messages if available
             const messages = error.response.data.detail
               .map((d) => d.msg)
               .join("\n");
@@ -134,7 +144,6 @@ const ReceiptPage = () => {
               "directly generate a bill of it"
             )
           ) {
-            // Single validation message
             showToast(error.response.data.detail, "error");
             setForm((prev) => ({
               ...prev,
@@ -144,7 +153,6 @@ const ReceiptPage = () => {
               registrationNumber: "",
             }));
           } else if (error.response?.data?.detail) {
-            // Single validation message
             showToast(error.response.data.detail, "error");
           } else {
             showToast("Something went wrong. Please try again.", "error");
@@ -179,18 +187,25 @@ const ReceiptPage = () => {
   const validateForm = () => {
     const newErrors = {};
 
-    // Check required fields
+    // Required fields
     if (!form.uhid) newErrors.uhid = "UHID is required";
     if (!form.registrationNumber)
       newErrors.registrationNumber = "Registration Number is required";
     if (!form.patientName) newErrors.patientName = "Patient Name is required";
     if (!form.date) newErrors.date = "Date is required";
-    if (!form.amount) newErrors.amount = "Amount is required";
     if (!form.purpose) newErrors.purpose = "Purpose is required";
     if (!form.modeOfPayment)
       newErrors.modeOfPayment = "Mode of Payment is required";
 
-    // Check cheque-specific fields if payment mode is CHEQUE
+    // ✅ Amount validation (treat 0 as valid if cashless)
+    if (
+      form.modeOfPayment !== "CASHLESS" &&
+      (!form.amount || Number(form.amount) <= 0)
+    ) {
+      newErrors.amount = "Amount is required";
+    }
+
+    // Cheque-specific fields
     if (form.modeOfPayment === "CHEQUE") {
       if (!form.bankName) newErrors.bankName = "Bank Name is required";
       if (!form.chequeNumber)
@@ -217,7 +232,10 @@ const ReceiptPage = () => {
       patient_name: form.patientName,
       admission_date: form.date,
       transaction_purpose: form.purpose,
-      amount: form.amount ? parseFloat(form.amount).toFixed(2) : null,
+      amount:
+        form.amount !== "" && form.amount !== null && form.amount !== undefined
+          ? parseFloat(form.amount).toFixed(2)
+          : 0, // always a number
       payment_mode: form.modeOfPayment,
       payment_details:
         form.modeOfPayment === "CHEQUE"
@@ -233,7 +251,7 @@ const ReceiptPage = () => {
       created_by: username, // Replace with dynamic user if needed
     };
 
-    // console.log("Payload to save:", payload);
+    console.log("Payload to save:", payload);
     try {
       const response = await axios.post(backendUrl + `/transactions`, payload, {
         headers: {
@@ -414,6 +432,7 @@ const ReceiptPage = () => {
               required
               error={!!errors.amount}
               helperText={errors.amount}
+              disabled={form.modeOfPayment === "CASHLESS"}
               InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">₹</InputAdornment>
@@ -437,29 +456,28 @@ const ReceiptPage = () => {
           </Box>
 
           {/* Row 4: Mode of Payment */}
-          <Box display="flex" flexWrap="wrap" gap={2}>
-            <TextField
-              select
-              fullWidth
-              sx={{ flexBasis: "30%", flexGrow: 1 }}
-              label="Mode of Payment"
-              name="modeOfPayment"
-              value={form.modeOfPayment}
-              onChange={handleChange}
-              required
-              error={!!errors.modeOfPayment}
-              helperText={errors.modeOfPayment}
-            >
-              <MenuItem value="">Select</MenuItem>
-              <MenuItem value="CASH">Cash</MenuItem>
-              <MenuItem value="DEBIT / CREDIT CARD">
-                Credit Card / Debit Card
-              </MenuItem>
-              <MenuItem value="CHEQUE">Cheque</MenuItem>
-              <MenuItem value="UPI">UPI</MenuItem>
-              <MenuItem value="CASHLESS">Cashless</MenuItem>
-            </TextField>
-          </Box>
+          <TextField
+            select
+            fullWidth
+            sx={{ flexBasis: "30%", flexGrow: 1 }}
+            label="Mode of Payment"
+            name="modeOfPayment"
+            value={form.modeOfPayment}
+            onChange={handleChange}
+            required
+            error={!!errors.modeOfPayment}
+            helperText={errors.modeOfPayment}
+            disabled={form.modeOfPayment === "CASHLESS"} // ✅ disable if cashless
+          >
+            <MenuItem value="">Select</MenuItem>
+            <MenuItem value="CASH">Cash</MenuItem>
+            <MenuItem value="DEBIT / CREDIT CARD">
+              Credit Card / Debit Card
+            </MenuItem>
+            <MenuItem value="CHEQUE">Cheque</MenuItem>
+            <MenuItem value="UPI">UPI</MenuItem>
+            <MenuItem value="CASHLESS">Cashless</MenuItem>
+          </TextField>
 
           {/* Row 5: Cheque-specific Fields */}
           {form.modeOfPayment === "CHEQUE" && (
