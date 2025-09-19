@@ -19,7 +19,7 @@ export const generateFilterPDF = (data, preview = false) => {
   doc.setFontSize(10);
   doc.text(`Printed on: ${printDate}`, 40, 60);
 
-  // Define headers (merged + others)
+  // Define headers including department_bed
   const headers = [[
     "UHID / Reg. No",
     "Name",
@@ -30,6 +30,7 @@ export const generateFilterPDF = (data, preview = false) => {
     "Patient Type",
     "Doctor Incharge",
     "Empanelment",
+    "Department / Bed",
     "Local Address"
   ]];
 
@@ -44,6 +45,7 @@ export const generateFilterPDF = (data, preview = false) => {
     row.patient_type || "",
     Array.isArray(row.doctorIncharge) ? row.doctorIncharge.join(", ") : row.doctorIncharge || "",
     row.empanelment || "",
+    row.department_bed || "", // NEW column
     row.localAddress
       ? `${row.localAddress.address || ""}, ${row.localAddress.city || ""}, ${row.localAddress.state || ""}, ${row.localAddress.country || ""} - ${row.localAddress.zip || ""}`
       : "",
@@ -67,15 +69,16 @@ export const generateFilterPDF = (data, preview = false) => {
     },
     columnStyles: {
       0: { cellWidth: 65 },   // UHID / Reg
-      1: { cellWidth: 75 },  // Name
-      2: { cellWidth: 70 },  // Reg Date
-      3: { cellWidth: 70 },  // Discharge Date
-      4: { cellWidth: 40 },  // age
-      5: { cellWidth: 40 },  // gender
-      6: { cellWidth: 55 },  // type
+      1: { cellWidth: 75 },   // Name
+      2: { cellWidth: 70 },   // Reg Date
+      3: { cellWidth: 70 },   // Discharge Date
+      4: { cellWidth: 40 },   // age
+      5: { cellWidth: 40 },   // gender
+      6: { cellWidth: 55 },   // type
       7: { cellWidth: 100 },  // Doctor Incharge
-      8: { cellWidth: 80 },  // Department
-      9: { cellWidth: 150 },  // Address
+      8: { cellWidth: 80 },   // Empanelment
+      9: { cellWidth: 80 },   // Department / Bed
+      10: { cellWidth: 120 }, // Address
     },
     alternateRowStyles: { fillColor: [245, 250, 250] },
     tableWidth: "wrap",

@@ -21,6 +21,7 @@ export default function DataTable({ data }) {
     { key: "title_fullname", label: "Patient Name" },
     { key: "dateofreg", label: "Registration Date" },
     { key: "time", label: "Registration Time" },
+    {key: "department_bed", label: "Department (Bed No.)"},
     { key: "dischargedate", label: "Discharge Date" },
     { key: "dischargetime", label: "Discharge Time" },
     { key: "age", label: "Age" },
