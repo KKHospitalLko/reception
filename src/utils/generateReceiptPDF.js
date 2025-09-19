@@ -1,6 +1,7 @@
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { LogoBase64 } from './Logo';
+import { toWords } from "number-to-words";
 
 export const generateReceiptPDF = (form, preview = false) => {
   const doc = new jsPDF();
@@ -47,10 +48,10 @@ const pageWidth = doc.internal.pageSize.getWidth();
     ["Patient Name", form.patient_name],
     ["Admission Date", form.admission_date],
     ["Payment Mode", form.payment_mode],
-    ["Amount (In Figures)", `Rs. ${Number(form.amount).toLocaleString('en-IN', {
+    ["Amount", `Rs. ${Number(form.amount).toLocaleString('en-IN', {
       maximumFractionDigits: 2,
       minimumFractionDigits: 2
-    })}`],
+    })} (${toWords(form.amount).toUpperCase()} ONLY)`],
   ];
 
   if (form.payment_mode === "CHEQUE" && form.payment_details) {

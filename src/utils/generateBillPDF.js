@@ -1,6 +1,7 @@
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { LogoBase64 } from "./Logo";
+import { toWords } from "number-to-words";
 
 export const generateBillPDF = (billData, preview = false) => {
   console.log("Generating Bill PDF with data:", billData);
@@ -128,7 +129,7 @@ export const generateBillPDF = (billData, preview = false) => {
     ],
     ["Net Amount", billData[0].net_amount || 0],
     ["Total Paid", billData[0].total_paid || 0],
-    ["Balance", billData[0].balance || 0],
+    ["Balance Amount (To be Paid)", `${billData[0].balance} (${toWords(billData[0].balance).toLocaleUpperCase()} ONLY)` || 0],
   ];
 
   autoTable(doc, {
