@@ -81,7 +81,7 @@ export default function BillList() {
       setBillData((prev) =>
         prev.map((bill) =>
           bill.final_bill_no === selectedBill.final_bill_no
-            ? { ...bill, status: "cancelled", cancelled_by: username }
+            ? { ...bill, status: "CANCELLED", cancelled_by: username }
             : bill
         )
       );
@@ -175,7 +175,7 @@ export default function BillList() {
                     sx={{
                       mb: 2,
                       backgroundColor:
-                        bill.status === "cancelled" ? "#ffe6e6" : "inherit",
+                        bill.status === "CANCELLED" ? "#ffe6e6" : "inherit",
                     }}
                   >
                     <CardContent>
@@ -380,7 +380,7 @@ export default function BillList() {
                       </List>
 
                       {/* Buttons - hide if cancelled */}
-                      {bill.status !== "cancelled" && (
+                      {bill.status !== "CANCELLED" && (
                         <Box display="flex" gap={2} mt={2}>
                           <Button
                             variant="contained"
