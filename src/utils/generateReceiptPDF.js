@@ -40,6 +40,7 @@ const pageWidth = doc.internal.pageSize.getWidth();
   doc.setTextColor(33, 150, 243);
   doc.text("TRANSACTION SUMMARY", 70, 55);
 
+
   // Main Table
   const rows = [
     ["Transaction No.", form.transaction_no],

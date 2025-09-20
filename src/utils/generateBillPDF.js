@@ -71,7 +71,10 @@ export const generateBillPDF = (billData, preview = false) => {
     ["Consultant Doctor(s)", patient.consultant_doctor || "-"],
     ["Admission Date", patient.admission_date || "-"],
     ["Admission Time", patient.admission_time || "-"],
-    ["Registration Amount", "Rs. " + (patient.reg_amount || "-")],
+    ["Registration Amount", `Rs. ${Number(patient.reg_amount).toLocaleString('en-IN', {
+      maximumFractionDigits: 2,
+      minimumFractionDigits: 2
+    })}`],
   ];
 
   // hide discharge date and time if empty
@@ -120,16 +123,28 @@ export const generateBillPDF = (billData, preview = false) => {
   const discountType = billData[0].total_discount?.discount_type || "amount";
 
   const totals = [
-    ["Total Charges", billData[0].total_charges || 0],
+    ["Total Charges", `${Number(billData[0].total_charges).toLocaleString('en-IN', {
+      maximumFractionDigits: 2,
+      minimumFractionDigits: 2
+    })}`],
     [
       "Discount",
       discountType === "percentage"
         ? `${discountRupee} (${discountPercent})`
         : `${discountRupee}`,
     ],
-    ["Net Amount", billData[0].net_amount || 0],
-    ["Total Paid", billData[0].total_paid || 0],
-    ["Balance Amount (To be Paid)", `${billData[0].balance} (${toWords(billData[0].balance).toLocaleUpperCase()} ONLY)` || 0],
+    ["Net Amount",`${Number(billData[0].net_amount).toLocaleString('en-IN', {
+      maximumFractionDigits: 2,
+      minimumFractionDigits: 2
+    })}`],
+    ["Total Paid", `${Number(billData[0].total_paid).toLocaleString('en-IN', {
+      maximumFractionDigits: 2,
+      minimumFractionDigits: 2
+    })}`],
+    ["Balance Amount (To be Paid)", `${Number(billData[0].balance).toLocaleString('en-IN', {
+      maximumFractionDigits: 2,
+      minimumFractionDigits: 2
+    })} (${toWords(billData[0].balance).toLocaleUpperCase()} ONLY)` || 0],
   ];
 
   autoTable(doc, {
