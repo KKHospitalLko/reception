@@ -639,44 +639,59 @@ export default function BillPage() {
                         <MenuItem value="">Select Type</MenuItem>
                         <MenuItem value="service">Service</MenuItem>
                         <MenuItem value="doctor">Doctor</MenuItem>
+                        <MenuItem value="other services">
+                          Other Service
+                        </MenuItem>
                       </Select>
                     </FormControl>
                   </TableCell>
                   <TableCell>
-                    <FormControl fullWidth size="small">
-                      <Select
+                    {row.descriptionType === "other services" ? (
+                      <TextField
+                        fullWidth
+                        size="small"
                         value={row.description}
+                        placeholder="Enter service description"
                         onChange={(e) =>
                           handleRowChange(i, "description", e.target.value)
                         }
-                        displayEmpty
-                        disabled={!row.descriptionType}
-                      >
-                        <MenuItem value="">
-                          Select{" "}
-                          {row.descriptionType === "service"
-                            ? "Service"
-                            : row.descriptionType === "doctor"
-                            ? "Doctor"
-                            : ""}
-                        </MenuItem>
-                        {row.descriptionType === "service" &&
-                          tariffList.map((item) => (
-                            <MenuItem
-                              key={item.description}
-                              value={item.description}
-                            >
-                              {item.description}
-                            </MenuItem>
-                          ))}
-                        {row.descriptionType === "doctor" &&
-                          doctorOptions.map((doctor) => (
-                            <MenuItem key={doctor} value={doctor}>
-                              {doctor}
-                            </MenuItem>
-                          ))}
-                      </Select>
-                    </FormControl>
+                      />
+                    ) : (
+                      <FormControl fullWidth size="small">
+                        <Select
+                          value={row.description}
+                          onChange={(e) =>
+                            handleRowChange(i, "description", e.target.value)
+                          }
+                          displayEmpty
+                          disabled={!row.descriptionType}
+                        >
+                          <MenuItem value="">
+                            Select{" "}
+                            {row.descriptionType === "service"
+                              ? "Service"
+                              : row.descriptionType === "doctor"
+                              ? "Doctor"
+                              : ""}
+                          </MenuItem>
+                          {row.descriptionType === "service" &&
+                            tariffList.map((item) => (
+                              <MenuItem
+                                key={item.description}
+                                value={item.description}
+                              >
+                                {item.description}
+                              </MenuItem>
+                            ))}
+                          {row.descriptionType === "doctor" &&
+                            doctorOptions.map((doctor) => (
+                              <MenuItem key={doctor} value={doctor}>
+                                {doctor}
+                              </MenuItem>
+                            ))}
+                        </Select>
+                      </FormControl>
+                    )}
                   </TableCell>
                   <TableCell>
                     <TextField
