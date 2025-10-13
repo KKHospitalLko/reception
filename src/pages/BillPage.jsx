@@ -156,6 +156,7 @@ export default function BillPage() {
       );
       const data = res.data;
       console.log(data);
+
       const initialRows = [
         {
           descriptionType: "service",
@@ -166,6 +167,18 @@ export default function BillPage() {
         },
       ];
 
+      // ✅ Add pathology summary only if present and units > 0
+      if (data.pathology_summary && Number(data.pathology_summary.units) > 0) {
+        initialRows.push({
+          descriptionType: "pathology",
+          description: "Pathology Tests",
+          unit: data.pathology_summary.units,
+          rate: "On Path Bill",
+          amount: parseFloat(data.pathology_summary.total_amt || 0),
+          isReadOnly: true, // mark as non-editable
+        });
+      }
+
       setAmount(data.patient.regAmount || 0);
       setTransactions(data.transactions || []);
       setPatient(data.patient || {});
@@ -175,13 +188,11 @@ export default function BillPage() {
     } catch (error) {
       setLoading(false);
       if (error.response && Array.isArray(error.response.data?.detail)) {
-        // Show all validation messages if available
         const messages = error.response.data.detail
           .map((d) => d.msg)
           .join("\n");
         showToast(messages, "error");
       } else if (error.response?.data?.detail) {
-        // Single validation message
         showToast(error.response.data.detail, "error");
       } else {
         console.error("Error submitting form:", error);
@@ -627,26 +638,40 @@ export default function BillPage() {
               {rows.map((row, i) => (
                 <TableRow key={i}>
                   <TableCell>{i + 1}</TableCell>
+
+                  {/* Type */}
                   <TableCell>
-                    <FormControl fullWidth size="small">
-                      <Select
-                        value={row.descriptionType}
-                        onChange={(e) =>
-                          handleRowChange(i, "descriptionType", e.target.value)
-                        }
-                        displayEmpty
-                      >
-                        <MenuItem value="">Select Type</MenuItem>
-                        <MenuItem value="service">Service</MenuItem>
-                        <MenuItem value="doctor">Doctor</MenuItem>
-                        <MenuItem value="other services">
-                          Other Service
-                        </MenuItem>
-                      </Select>
-                    </FormControl>
+                    {row.isReadOnly ? (
+                      <Typography>Pathology</Typography>
+                    ) : (
+                      <FormControl fullWidth size="small">
+                        <Select
+                          value={row.descriptionType}
+                          onChange={(e) =>
+                            handleRowChange(
+                              i,
+                              "descriptionType",
+                              e.target.value
+                            )
+                          }
+                          displayEmpty
+                        >
+                          <MenuItem value="">Select Type</MenuItem>
+                          <MenuItem value="service">Service</MenuItem>
+                          <MenuItem value="doctor">Doctor</MenuItem>
+                          <MenuItem value="other services">
+                            Other Service
+                          </MenuItem>
+                        </Select>
+                      </FormControl>
+                    )}
                   </TableCell>
+
+                  {/* Description */}
                   <TableCell>
-                    {row.descriptionType === "other services" ? (
+                    {row.isReadOnly ? (
+                      <Typography>Pathology Tests</Typography>
+                    ) : row.descriptionType === "other services" ? (
                       <TextField
                         fullWidth
                         size="small"
@@ -693,56 +718,84 @@ export default function BillPage() {
                       </FormControl>
                     )}
                   </TableCell>
+
+                  {/* Unit */}
                   <TableCell>
-                    <TextField
-                      type="number"
-                      value={row.unit}
-                      onChange={(e) =>
-                        handleRowChange(i, "unit", e.target.value)
-                      }
-                      fullWidth
-                      size="small"
-                      InputProps={{ inputProps: { min: 1 } }}
-                    />
+                    {row.isReadOnly ? (
+                      <Typography>{row.unit}</Typography>
+                    ) : (
+                      <TextField
+                        type="number"
+                        value={row.unit}
+                        onChange={(e) =>
+                          handleRowChange(i, "unit", e.target.value)
+                        }
+                        fullWidth
+                        size="small"
+                        InputProps={{ inputProps: { min: 1 } }}
+                      />
+                    )}
                   </TableCell>
+
+                  {/* Rate */}
                   <TableCell>
-                    <TextField
-                      type="number"
-                      value={row.rate}
-                      onChange={(e) =>
-                        handleRowChange(i, "rate", e.target.value)
-                      }
-                      fullWidth
-                      size="small"
-                      disabled={row.descriptionType === "doctor"}
-                      InputProps={{
-                        startAdornment: (
-                          <InputAdornment position="start">₹</InputAdornment>
-                        ),
-                      }}
-                    />
+                    {row.isReadOnly ? (
+                      <Typography>On Path Bill</Typography>
+                    ) : (
+                      <TextField
+                        type="number"
+                        value={row.rate}
+                        onChange={(e) =>
+                          handleRowChange(i, "rate", e.target.value)
+                        }
+                        fullWidth
+                        size="small"
+                        disabled={row.descriptionType === "doctor"}
+                        InputProps={{
+                          startAdornment: (
+                            <InputAdornment position="start">₹</InputAdornment>
+                          ),
+                        }}
+                      />
+                    )}
                   </TableCell>
+
+                  {/* Amount */}
                   <TableCell>
-                    <TextField
-                      type="number"
-                      value={row.amount}
-                      InputProps={{
-                        readOnly: true,
-                        startAdornment: (
-                          <InputAdornment position="start">₹</InputAdornment>
-                        ),
-                      }}
-                      fullWidth
-                      size="small"
-                    />
+                    {row.isReadOnly ? (
+                      <Typography>
+                        ₹
+                        {Number(row.amount).toLocaleString("en-IN", {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2,
+                        })}
+                      </Typography>
+                    ) : (
+                      <TextField
+                        type="number"
+                        value={row.amount}
+                        InputProps={{
+                          readOnly: true,
+                          startAdornment: (
+                            <InputAdornment position="start">₹</InputAdornment>
+                          ),
+                        }}
+                        fullWidth
+                        size="small"
+                      />
+                    )}
                   </TableCell>
+
+                  {/* Action */}
                   <TableCell>
-                    <IconButton
-                      color="error"
-                      onClick={() => handleRemoveRow(i)}
-                    >
-                      <DeleteIcon />
-                    </IconButton>
+                    {!row.isReadOnly && (
+                      <IconButton
+                        color="error"
+                        onClick={() => handleRemoveRow(i)}
+                      >
+                        <DeleteIcon />
+                      </IconButton>
+                    )}
                   </TableCell>
                 </TableRow>
               ))}
